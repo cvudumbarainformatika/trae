@@ -29,6 +29,11 @@ const routes = [
         path: 'settings',
         name: 'admin-settings',
         component: () => import('../views/admin/Settings.vue')
+      },
+      {
+        path: 'master-data/products',
+        name: 'admin-products',
+        component: () => import('../views/admin/Products.vue')
       }
     ]
   }

@@ -2,6 +2,7 @@ import { defineAsyncComponent } from 'vue'
 
 export default {
   install: (app) => {
+
     // Get all .vue files from all component directories
     const components = {
       ...import.meta.glob('../components/*.vue'),

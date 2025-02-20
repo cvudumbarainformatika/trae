@@ -1,9 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, defineComponent, computed, watch } from 'vue'
 import { useThemeStore } from '../../stores/theme'
-import { Home, Database, ShoppingCart, FileText, Settings } from 'lucide-vue-next'
+import { useRoute } from 'vue-router'
 
 const themeStore = useThemeStore()
+const route = useRoute()
 const activeSubmenu = ref(null)
 
 const submenus = {
@@ -24,9 +25,51 @@ const submenus = {
   ]
 }
 
+const isSubmenuActive = computed(() => {
+  return Object.entries(submenus).find(([key, items]) => {
+    return items.some(item => route.path.startsWith(item.path))
+  })?.[0] || null
+})
+
+// Watch for route changes to update active submenu
+watch(() => route.path, () => {
+  if (isSubmenuActive.value) {
+    activeSubmenu.value = isSubmenuActive.value
+  }
+}, { immediate: true })
+
 const toggleSubmenu = (menu) => {
-  activeSubmenu.value = activeSubmenu.value === menu ? null : menu
+  if (activeSubmenu.value === menu) {
+    activeSubmenu.value = null
+  } else {
+    activeSubmenu.value = menu
+  }
 }
+
+const handleSubmenuItemClick = () => {
+  // Keep submenu open when clicking items
+  // Only close when clicking outside or toggling the menu button
+}
+
+const getSubmenuIcon = (name) => {
+  const iconMap = {
+    'Products': Package,
+    'Categories': Tag,
+    'Suppliers': Users,
+    'Sales': Receipt,
+    'Purchases': ShoppingBag,
+    'Returns': RotateCcw,
+    'Sales Report': BarChart3,
+    'Inventory Report': BoxIcon,
+    'Financial Report': PieChart
+  }
+  return iconMap[name] || FileText
+}
+
+defineComponent({
+  name: 'Sidebar',
+  emits: ['submenu-toggle']
+})
 </script>
 
 <template>
@@ -45,8 +88,7 @@ const toggleSubmenu = (menu) => {
           <router-link
             to="/admin"
             class="flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
-            active-class="text-white bg-blue-600/20 hover:bg-blue-600/30"
-            exact
+            :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': route.path === '/admin' }"
           >
             <div class="flex items-center justify-center w-10 h-10">
               <Home class="w-5 h-5" />
@@ -60,7 +102,7 @@ const toggleSubmenu = (menu) => {
           <button
             @click="toggleSubmenu('master-data')"
             class="w-full flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
-            :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': activeSubmenu === 'master-data' }"
+            :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': isSubmenuActive === 'master-data' || activeSubmenu === 'master-data' }"
           >
             <div class="flex items-center justify-center w-10 h-10">
               <Database class="w-5 h-5" />
@@ -74,7 +116,7 @@ const toggleSubmenu = (menu) => {
           <button
             @click="toggleSubmenu('transaction')"
             class="w-full flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
-            :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': activeSubmenu === 'transaction' }"
+            :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': isSubmenuActive === 'transaction' || activeSubmenu === 'transaction' }"
           >
             <div class="flex items-center justify-center w-10 h-10">
               <ShoppingCart class="w-5 h-5" />
@@ -88,7 +130,7 @@ const toggleSubmenu = (menu) => {
           <button
             @click="toggleSubmenu('reports')"
             class="w-full flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
-            :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': activeSubmenu === 'reports' }"
+            :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': isSubmenuActive === 'reports' || activeSubmenu === 'reports' }"
           >
             <div class="flex items-center justify-center w-10 h-10">
               <FileText class="w-5 h-5" />
@@ -118,19 +160,23 @@ const toggleSubmenu = (menu) => {
     <!-- Submenu -->
     <div
       v-if="activeSubmenu"
-      class="absolute left-full top-0 ml-2 w-48 bg-gray-800 rounded-lg shadow-lg overflow-hidden z-50"
+      class="absolute left-[60px] top-0 w-64 bg-gray-800 rounded-r-lg shadow-lg overflow-hidden z-50 h-screen"
       style="animation: slideIn 0.2s ease-out;"
     >
-      <div class="py-2">
-        <router-link
-          v-for="item in submenus[activeSubmenu]"
-          :key="item.path"
-          :to="item.path"
-          class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-600/20 hover:text-white transition-colors"
-          @click="activeSubmenu = null"
-        >
-          {{ item.name }}
-        </router-link>
+      <div class="px-2 py-2 h-full overflow-y-auto">
+        <div class="text-sm font-bold text-gray-300 uppercase tracking-wider px-3 mb-4">{{ activeSubmenu.replace('-', ' ') }}</div>
+        <div class="space-y-1">
+          <router-link
+            v-for="item in submenus[activeSubmenu]"
+            :key="item.path"
+            :to="item.path"
+            class="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors rounded-md"
+            :class="{ 'bg-blue-600/20 text-white': route.path === item.path }"
+          >
+            <component :is="getSubmenuIcon(item.name)" class="w-4 h-4 mr-2" />
+            {{ item.name }}
+          </router-link>
+        </div>
       </div>
     </div>
   </aside>
