@@ -1,6 +1,14 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, defineAsyncComponent } from 'vue'
 import AdminLayout from '../../layouts/AdminLayout.vue'
+import { Line } from 'vue-chartjs'
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
+import { useThemeStore } from '../../stores/theme'
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
+
+const themeStore = useThemeStore()
+// const Card = defineAsyncComponent(() => import('../../components/ui/Card.vue'))
 
 const stats = ref([
   { title: 'Total Users', value: '1,234', change: '+12%', trend: 'up' },
@@ -11,16 +19,22 @@ const stats = ref([
 </script>
 
 <template>
-  <AdminLayout>
     <div class="space-y-6">
-      <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Dashboard</h1>
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Dashboard</h1>
+        <Button
+          @click="themeStore.toggleTheme()"
+          class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+        >
+          {{ themeStore.isDark ? '🌞 Light' : '🌙 Dark' }}
+        </Button>
+      </div>
       
       <!-- Stats Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div
+        <Card
           v-for="(stat, index) in stats"
           :key="index"
-          class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
         >
           <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ stat.title }}</h3>
           <div class="mt-2 flex items-baseline">
@@ -32,11 +46,11 @@ const stats = ref([
               {{ stat.change }}
             </span>
           </div>
-        </div>
+        </Card>
       </div>
 
       <!-- Recent Activity -->
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+      <Card class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
         <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Activity</h2>
         <div class="space-y-4">
           <div class="flex items-center space-x-4">
@@ -67,7 +81,71 @@ const stats = ref([
             </div>
           </div>
         </div>
+      </Card>
+
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card title="Sales Overview">
+          <div class="h-64">
+            <Line
+              :data="{
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                  label: 'Sales',
+                  data: [65, 59, 80, 81, 56, 55],
+                  borderColor: '#3B82F6',
+                  tension: 0.1
+                }]
+              }"
+              :options="{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    labels: {
+                      color: '#9CA3AF'
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    ticks: { color: '#9CA3AF' },
+                    grid: { color: '#374151' }
+                  },
+                  x: {
+                    ticks: { color: '#9CA3AF' },
+                    grid: { color: '#374151' }
+                  }
+                }
+              }"
+            />
+          </div>
+        </Card>
+
+        <Card title="Tasks">
+          <div class="space-y-3">
+            <div class="flex items-center">
+              <input type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600">
+              <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Review new orders</span>
+              <span class="ml-auto text-xs text-gray-500">Today</span>
+            </div>
+            <div class="flex items-center">
+              <input type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600" checked>
+              <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Update inventory</span>
+              <span class="ml-auto text-xs text-gray-500">Yesterday</span>
+            </div>
+            <div class="flex items-center">
+              <input type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600">
+              <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Prepare monthly report</span>
+              <span class="ml-auto text-xs text-gray-500">Tomorrow</span>
+            </div>
+            <div class="flex items-center">
+              <input type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600">
+              <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Contact suppliers</span>
+              <span class="ml-auto text-xs text-gray-500">Next week</span>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
-  </AdminLayout>
 </template>
