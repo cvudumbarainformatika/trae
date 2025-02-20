@@ -1,93 +1,81 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useThemeStore } from '../../stores/theme'
+import { useProductStore } from '../../stores/admin/product'
 import ProductForm from '../../components/admin/ProductForm.vue'
 
 // Store initialization
 const themeStore = useThemeStore()
+const productStore = useProductStore()
 
-// View mode state
-const viewMode = ref('grid') // 'grid' or 'table'
-
-// Modal state
-const showProductForm = ref(false)
-
-// Filter states
-const filters = ref({
-  category: '',
-  minStock: null,
-  maxStock: null,
-  minPrice: null,
-  maxPrice: null,
-  unit: ''
+// Computed properties
+const viewMode = computed(() => productStore.viewMode)
+const showProductForm = computed({
+  get: () => productStore.showProductForm,
+  set: (value) => productStore.setShowProductForm(value)
 })
-
-// Sort state
-const sortBy = ref({
-  field: 'name',
-  direction: 'asc'
+const filteredProducts = computed(() => productStore.filteredProducts)
+const searchQuery = computed({
+  get: () => productStore.searchQuery,
+  set: (value) => productStore.setSearchQuery(value)
 })
 
 // Pagination state
-const pagination = ref({
-  currentPage: 1,
-  itemsPerPage: 12,
-  total: 0
+const currentPage = ref(1)
+
+// Watch for search query changes to reset pagination
+watch(searchQuery, () => {
+  currentPage.value = 1
 })
 
-// Search query
-const searchQuery = ref('')
+const pagination = computed(() => {
+  const totalItems = filteredProducts.value.length
+  const itemsPerPage = 10
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
 
-// Mock products data (to be replaced with actual API calls)
-const products = ref([
-  {
-    id: 1,
-    barcode: '890123456789',
-    name: 'Product 1',
-    unit: 'pcs',
-    category: 'Electronics',
-    buyPrice: 100000,
-    regularPrice: 150000,
-    customerPrice: 140000,
-    wholesalePrice: 130000,
-    initialStock: 100,
-    currentStock: 85,
-    minStock: 10,
-    rack: 'A-1',
-    image: '/placeholder.jpg'
-  },
-  // Add more mock products as needed
-])
+  // Calculate visible page numbers
+  const maxVisiblePages = 5
+  let startPage = Math.max(1, currentPage.value - Math.floor(maxVisiblePages / 2))
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
 
-// Computed properties for filtered and sorted products
-const filteredProducts = computed(() => {
-  return products.value.filter(product => {
-    if (!searchQuery.value) return true
-    
-    const query = searchQuery.value.toLowerCase()
-    return (
-      product.name.toLowerCase().includes(query) ||
-      product.barcode.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query)
-    )
-  })
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1)
+  }
+
+  return {
+    currentPage: currentPage.value,
+    totalPages,
+    itemsPerPage,
+    startPage,
+    endPage,
+    totalItems
+  }
+})
+
+// Pagination methods
+const changePage = (page) => {
+  currentPage.value = page
+}
+
+const getPageItems = computed(() => {
+  const start = (currentPage.value - 1) * pagination.value.itemsPerPage
+  const end = start + pagination.value.itemsPerPage
+  return filteredProducts.value.slice(start, end)
 })
 
 // Handle form submission
 const handleProductSubmit = (productData) => {
-  // Here you would typically make an API call to save the product
-  console.log('New product data:', productData)
-  products.value.push({
-    id: products.value.length + 1,
-    ...productData,
-    currentStock: productData.initialStock
-  })
-  showProductForm.value = false
+  productStore.addProduct(productData)
 }
 
 // Handle form cancellation
 const handleProductCancel = () => {
-  showProductForm.value = false
+  productStore.setShowProductForm(false)
+}
+
+// View mode handlers
+const setViewMode = (mode) => {
+  productStore.setViewMode(mode)
 }
 </script>
 
@@ -128,7 +116,7 @@ const handleProductCancel = () => {
               @click="showProductForm = true"
             >
               <template #icon>
-                <Plus class="w-5 h-5" />
+                <Icon name="Plus" class="w-5 h-5" />
               </template>
             </IconButton>
             <IconButton
@@ -137,7 +125,7 @@ const handleProductCancel = () => {
               size="md"
             >
               <template #icon>
-                <LayoutGrid class="w-5 h-5" />
+                <Icon name="LayoutGrid" class="w-5 h-5" />
               </template>
             </IconButton>
             <IconButton
@@ -146,7 +134,7 @@ const handleProductCancel = () => {
               size="md"
             >
               <template #icon>
-                <Table class="w-5 h-5" />
+                <Icon name="Table" class="w-5 h-5" />
               </template>
             </IconButton>
             
@@ -179,7 +167,7 @@ const handleProductCancel = () => {
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="product in filteredProducts" 
+            <tr v-for="product in getPageItems" 
                 :key="product.id"
                 class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-dark-700">
               <td class="px-6 py-5 whitespace-nowrap">
@@ -220,7 +208,7 @@ const handleProductCancel = () => {
                   size="sm"
                 >
                   <template #icon>
-                    <PencilIcon class="w-4 h-4" />
+                    <Icon name="PencilIcon" class="w-4 h-4" />
                   </template>
                 </IconButton>
                 <IconButton
@@ -228,7 +216,7 @@ const handleProductCancel = () => {
                   size="sm"
                 >
                   <template #icon>
-                    <TrashIcon class="w-4 h-4" />
+                    <Icon name="TrashIcon" class="w-4 h-4" />
                   </template>
                 </IconButton>
               </td>
@@ -239,30 +227,64 @@ const handleProductCancel = () => {
     </Card>
 
     <!-- Pagination -->
-    <Card>
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
-          <span class="text-sm text-gray-700 dark:text-gray-300">
-            Showing
-            <span class="font-medium">1</span>
-            to
-            <span class="font-medium">10</span>
-            of
-            <span class="font-medium">{{ filteredProducts.length }}</span>
-            results
-          </span>
+    <Card class="mt-4">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+        <div class="text-sm text-gray-700 dark:text-gray-300">
+          Showing
+          <span class="font-medium">{{ ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1 }}</span>
+          to
+          <span class="font-medium">{{ Math.min(pagination.currentPage * pagination.itemsPerPage, filteredProducts.length) }}</span>
+          of
+          <span class="font-medium">{{ filteredProducts.length }}</span>
+          results
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-1">
           <button
-            class="px-3 py-1 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50"
+            @click="changePage(1)"
             :disabled="pagination.currentPage === 1"
+            class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
           >
-            Previous
+            <Icon name="chevrons-left" class="w-4 h-4" />
           </button>
           <button
-            class="px-3 py-1 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50"
+            @click="changePage(pagination.currentPage - 1)"
+            :disabled="pagination.currentPage === 1"
+            class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
           >
-            Next
+            <Icon name="chevron-left" class="w-4 h-4" />
+          </button>
+          
+          <!-- Page Numbers -->
+          <div class="hidden sm:flex space-x-1">
+            <template v-for="page in pagination.totalPages" :key="page">
+              <button
+                v-if="page >= pagination.startPage && page <= pagination.endPage"
+                @click="changePage(page)"
+                :class="[
+                  'px-3 py-1 rounded-md transition-colors duration-200',
+                  pagination.currentPage === page
+                    ? 'bg-primary-600 text-white hover:bg-primary-700'
+                    : 'bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600'
+                ]"
+              >
+                {{ page }}
+              </button>
+            </template>
+          </div>
+
+          <button
+            @click="changePage(pagination.currentPage + 1)"
+            :disabled="pagination.currentPage >= pagination.totalPages"
+            class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          >
+            <Icon name="chevron-right" class="w-4 h-4" />
+          </button>
+          <button
+            @click="changePage(pagination.totalPages)"
+            :disabled="pagination.currentPage >= pagination.totalPages"
+            class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          >
+            <Icon name="chevrons-right" class="w-4 h-4" />
           </button>
         </div>
       </div>
