@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useThemeStore } from '../../stores/theme'
-import { defineAsyncComponent } from 'vue'
 import ProductForm from '../../components/admin/ProductForm.vue'
 
 // Store initialization
@@ -99,43 +98,15 @@ const handleProductCancel = () => {
       <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Product Management</h1>
       <div class="flex space-x-4">
         <!-- View Toggle -->
-        <div class="flex items-center space-x-2 bg-white dark:bg-dark-800 rounded-lg ">
-          <IconButton
-            @click="viewMode = 'grid'"
-            :variant="viewMode === 'grid' ? 'primary' : 'ghost'"
-            size="md"
-          >
-            <template #icon>
-              <LayoutGrid class="w-5 h-5" />
-            </template>
-          </IconButton>
-          <IconButton
-            @click="viewMode = 'table'"
-            :variant="viewMode === 'table' ? 'primary' : 'ghost'"
-            size="md"
-          >
-            <template #icon>
-              <Table class="w-5 h-5" />
-            </template>
-          </IconButton>
-        </div>
+        
 
-        <!-- Add Product Button -->
-        <IconButton 
-          variant="primary" 
-          size="md"
-          @click="showProductForm = true"
-        >
-          <template #icon>
-            <Plus class="w-5 h-5" />
-          </template>
-        </IconButton>
+        
       </div>
     </div>
 
     <!-- Product Form Modal -->
     <Modal
-      v-if="showProductForm"
+      v-model="showProductForm"
       title="Add New Product"
       @close="showProductForm = false"
     >
@@ -146,9 +117,40 @@ const handleProductCancel = () => {
     </Modal>
 
     <!-- Filters and Search Section -->
-    <Card>
+    <!-- <Card> -->
       <div class="space-y-4">
         <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2 bg-white dark:bg-dark-800 rounded-lg ">
+            <!-- Add Product Button -->
+            <IconButton 
+              variant="info" 
+              size="md"
+              @click="showProductForm = true"
+            >
+              <template #icon>
+                <Plus class="w-5 h-5" />
+              </template>
+            </IconButton>
+            <IconButton
+              @click="viewMode = 'grid'"
+              :variant="viewMode === 'grid' ? 'primary' : 'ghost'"
+              size="md"
+            >
+              <template #icon>
+                <LayoutGrid class="w-5 h-5" />
+              </template>
+            </IconButton>
+            <IconButton
+              @click="viewMode = 'table'"
+              :variant="viewMode === 'table' ? 'primary' : 'ghost'"
+              size="md"
+            >
+              <template #icon>
+                <Table class="w-5 h-5" />
+              </template>
+            </IconButton>
+            
+          </div>
           <!-- Search Input -->
           <div class="flex-1">
             <BaseInput
@@ -157,42 +159,78 @@ const handleProductCancel = () => {
               type="text"
             />
           </div>
+
+          
         </div>
       </div>
-    </Card>
+    <!-- </Card> -->
 
     <!-- Products Table -->
-    <Card>
+    <Card padding="p-1" class="overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-dark-700">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Product</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Category</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Stock</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Price</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="product in filteredProducts" :key="product.id">
-              <td class="px-6 py-4 whitespace-nowrap">
+            <tr v-for="product in filteredProducts" 
+                :key="product.id"
+                class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-dark-700">
+              <td class="px-6 py-5 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div class="h-10 w-10 flex-shrink-0">
-                    <img :src="product.image" :alt="product.name" class="h-10 w-10 rounded-full object-cover">
+                  <div class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg shadow-sm">
+                    <img :src="product.image" :alt="product.name" class="h-12 w-12 object-cover transform transition-transform duration-200 hover:scale-110">
                   </div>
                   <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ product.name }}</div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ product.barcode }}</div>
+                    <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ product.name }}</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 font-mono">{{ product.barcode }}</div>
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ product.category }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ product.currentStock }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">Rp {{ product.regularPrice.toLocaleString() }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">Edit</button>
-                <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Delete</button>
+              <td class="px-6 py-5 whitespace-nowrap">
+                <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  {{ product.category }}
+                </span>
+              </td>
+              <td class="px-6 py-5 whitespace-nowrap">
+                <div class="flex items-center">
+                  <span class="text-sm font-medium" :class="{
+                    'text-green-600 dark:text-green-400': product.currentStock > product.minStock,
+                    'text-yellow-600 dark:text-yellow-400': product.currentStock <= product.minStock && product.currentStock > 0,
+                    'text-red-600 dark:text-red-400': product.currentStock === 0
+                  }">
+                    {{ product.currentStock }}
+                  </span>
+                  <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">units</span>
+                </div>
+              </td>
+              <td class="px-6 py-5 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900 dark:text-white">Rp {{ product.regularPrice.toLocaleString() }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Buy: Rp {{ product.buyPrice.toLocaleString() }}</div>
+              </td>
+              <td class="px-6 py-5 whitespace-nowrap text-sm font-medium flex justify-end space-x-2">
+                <IconButton
+                  variant="primary"
+                  size="sm"
+                >
+                  <template #icon>
+                    <PencilIcon class="w-4 h-4" />
+                  </template>
+                </IconButton>
+                <IconButton
+                  variant="danger"
+                  size="sm"
+                >
+                  <template #icon>
+                    <TrashIcon class="w-4 h-4" />
+                  </template>
+                </IconButton>
               </td>
             </tr>
           </tbody>
