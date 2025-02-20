@@ -1,11 +1,9 @@
 <script setup>
-import { defineProps } from 'vue'
-
 const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'success', 'danger', 'warning', 'info'].includes(value)
+    validator: (value) => ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'ghost'].includes(value)
   },
   size: {
     type: String,
@@ -36,7 +34,8 @@ const variantClasses = {
   success: 'text-success-500 hover:text-success-600',
   danger: 'text-danger-500 hover:text-danger-600',
   warning: 'text-warning-500 hover:text-warning-600',
-  info: 'text-cyan-500 hover:text-cyan-600'
+  info: 'text-cyan-500 hover:text-cyan-600',
+  ghost: 'text-gray-400 hover:text-gray-300'
 }
 
 const sizeClasses = {

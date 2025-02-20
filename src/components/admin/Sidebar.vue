@@ -2,6 +2,7 @@
 import { ref, defineComponent, computed, watch } from 'vue'
 import { useThemeStore } from '../../stores/theme'
 import { useRoute } from 'vue-router'
+import { Package, Tag, Users, Receipt, ShoppingBag, RotateCcw, BarChart3, FileText, PieChart, Home, Database, ShoppingCart, Settings, BoxIcon } from 'lucide-vue-next'
 
 const themeStore = useThemeStore()
 const route = useRoute()
@@ -33,9 +34,8 @@ const isSubmenuActive = computed(() => {
 
 // Watch for route changes to update active submenu
 watch(() => route.path, () => {
-  if (isSubmenuActive.value) {
-    activeSubmenu.value = isSubmenuActive.value
-  }
+  // Close submenu when route changes
+  activeSubmenu.value = null
 }, { immediate: true })
 
 const toggleSubmenu = (menu) => {

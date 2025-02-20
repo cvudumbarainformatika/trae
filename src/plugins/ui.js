@@ -7,7 +7,7 @@ export default {
     const components = {
       ...import.meta.glob('../components/*.vue'),
       ...import.meta.glob('../components/ui/*.vue'),
-      ...import.meta.glob('../components/admin/*.vue')
+      // ...import.meta.glob('../components/admin/*.vue')
     }
 
     // Register each component globally

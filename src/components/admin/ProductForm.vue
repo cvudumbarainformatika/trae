@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref } from 'vue'
 import { useThemeStore } from '../../stores/theme'
 import BaseInput from '../ui/BaseInput.vue'
 
