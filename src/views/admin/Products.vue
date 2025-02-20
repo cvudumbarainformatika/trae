@@ -80,20 +80,212 @@ const setViewMode = (mode) => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="flex flex-col h-full space-y-6">
     <!-- Header Section -->
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Product Management</h1>
-      <div class="flex space-x-4">
-        <!-- View Toggle -->
-        
+    <div class="flex">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Product Management</h1>
+        <div class="flex space-x-4">
+          <!-- View Toggle -->
+          
 
-        
+          
+        </div>
       </div>
     </div>
 
-    <!-- Product Form Modal -->
-    <Modal
+   
+
+    <!-- Filters and Search Section -->
+    <!-- <Card> -->
+      <div class="flex-1 flex overflow-hidden w-full space-y-4">
+        <div class="flex flex-col h-full w-full space-y-4">
+
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 bg-white dark:bg-dark-800 rounded-lg ">
+              <IconButton 
+                variant="info" 
+                size="md"
+                @click="showProductForm = true"
+              >
+                <template #icon>
+                  <Icon name="Plus" class="w-5 h-5" />
+                </template>
+              </IconButton>
+              <IconButton
+                @click="viewMode = 'grid'"
+                :variant="viewMode === 'grid' ? 'primary' : 'ghost'"
+                size="md"
+              >
+                <template #icon>
+                  <Icon name="LayoutGrid" class="w-5 h-5" />
+                </template>
+              </IconButton>
+              <IconButton
+                @click="viewMode = 'table'"
+                :variant="viewMode === 'table' ? 'primary' : 'ghost'"
+                size="md"
+              >
+                <template #icon>
+                  <Icon name="Table" class="w-5 h-5" />
+                </template>
+              </IconButton>
+              
+            </div>
+            <div class="flex-1">
+              <BaseInput
+                v-model="searchQuery"
+                placeholder="Search products..."
+                type="text"
+              />
+            </div>
+          </div>
+          <!-- Products Table -->
+          <div class="flex-1 overflow-y-scroll">
+            <Card padding="p-2" class="border border-gray-200 dark:border-gray-700 shadow-lg mb-16">
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead class="bg-gray-50 dark:bg-dark-700">
+                    <tr>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Product</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Category</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Stock</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Price</th>
+                      <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tr v-for="product in getPageItems" 
+                        :key="product.id"
+                        class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-dark-700">
+                      <td class="px-6 py-5 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg shadow-sm">
+                            <img :src="product.image" :alt="product.name" class="h-12 w-12 object-cover transform transition-transform duration-200 hover:scale-110">
+                          </div>
+                          <div class="ml-4">
+                            <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ product.name }}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 font-mono">{{ product.barcode }}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-5 whitespace-nowrap">
+                        <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          {{ product.category }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-5 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <span class="text-sm font-medium" :class="{
+                            'text-green-600 dark:text-green-400': product.currentStock > product.minStock,
+                            'text-yellow-600 dark:text-yellow-400': product.currentStock <= product.minStock && product.currentStock > 0,
+                            'text-red-600 dark:text-red-400': product.currentStock === 0
+                          }">
+                            {{ product.currentStock }}
+                          </span>
+                          <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">units</span>
+                        </div>
+                      </td>
+                      <td class="px-6 py-5 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-900 dark:text-white">Rp {{ product.regularPrice.toLocaleString() }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Buy: Rp {{ product.buyPrice.toLocaleString() }}</div>
+                      </td>
+                      <td class="px-6 py-5 whitespace-nowrap text-sm font-medium flex justify-end space-x-2">
+                        <IconButton
+                          variant="primary"
+                          size="sm"
+                        >
+                          <template #icon>
+                            <Icon name="PencilIcon" class="w-4 h-4" />
+                          </template>
+                        </IconButton>
+                        <IconButton
+                          variant="danger"
+                          size="sm"
+                        >
+                          <template #icon>
+                            <Icon name="TrashIcon" class="w-4 h-4" />
+                          </template>
+                        </IconButton>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </div>
+
+
+          <!-- Pagination -->
+          <div class="flex-row">
+            <Card padding="p-2" class="border-t border-gray-200 dark:border-gray-700 shadow-lg">
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-2 bg-white dark:bg-dark-800">
+                <div class="text-sm text-gray-700 dark:text-gray-300">
+                  Showing
+                  <span class="font-medium">{{ ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1 }}</span>
+                  to
+                  <span class="font-medium">{{ Math.min(pagination.currentPage * pagination.itemsPerPage, filteredProducts.length) }}</span>
+                  of
+                  <span class="font-medium">{{ filteredProducts.length }}</span>
+                  results
+                </div>
+                <div class="flex items-center space-x-1">
+                  <button
+                    @click="changePage(1)"
+                    :disabled="pagination.currentPage === 1"
+                    class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  >
+                    <Icon name="chevrons-left" class="w-4 h-4" />
+                  </button>
+                  <button
+                    @click="changePage(pagination.currentPage - 1)"
+                    :disabled="pagination.currentPage === 1"
+                    class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  >
+                    <Icon name="chevron-left" class="w-4 h-4" />
+                  </button>
+                  
+                  <div class="hidden sm:flex space-x-1">
+                    <template v-for="page in pagination.totalPages" :key="page">
+                      <button
+                        v-if="page >= pagination.startPage && page <= pagination.endPage"
+                        @click="changePage(page)"
+                        :class="[
+                          'px-3 py-1 rounded-md transition-colors duration-200',
+                          pagination.currentPage === page
+                            ? 'bg-primary-600 text-white hover:bg-primary-700'
+                            : 'bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600'
+                        ]"
+                      >
+                        {{ page }}
+                      </button>
+                    </template>
+                  </div>
+
+                  <button
+                    @click="changePage(pagination.currentPage + 1)"
+                    :disabled="pagination.currentPage >= pagination.totalPages"
+                    class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  >
+                    <Icon name="chevron-right" class="w-4 h-4" />
+                  </button>
+                  <button
+                    @click="changePage(pagination.totalPages)"
+                    :disabled="pagination.currentPage >= pagination.totalPages"
+                    class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  >
+                    <Icon name="chevrons-right" class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+        
+      </div>
+
+     <!-- Product Form Modal -->
+     <Modal
       v-model="showProductForm"
       title="Add New Product"
       @close="showProductForm = false"
@@ -104,190 +296,6 @@ const setViewMode = (mode) => {
       />
     </Modal>
 
-    <!-- Filters and Search Section -->
-    <!-- <Card> -->
-      <div class="space-y-4">
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2 bg-white dark:bg-dark-800 rounded-lg ">
-            <!-- Add Product Button -->
-            <IconButton 
-              variant="info" 
-              size="md"
-              @click="showProductForm = true"
-            >
-              <template #icon>
-                <Icon name="Plus" class="w-5 h-5" />
-              </template>
-            </IconButton>
-            <IconButton
-              @click="viewMode = 'grid'"
-              :variant="viewMode === 'grid' ? 'primary' : 'ghost'"
-              size="md"
-            >
-              <template #icon>
-                <Icon name="LayoutGrid" class="w-5 h-5" />
-              </template>
-            </IconButton>
-            <IconButton
-              @click="viewMode = 'table'"
-              :variant="viewMode === 'table' ? 'primary' : 'ghost'"
-              size="md"
-            >
-              <template #icon>
-                <Icon name="Table" class="w-5 h-5" />
-              </template>
-            </IconButton>
-            
-          </div>
-          <!-- Search Input -->
-          <div class="flex-1">
-            <BaseInput
-              v-model="searchQuery"
-              placeholder="Search products..."
-              type="text"
-            />
-          </div>
-
-          
-        </div>
-      </div>
-    <!-- </Card> -->
-
-    <!-- Products Table -->
-    <Card padding="p-1" class="overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-dark-700">
-            <tr>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Product</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Category</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Stock</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Price</th>
-              <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr v-for="product in getPageItems" 
-                :key="product.id"
-                class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-dark-700">
-              <td class="px-6 py-5 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg shadow-sm">
-                    <img :src="product.image" :alt="product.name" class="h-12 w-12 object-cover transform transition-transform duration-200 hover:scale-110">
-                  </div>
-                  <div class="ml-4">
-                    <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ product.name }}</div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400 font-mono">{{ product.barcode }}</div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap">
-                <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                  {{ product.category }}
-                </span>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap">
-                <div class="flex items-center">
-                  <span class="text-sm font-medium" :class="{
-                    'text-green-600 dark:text-green-400': product.currentStock > product.minStock,
-                    'text-yellow-600 dark:text-yellow-400': product.currentStock <= product.minStock && product.currentStock > 0,
-                    'text-red-600 dark:text-red-400': product.currentStock === 0
-                  }">
-                    {{ product.currentStock }}
-                  </span>
-                  <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">units</span>
-                </div>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap">
-                <div class="text-sm font-semibold text-gray-900 dark:text-white">Rp {{ product.regularPrice.toLocaleString() }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">Buy: Rp {{ product.buyPrice.toLocaleString() }}</div>
-              </td>
-              <td class="px-6 py-5 whitespace-nowrap text-sm font-medium flex justify-end space-x-2">
-                <IconButton
-                  variant="primary"
-                  size="sm"
-                >
-                  <template #icon>
-                    <Icon name="PencilIcon" class="w-4 h-4" />
-                  </template>
-                </IconButton>
-                <IconButton
-                  variant="danger"
-                  size="sm"
-                >
-                  <template #icon>
-                    <Icon name="TrashIcon" class="w-4 h-4" />
-                  </template>
-                </IconButton>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </Card>
-
-    <!-- Pagination -->
-    <Card class="mt-4">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
-        <div class="text-sm text-gray-700 dark:text-gray-300">
-          Showing
-          <span class="font-medium">{{ ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1 }}</span>
-          to
-          <span class="font-medium">{{ Math.min(pagination.currentPage * pagination.itemsPerPage, filteredProducts.length) }}</span>
-          of
-          <span class="font-medium">{{ filteredProducts.length }}</span>
-          results
-        </div>
-        <div class="flex items-center space-x-1">
-          <button
-            @click="changePage(1)"
-            :disabled="pagination.currentPage === 1"
-            class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <Icon name="chevrons-left" class="w-4 h-4" />
-          </button>
-          <button
-            @click="changePage(pagination.currentPage - 1)"
-            :disabled="pagination.currentPage === 1"
-            class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <Icon name="chevron-left" class="w-4 h-4" />
-          </button>
-          
-          <!-- Page Numbers -->
-          <div class="hidden sm:flex space-x-1">
-            <template v-for="page in pagination.totalPages" :key="page">
-              <button
-                v-if="page >= pagination.startPage && page <= pagination.endPage"
-                @click="changePage(page)"
-                :class="[
-                  'px-3 py-1 rounded-md transition-colors duration-200',
-                  pagination.currentPage === page
-                    ? 'bg-primary-600 text-white hover:bg-primary-700'
-                    : 'bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600'
-                ]"
-              >
-                {{ page }}
-              </button>
-            </template>
-          </div>
-
-          <button
-            @click="changePage(pagination.currentPage + 1)"
-            :disabled="pagination.currentPage >= pagination.totalPages"
-            class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <Icon name="chevron-right" class="w-4 h-4" />
-          </button>
-          <button
-            @click="changePage(pagination.totalPages)"
-            :disabled="pagination.currentPage >= pagination.totalPages"
-            class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <Icon name="chevrons-right" class="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </Card>
+    
   </div>
 </template>

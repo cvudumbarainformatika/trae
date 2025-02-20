@@ -6,10 +6,10 @@ const themeStore = useThemeStore()
 </script>
 
 <template>
-  <div class="min-h-screen flex bg-gray-100 dark:bg-gray-900 overflow-hidden">
+  <div class="h-screen flex bg-gray-100 dark:bg-gray-900 overflow-hidden">
     <Sidebar />
     <!-- Main Content -->
-    <main class="flex-1 p-8 bg-gray-300 dark:bg-dark-900 overflow-y-auto h-screen">
+    <main class="flex-1 p-8 bg-gray-300 dark:bg-dark-900 h-screen">
       <router-view />
     </main>
   </div>
