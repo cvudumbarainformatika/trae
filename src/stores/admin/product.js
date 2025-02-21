@@ -17,7 +17,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 35,
         minStock: 10,
         rack: 'A-1',
-        image: '/placeholder.jpg'
+        image: ''
       },
       {
         id: 2,
@@ -33,7 +33,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 150,
         minStock: 30,
         rack: 'B-1',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 3,
@@ -49,7 +49,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 22,
         minStock: 5,
         rack: 'C-1',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 4,
@@ -65,7 +65,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 88,
         minStock: 15,
         rack: 'A-2',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 5,
@@ -81,7 +81,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 127,
         minStock: 20,
         rack: 'B-2',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 6,
@@ -97,7 +97,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 28,
         minStock: 8,
         rack: 'C-2',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 7,
@@ -113,7 +113,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 65,
         minStock: 12,
         rack: 'A-3',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 8,
@@ -129,7 +129,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 82,
         minStock: 15,
         rack: 'D-1',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 9,
@@ -145,7 +145,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 45,
         minStock: 10,
         rack: 'C-3',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 10,
@@ -161,7 +161,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 98,
         minStock: 20,
         rack: 'E-1',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 11,
@@ -177,7 +177,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 28,
         minStock: 8,
         rack: 'A-4',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 12,
@@ -193,7 +193,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 65,
         minStock: 15,
         rack: 'B-3',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 13,
@@ -209,7 +209,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 18,
         minStock: 5,
         rack: 'C-4',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 14,
@@ -241,7 +241,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 38,
         minStock: 10,
         rack: 'A-5',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 16,
@@ -257,7 +257,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 95,
         minStock: 20,
         rack: 'D-2',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 17,
@@ -273,7 +273,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 62,
         minStock: 15,
         rack: 'C-5',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 18,
@@ -305,7 +305,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 78,
         minStock: 20,
         rack: 'A-6',
-        image: '/placeholder.jpg'
+        image: null
       },
       {
         id: 20,
@@ -321,7 +321,7 @@ export const useProductStore = defineStore('product', {
         currentStock: 165,
         minStock: 30,
         rack: 'E-3',
-        image: '/placeholder.jpg'
+        image: null
       }
     ],
     viewMode: 'grid',

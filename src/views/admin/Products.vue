@@ -3,10 +3,15 @@ import { computed, ref, watch } from 'vue'
 import { useThemeStore } from '../../stores/theme'
 import { useProductStore } from '../../stores/admin/product'
 import ProductForm from '../../components/admin/ProductForm.vue'
+import BarcodeScanner from '../../components/admin/BarcodeScanner.vue'
+import BatchOperationsModal from '../../components/admin/BatchOperationsModal.vue'
+import noImage from '../../assets/no-image.svg'
 
 // Edit state
 const selectedProduct = ref(null)
 const isEdit = ref(false)
+const showScanner = ref(false)
+const showBatchOperations = ref(false)
 
 // Store initialization
 const themeStore = useThemeStore()
@@ -35,7 +40,7 @@ watch(searchQuery, () => {
 
 const pagination = computed(() => {
   const totalItems = filteredProducts.value.length
-  const itemsPerPage = 10
+  const itemsPerPage = 12
   const totalPages = Math.ceil(totalItems / itemsPerPage)
 
   // Calculate visible page numbers
@@ -128,13 +133,51 @@ const setViewMode = (mode) => {
               </template>
             </IconButton>
             <IconButton
+              variant="info"
+              size="md"
+              @click="showBatchOperations = true"
+            >
+              <template #icon>
+                <Icon name="Settings" class="w-5 h-5" />
+              </template>
+            </IconButton>
+            <IconButton
+              variant="info"
+              size="md"
+              @click="showScanner = true"
+            >
+              <template #icon>
+                <Icon name="Scan" class="w-5 h-5" />
+                <!-- Barcode Scanner -->
+  <BarcodeScanner
+    v-if="showScanner"
+    @scan-success="(result) => {
+      searchQuery = result
+      showScanner = false
+    }"
+    @scan-error="() => showScanner = false"
+    @close="showScanner = false"
+  />
+</template>
+            </IconButton>
+            <IconButton
               @click="setViewMode('grid')"
               :variant="viewMode === 'grid' ? 'primary' : 'ghost'"
               size="md"
             >
               <template #icon>
                 <Icon name="LayoutGrid" class="w-5 h-5" />
-              </template>
+                <!-- Barcode Scanner -->
+  <BarcodeScanner
+    v-if="showScanner"
+    @scan-success="(result) => {
+      searchQuery = result
+      showScanner = false
+    }"
+    @scan-error="() => showScanner = false"
+    @close="showScanner = false"
+  />
+</template>
             </IconButton>
             <IconButton
               @click="setViewMode('table')"
@@ -143,7 +186,17 @@ const setViewMode = (mode) => {
             >
               <template #icon>
                 <Icon name="Table" class="w-5 h-5" />
-              </template>
+                <!-- Barcode Scanner -->
+  <BarcodeScanner
+    v-if="showScanner"
+    @scan-success="(result) => {
+      searchQuery = result
+      showScanner = false
+    }"
+    @scan-error="() => showScanner = false"
+    @close="showScanner = false"
+  />
+</template>
             </IconButton>
           </div>
           <div class="flex-1">
@@ -164,7 +217,7 @@ const setViewMode = (mode) => {
                   class="flex flex-col h-full transition-transform duration-200 hover:scale-105"
                   padding="p-4">
               <div class="relative aspect-square w-full mb-4 overflow-hidden rounded-lg">
-                <img :src="product.image" 
+                <img :src="product.image || noImage" 
                      :alt="product.name" 
                      class="w-full h-full object-cover">
               </div>
@@ -196,7 +249,17 @@ const setViewMode = (mode) => {
                   >
                     <template #icon>
                       <Icon name="PencilIcon" class="w-4 h-4" />
-                    </template>
+                      <!-- Barcode Scanner -->
+  <BarcodeScanner
+    v-if="showScanner"
+    @scan-success="(result) => {
+      searchQuery = result
+      showScanner = false
+    }"
+    @scan-error="() => showScanner = false"
+    @close="showScanner = false"
+  />
+</template>
                   </IconButton>
                   <IconButton
                     variant="danger"
@@ -205,7 +268,17 @@ const setViewMode = (mode) => {
                   >
                     <template #icon>
                       <Icon name="TrashIcon" class="w-4 h-4" />
-                    </template>
+                      <!-- Barcode Scanner -->
+  <BarcodeScanner
+    v-if="showScanner"
+    @scan-success="(result) => {
+      searchQuery = result
+      showScanner = false
+    }"
+    @scan-error="() => showScanner = false"
+    @close="showScanner = false"
+  />
+</template>
                   </IconButton>
                 </div>
               </div>
@@ -233,7 +306,7 @@ const setViewMode = (mode) => {
                     <td class="px-6 py-5 whitespace-nowrap">
                       <div class="flex items-center">
                         <div class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg shadow-sm">
-                          <img :src="product.image" :alt="product.name" class="h-12 w-12 object-cover transform transition-transform duration-200 hover:scale-110">
+                          <img :src="product.image || '/src/assets/no-image.svg'" :alt="product.name" class="h-12 w-12 object-cover transform transition-transform duration-200 hover:scale-110">
                         </div>
                         <div class="ml-4">
                           <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ product.name }}</div>
@@ -270,6 +343,16 @@ const setViewMode = (mode) => {
                       >
                         <template #icon>
                           <Icon name="PencilIcon" class="w-4 h-4" />
+                          <!-- Barcode Scanner -->
+                          <BarcodeScanner
+                            v-if="showScanner"
+                            @scan-success="(result) => {
+                              searchQuery = result
+                              showScanner = false
+                            }"
+                            @scan-error="() => showScanner = false"
+                            @close="showScanner = false"
+                          />
                         </template>
                       </IconButton>
                       <IconButton
@@ -279,6 +362,16 @@ const setViewMode = (mode) => {
                       >
                         <template #icon>
                           <Icon name="TrashIcon" class="w-4 h-4" />
+                          <!-- Barcode Scanner -->
+                          <BarcodeScanner
+                            v-if="showScanner"
+                            @scan-success="(result) => {
+                              searchQuery = result
+                              showScanner = false
+                            }"
+                            @scan-error="() => showScanner = false"
+                            @close="showScanner = false"
+                          />
                         </template>
                       </IconButton>
                      
@@ -334,7 +427,17 @@ const setViewMode = (mode) => {
                       >
                         {{ page }}
                       </button>
-                    </template>
+                      <!-- Barcode Scanner -->
+  <BarcodeScanner
+    v-if="showScanner"
+    @scan-success="(result) => {
+      searchQuery = result
+      showScanner = false
+    }"
+    @scan-error="() => showScanner = false"
+    @close="showScanner = false"
+  />
+</template>
                   </div>
 
                   <button
@@ -373,6 +476,11 @@ const setViewMode = (mode) => {
       />
     </Modal>
 
+    <!-- Batch Operations Modal -->
+    <BatchOperationsModal
+      v-model="showBatchOperations"
+      @close="showBatchOperations = false"
+    />
      <!-- Delete Confirmation Modal -->
      <Modal
         v-model="productStore.showDeleteConfirm"
@@ -402,6 +510,21 @@ const setViewMode = (mode) => {
         </div>
       </Modal>
 
+    <!-- Batch Operations Modal -->
+    <BatchOperationsModal
+      v-model="showBatchOperations"
+      @close="showBatchOperations = false"
+    />
     
   </div>
+  <!-- Barcode Scanner -->
+  <BarcodeScanner
+    v-if="showScanner"
+    @scan-success="(result) => {
+      searchQuery = result
+      showScanner = false
+    }"
+    @scan-error="() => showScanner = false"
+    @close="showScanner = false"
+  />
 </template>

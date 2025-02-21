@@ -38,10 +38,10 @@ const handleBackdropClick = (event) => {
 }
 
 const sizeClasses = {
-  sm: 'max-w-md',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
-  xl: 'max-w-4xl'
+  sm: 'max-w-lg',
+  md: 'max-w-2xl',
+  lg: 'max-w-4xl',
+  xl: 'max-w-6xl'
 }
 
 // Prevent body scroll when modal is open
@@ -64,11 +64,11 @@ watch(() => props.modelValue, (isOpen) => {
       :class="{ 'opacity-0': !modelValue }"
     >
       <div
-        class="relative w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl transition-all transform"
+        class="relative w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl transition-all transform max-h-[90vh] flex flex-col"
         :class="[sizeClasses[size]]"
       >
         <!-- Header -->
-        <div class="flex items-center justify-between p-4 border-b dark:border-gray-700">
+        <div class="flex-none flex items-center justify-between p-4 border-b dark:border-gray-700">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">
             {{ title }}
           </h3>
@@ -82,14 +82,16 @@ watch(() => props.modelValue, (isOpen) => {
         </div>
 
         <!-- Content -->
-        <div class="p-4">
-          <slot></slot>
+        <div class="flex-1 overflow-y-auto">
+          <div class="p-4">
+            <slot></slot>
+          </div>
         </div>
 
         <!-- Footer -->
         <div
           v-if="$slots.footer"
-          class="flex items-center justify-end p-4 border-t dark:border-gray-700 space-x-2"
+          class="flex-none flex items-center justify-end p-4 border-t dark:border-gray-700 space-x-2 bg-white dark:bg-gray-800 sticky bottom-0"
         >
           <slot name="footer"></slot>
         </div>
