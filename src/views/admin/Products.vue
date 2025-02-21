@@ -212,26 +212,34 @@ const setViewMode = (mode) => {
     <div class="flex-1 flex overflow-hidden w-full space-y-4">
       <div class="flex flex-col h-full w-full space-y-4">
         <div class="flex items-center space-x-4">
-          <button
+          <IconButton
             data-filter-toggle
             @click="showFilters = !showFilters"
-            class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-dark-800 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-dark-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+            variant="ghost"
+            size="md"
+            class="flex items-center space-x-2"
           >
-            <Icon name="filter" class="w-4 h-4" />
+            <template #icon>
+              <Icon name="filter" class="w-4 h-4" />
+            </template>
             <span>Filters</span>
             <span v-if="filters.category || filters.priceRange.min || filters.priceRange.max || filters.stockLevel.min || filters.stockLevel.max || filters.status !== 'all'" 
               class="ml-2 px-2 py-0.5 text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200 rounded-full"
             >
               Active
             </span>
-          </button>
-          <button
+          </IconButton>
+          <IconButton
             v-if="filters.category || filters.priceRange.min || filters.priceRange.max || filters.stockLevel.min || filters.stockLevel.max || filters.status !== 'all'"
             @click="resetFilters"
-            class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none transition-colors duration-200"
+            variant="ghost"
+            size="md"
           >
-            Reset
-          </button>
+            <template #icon>
+              <Icon name="XCircle" class="w-4 h-4" />
+            </template>
+            <span>Reset</span>
+          </IconButton>
           <div class="flex items-center space-x-2 bg-white dark:bg-dark-800 rounded-lg">
             <IconButton 
               variant="info" 
@@ -341,37 +349,27 @@ const setViewMode = (mode) => {
             <!-- Category Filter -->
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-              <select
+              <BaseSelect
                 v-model="filters.category"
-                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md dark:bg-dark-700 dark:text-white"
-              >
-                <option value="">All Categories</option>
-                <option v-for="category in categories" :key="category" :value="category">
-                  {{ category }}
-                </option>
-              </select>
+                :options="[{ label: 'All Categories', value: '' }, ...categories.map(cat => ({ label: cat, value: cat }))]"
+                placeholder="Select Category"
+              />
             </div>
 
             <!-- Price Range Filter -->
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price Range</label>
               <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <input
-                    v-model.number="filters.priceRange.min"
-                    type="number"
-                    placeholder="Min Price"
-                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-dark-700 dark:text-white"
-                  >
-                </div>
-                <div>
-                  <input
-                    v-model.number="filters.priceRange.max"
-                    type="number"
-                    placeholder="Max Price"
-                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-dark-700 dark:text-white"
-                  >
-                </div>
+                <BaseInput
+                  v-model.number="filters.priceRange.min"
+                  type="number"
+                  placeholder="Min Price"
+                />
+                <BaseInput
+                  v-model.number="filters.priceRange.max"
+                  type="number"
+                  placeholder="Max Price"
+                />
               </div>
             </div>
 
@@ -379,22 +377,16 @@ const setViewMode = (mode) => {
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock Level</label>
               <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <input
-                    v-model.number="filters.stockLevel.min"
-                    type="number"
-                    placeholder="Min Stock"
-                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-dark-700 dark:text-white"
-                  >
-                </div>
-                <div>
-                  <input
-                    v-model.number="filters.stockLevel.max"
-                    type="number"
-                    placeholder="Max Stock"
-                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-dark-700 dark:text-white"
-                  >
-                </div>
+                <BaseInput
+                  v-model.number="filters.stockLevel.min"
+                  type="number"
+                  placeholder="Min Stock"
+                />
+                <BaseInput
+                  v-model.number="filters.stockLevel.max"
+                  type="number"
+                  placeholder="Max Stock"
+                />
               </div>
             </div>
 
@@ -610,62 +602,60 @@ const setViewMode = (mode) => {
                   results
                 </div>
                 <div class="flex items-center space-x-1">
-                  <button
+                  <IconButton
                     @click="changePage(1)"
                     :disabled="pagination.currentPage === 1"
-                    class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    variant="ghost"
+                    size="sm"
                   >
-                    <Icon name="chevrons-left" class="w-4 h-4" />
-                  </button>
-                  <button
+                    <template #icon>
+                      <Icon name="chevrons-left" class="w-4 h-4" />
+                    </template>
+                  </IconButton>
+                  <IconButton
                     @click="changePage(pagination.currentPage - 1)"
                     :disabled="pagination.currentPage === 1"
-                    class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    variant="ghost"
+                    size="sm"
                   >
-                    <Icon name="chevron-left" class="w-4 h-4" />
-                  </button>
+                    <template #icon>
+                      <Icon name="chevron-left" class="w-4 h-4" />
+                    </template>
+                  </IconButton>
                   
                   <div class="hidden sm:flex space-x-1">
                     <template v-for="page in pagination.totalPages" :key="page">
-                      <button
+                      <IconButton
                         v-if="page >= pagination.startPage && page <= pagination.endPage"
                         @click="changePage(page)"
-                        :class="[
-                          'px-3 py-1 rounded-md transition-colors duration-200',
-                          pagination.currentPage === page
-                            ? 'bg-primary-600 text-white hover:bg-primary-700'
-                            : 'bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600'
-                        ]"
+                        :variant="pagination.currentPage === page ? 'primary' : 'ghost'"
+                        size="sm"
                       >
                         {{ page }}
-                      </button>
-                      <!-- Barcode Scanner -->
-  <BarcodeScanner
-    v-if="showScanner"
-    @scan-success="(result) => {
-      searchQuery = result
-      showScanner = false
-    }"
-    @scan-error="() => showScanner = false"
-    @close="showScanner = false"
-  />
-</template>
+                      </IconButton>
+                    </template>
                   </div>
 
-                  <button
+                  <IconButton
                     @click="changePage(pagination.currentPage + 1)"
                     :disabled="pagination.currentPage >= pagination.totalPages"
-                    class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    variant="ghost"
+                    size="sm"
                   >
-                    <Icon name="chevron-right" class="w-4 h-4" />
-                  </button>
-                  <button
+                    <template #icon>
+                      <Icon name="chevron-right" class="w-4 h-4" />
+                    </template>
+                  </IconButton>
+                  <IconButton
                     @click="changePage(pagination.totalPages)"
                     :disabled="pagination.currentPage >= pagination.totalPages"
-                    class="p-2 rounded-md bg-gray-100 dark:bg-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    variant="ghost"
+                    size="sm"
                   >
-                    <Icon name="chevrons-right" class="w-4 h-4" />
-                  </button>
+                    <template #icon>
+                      <Icon name="chevrons-right" class="w-4 h-4" />
+                    </template>
+                  </IconButton>
                 </div>
               </div>
             </Card>
@@ -706,18 +696,20 @@ const setViewMode = (mode) => {
             This action cannot be undone.
           </p>
           <div class="flex justify-end space-x-4">
-            <button
+            <IconButton
               @click="productStore.showDeleteConfirm = false"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:bg-dark-700 dark:text-gray-300 dark:hover:bg-dark-600"
+              variant="ghost"
+              size="md"
             >
-              Cancel
-            </button>
-            <button
+              <span>Cancel</span>
+            </IconButton>
+            <IconButton
               @click="confirmDelete"
-              class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              variant="danger"
+              size="md"
             >
-              Delete
-            </button>
+              <span>Delete</span>
+            </IconButton>
           </div>
         </div>
       </Modal>
