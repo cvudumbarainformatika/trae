@@ -17,6 +17,27 @@ const showBatchOperations = ref(false)
 const themeStore = useThemeStore()
 const productStore = useProductStore()
 
+// Add new filter state
+const showFilters = ref(false)
+const filters = ref({
+  category: '',
+  priceRange: {
+    min: null,
+    max: null
+  },
+  stockLevel: {
+    min: null,
+    max: null
+  },
+  status: 'all' // 'all', 'in-stock', 'low-stock', 'out-of-stock'
+})
+
+// Add computed property for categories
+const categories = computed(() => {
+  const uniqueCategories = new Set(productStore.products.map(p => p.category))
+  return Array.from(uniqueCategories).sort()
+})
+
 // Computed properties
 const viewMode = computed(() => productStore.viewMode)
 
@@ -24,11 +45,80 @@ const showProductForm = computed({
   get: () => productStore.showProductForm,
   set: (value) => productStore.setShowProductForm(value)
 })
-const filteredProducts = computed(() => productStore.filteredProducts)
+
 const searchQuery = computed({
   get: () => productStore.searchQuery,
   set: (value) => productStore.setSearchQuery(value)
 })
+
+// Enhance filtered products computation
+const filteredProducts = computed(() => {
+  return productStore.products.filter(product => {
+    // Search query filter
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      const matchesSearch = 
+        product.name.toLowerCase().includes(query) ||
+        product.barcode.toLowerCase().includes(query) ||
+        product.category.toLowerCase().includes(query)
+      if (!matchesSearch) return false
+    }
+
+    // Category filter
+    if (filters.value.category && product.category !== filters.value.category) {
+      return false
+    }
+
+    // Price range filter
+    if (filters.value.priceRange.min && product.regularPrice < filters.value.priceRange.min) {
+      return false
+    }
+    if (filters.value.priceRange.max && product.regularPrice > filters.value.priceRange.max) {
+      return false
+    }
+
+    // Stock level filter
+    if (filters.value.stockLevel.min && product.currentStock < filters.value.stockLevel.min) {
+      return false
+    }
+    if (filters.value.stockLevel.max && product.currentStock > filters.value.stockLevel.max) {
+      return false
+    }
+
+    // Status filter
+    if (filters.value.status !== 'all') {
+      switch (filters.value.status) {
+        case 'in-stock':
+          if (product.currentStock <= product.minStock) return false
+          break
+        case 'low-stock':
+          if (product.currentStock > product.minStock || product.currentStock === 0) return false
+          break
+        case 'out-of-stock':
+          if (product.currentStock !== 0) return false
+          break
+      }
+    }
+
+    return true
+  })
+})
+
+// Reset filters function
+const resetFilters = () => {
+  filters.value = {
+    category: '',
+    priceRange: {
+      min: null,
+      max: null
+    },
+    stockLevel: {
+      min: null,
+      max: null
+    },
+    status: 'all'
+  }
+}
 
 // Pagination state
 const currentPage = ref(1)
@@ -122,6 +212,25 @@ const setViewMode = (mode) => {
     <div class="flex-1 flex overflow-hidden w-full space-y-4">
       <div class="flex flex-col h-full w-full space-y-4">
         <div class="flex items-center space-x-4">
+          <button
+            @click="showFilters = !showFilters"
+            class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-dark-800 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-dark-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+          >
+            <Icon name="filter" class="w-4 h-4" />
+            <span>Filters</span>
+            <span v-if="filters.category || filters.priceRange.min || filters.priceRange.max || filters.stockLevel.min || filters.stockLevel.max || filters.status !== 'all'" 
+              class="ml-2 px-2 py-0.5 text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200 rounded-full"
+            >
+              Active
+            </span>
+          </button>
+          <button
+            v-if="filters.category || filters.priceRange.min || filters.priceRange.max || filters.stockLevel.min || filters.stockLevel.max || filters.status !== 'all'"
+            @click="resetFilters"
+            class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none transition-colors duration-200"
+          >
+            Reset
+          </button>
           <div class="flex items-center space-x-2 bg-white dark:bg-dark-800 rounded-lg">
             <IconButton 
               variant="info" 
@@ -207,6 +316,97 @@ const setViewMode = (mode) => {
             />
           </div>
         </div>
+
+        <transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 -translate-y-4"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-4"
+        >
+          <div v-if="showFilters" class="bg-white dark:bg-dark-800 rounded-lg shadow-lg p-6 mb-6 space-y-6">
+            <!-- Category Filter -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+              <select
+                v-model="filters.category"
+                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md dark:bg-dark-700 dark:text-white"
+              >
+                <option value="">All Categories</option>
+                <option v-for="category in categories" :key="category" :value="category">
+                  {{ category }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Price Range Filter -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price Range</label>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <input
+                    v-model.number="filters.priceRange.min"
+                    type="number"
+                    placeholder="Min Price"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-dark-700 dark:text-white"
+                  >
+                </div>
+                <div>
+                  <input
+                    v-model.number="filters.priceRange.max"
+                    type="number"
+                    placeholder="Max Price"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-dark-700 dark:text-white"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Stock Level Filter -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock Level</label>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <input
+                    v-model.number="filters.stockLevel.min"
+                    type="number"
+                    placeholder="Min Stock"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-dark-700 dark:text-white"
+                  >
+                </div>
+                <div>
+                  <input
+                    v-model.number="filters.stockLevel.max"
+                    type="number"
+                    placeholder="Max Stock"
+                    class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm dark:bg-dark-700 dark:text-white"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+              <div class="grid grid-cols-4 gap-4">
+                <button
+                  v-for="status in ['all', 'in-stock', 'low-stock', 'out-of-stock']"
+                  :key="status"
+                  @click="filters.status = status"
+                  :class="[
+                    'px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200',
+                    filters.status === status
+                      ? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200'
+                      : 'bg-gray-100 text-gray-700 dark:bg-dark-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600'
+                  ]"
+                >
+                  {{ status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </transition>
 
         <!-- Products Content -->
         <div class="flex-1 overflow-y-scroll">
