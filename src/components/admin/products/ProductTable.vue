@@ -35,27 +35,28 @@ const formatCurrency = (value) => {
 </script>
 
 <template>
-  <Card class="overflow-hidden" no-padding>
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+  <!-- <Card class="overflow-hidden" no-padding> -->
+    <div class="overflow-auto rounded-lg shadow relative">
+      <table class="w-full table-auto divide-y divide-gray-200 dark:divide-gray-700">
+
         <thead class="bg-gray-50 dark:bg-dark-700">
           <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Product
             </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Category
             </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Price
             </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Stock
             </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Status
             </th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Actions
             </th>
           </tr>
@@ -68,19 +69,19 @@ const formatCurrency = (value) => {
                   <img class="h-10 w-10 rounded-full object-cover" :src="product.image || '/placeholder.jpg'" :alt="product.name">
                 </div>
                 <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ product.name }}</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">{{ product.barcode }}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ product.name }}</div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ product.barcode }}</div>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-              {{ product.category }}
+            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+              <div class="truncate">{{ product.category }}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-              {{ formatCurrency(product.regularPrice) }}
+            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white whitespace-nowrap">
+              <div class="truncate">{{ formatCurrency(product.regularPrice) }}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-              {{ product.currentStock }}
+            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              <div class="truncate">{{ product.currentStock }}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(product)]">
@@ -111,5 +112,5 @@ const formatCurrency = (value) => {
         </tbody>
       </table>
     </div>
-  </Card>
+  <!-- </Card> -->
 </template>
