@@ -326,6 +326,7 @@ export const useProductStore = defineStore('product', {
     ],
     viewMode: 'grid',
     showProductForm: false,
+    showDeleteConfirm: false,
     filters: {
       category: '',
       minStock: null,

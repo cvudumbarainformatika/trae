@@ -4,12 +4,17 @@ import { useThemeStore } from '../../stores/theme'
 import { useProductStore } from '../../stores/admin/product'
 import ProductForm from '../../components/admin/ProductForm.vue'
 
+// Edit state
+const selectedProduct = ref(null)
+const isEdit = ref(false)
+
 // Store initialization
 const themeStore = useThemeStore()
 const productStore = useProductStore()
 
 // Computed properties
 const viewMode = computed(() => productStore.viewMode)
+
 const showProductForm = computed({
   get: () => productStore.showProductForm,
   set: (value) => productStore.setShowProductForm(value)
@@ -63,14 +68,34 @@ const getPageItems = computed(() => {
   return filteredProducts.value.slice(start, end)
 })
 
+// Handle edit product
+const handleEditProduct = (product) => {
+  selectedProduct.value = { ...product }
+  showProductForm.value = true
+  isEdit.value = true
+}
+const showDeleteConfirm = (product) => {
+  selectedProduct.value = { ...product }
+  productStore.showDeleteConfirm = true
+}
+
 // Handle form submission
 const handleProductSubmit = (productData) => {
-  productStore.addProduct(productData)
+  if (isEdit.value) {
+    productStore.updateProduct({ ...productData, id: selectedProduct.value.id })
+  } else {
+    productStore.addProduct(productData)
+  }
+  showProductForm.value = false
+  selectedProduct.value = null
+  isEdit.value = false
 }
 
 // Handle form cancellation
 const handleProductCancel = () => {
-  productStore.setShowProductForm(false)
+  showProductForm.value = false
+  selectedProduct.value = null
+  isEdit.value = false
 }
 
 // View mode handlers
@@ -194,6 +219,7 @@ const setViewMode = (mode) => {
                         <IconButton
                           variant="primary"
                           size="sm"
+                          @click="handleEditProduct(product)"
                         >
                           <template #icon>
                             <Icon name="PencilIcon" class="w-4 h-4" />
@@ -202,11 +228,13 @@ const setViewMode = (mode) => {
                         <IconButton
                           variant="danger"
                           size="sm"
+                          @click="showDeleteConfirm(product)"
                         >
                           <template #icon>
                             <Icon name="TrashIcon" class="w-4 h-4" />
                           </template>
                         </IconButton>
+                       
                       </td>
                     </tr>
                   </tbody>
@@ -287,14 +315,45 @@ const setViewMode = (mode) => {
      <!-- Product Form Modal -->
      <Modal
       v-model="showProductForm"
-      title="Add New Product"
+      :title="isEdit ? 'Edit Product' : 'Add New Product'"
       @close="showProductForm = false"
     >
       <ProductForm
+        :product="selectedProduct"
+        :is-edit="isEdit"
         @submit="handleProductSubmit"
         @cancel="handleProductCancel"
       />
     </Modal>
+
+     <!-- Delete Confirmation Modal -->
+     <Modal
+        v-model="productStore.showDeleteConfirm"
+        title="Confirm Delete"
+        @close="productStore.showDeleteConfirm = false"
+      >
+        <div class="p-6">
+          <p class="text-gray-700 dark:text-gray-300 mb-4">
+            Are you sure you want to delete this product?
+            <span class="font-semibold">{{ selectedProduct?.name }}</span>?
+            This action cannot be undone.
+          </p>
+          <div class="flex justify-end space-x-4">
+            <button
+              @click="productStore.showDeleteConfirm = false"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:bg-dark-700 dark:text-gray-300 dark:hover:bg-dark-600"
+            >
+              Cancel
+            </button>
+            <button
+              @click="confirmDelete"
+              class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
 
     
   </div>
