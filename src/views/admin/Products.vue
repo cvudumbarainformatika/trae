@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useThemeStore } from '../../stores/theme'
 import { useProductStore } from '../../stores/admin/product'
 import ProductForm from '../../components/admin/ProductForm.vue'
@@ -213,6 +213,7 @@ const setViewMode = (mode) => {
       <div class="flex flex-col h-full w-full space-y-4">
         <div class="flex items-center space-x-4">
           <button
+            data-filter-toggle
             @click="showFilters = !showFilters"
             class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-dark-800 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-dark-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
           >
@@ -325,7 +326,18 @@ const setViewMode = (mode) => {
           leave-from-class="opacity-100 translate-y-0"
           leave-to-class="opacity-0 -translate-y-4"
         >
-          <div v-if="showFilters" class="bg-white dark:bg-dark-800 rounded-lg shadow-lg p-6 mb-6 space-y-6">
+          <div
+            v-if="showFilters"
+            ref="filterRef"
+            class="bg-white dark:bg-dark-800 rounded-lg shadow-lg p-6 mb-6 space-y-6 relative"
+          >
+            <!-- Close Button -->
+            <button
+              @click="showFilters = false"
+              class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
+            >
+              <Icon name="XMarkIcon" class="w-5 h-5" />
+            </button>
             <!-- Category Filter -->
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
