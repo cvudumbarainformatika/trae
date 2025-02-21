@@ -1,10 +1,13 @@
 <script setup>
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useThemeStore } from '../../stores/theme'
 import { useProductStore } from '../../stores/admin/product'
 import ProductForm from '../../components/admin/ProductForm.vue'
 import BarcodeScanner from '../../components/admin/BarcodeScanner.vue'
 import BatchOperationsModal from '../../components/admin/BatchOperationsModal.vue'
+import ProductCard from '../../components/admin/products/ProductCard.vue'
+import ProductTable from '../../components/admin/products/ProductTable.vue'
+import ProductFilters from '../../components/admin/products/ProductFilters.vue'
 import noImage from '../../assets/no-image.svg'
 
 // Edit state
@@ -197,6 +200,15 @@ const handleProductCancel = () => {
 const setViewMode = (mode) => {
   productStore.setViewMode(mode)
 }
+
+// Delete confirmation handler
+const confirmDelete = () => {
+  if (selectedProduct.value) {
+    productStore.deleteProduct(selectedProduct.value.id)
+    productStore.showDeleteConfirm = false
+    selectedProduct.value = null
+  }
+}
 </script>
 
 <template>
@@ -266,17 +278,7 @@ const setViewMode = (mode) => {
             >
               <template #icon>
                 <Icon name="Scan" class="w-5 h-5" />
-                <!-- Barcode Scanner -->
-  <BarcodeScanner
-    v-if="showScanner"
-    @scan-success="(result) => {
-      searchQuery = result
-      showScanner = false
-    }"
-    @scan-error="() => showScanner = false"
-    @close="showScanner = false"
-  />
-</template>
+              </template>
             </IconButton>
             <IconButton
               @click="setViewMode('grid')"
@@ -285,17 +287,7 @@ const setViewMode = (mode) => {
             >
               <template #icon>
                 <Icon name="LayoutGrid" class="w-5 h-5" />
-                <!-- Barcode Scanner -->
-  <BarcodeScanner
-    v-if="showScanner"
-    @scan-success="(result) => {
-      searchQuery = result
-      showScanner = false
-    }"
-    @scan-error="() => showScanner = false"
-    @close="showScanner = false"
-  />
-</template>
+              </template>
             </IconButton>
             <IconButton
               @click="setViewMode('table')"
@@ -304,17 +296,7 @@ const setViewMode = (mode) => {
             >
               <template #icon>
                 <Icon name="Table" class="w-5 h-5" />
-                <!-- Barcode Scanner -->
-  <BarcodeScanner
-    v-if="showScanner"
-    @scan-success="(result) => {
-      searchQuery = result
-      showScanner = false
-    }"
-    @scan-error="() => showScanner = false"
-    @close="showScanner = false"
-  />
-</template>
+              </template>
             </IconButton>
           </div>
           <div class="flex-1">
@@ -416,254 +398,102 @@ const setViewMode = (mode) => {
         <div class="flex-1 overflow-y-scroll">
           <!-- Grid View -->
           <div v-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-16">
-            <Card v-for="product in getPageItems" 
-                  :key="product.id"
-                  class="flex flex-col h-full transition-transform duration-200 hover:scale-105"
-                  padding="p-4">
-              <div class="relative aspect-square w-full mb-4 overflow-hidden rounded-lg">
-                <img :src="product.image || noImage" 
-                     :alt="product.name" 
-                     class="w-full h-full object-cover">
-              </div>
-              <div class="flex-1 flex flex-col">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ product.name }}</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 font-mono mb-2">{{ product.barcode }}</p>
-                <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 self-start mb-2">
-                  {{ product.category }}
-                </span>
-                <div class="flex items-center mb-2">
-                  <span class="text-sm font-medium" :class="{
-                    'text-green-600 dark:text-green-400': product.currentStock > product.minStock,
-                    'text-yellow-600 dark:text-yellow-400': product.currentStock <= product.minStock && product.currentStock > 0,
-                    'text-red-600 dark:text-red-400': product.currentStock === 0
-                  }">
-                    {{ product.currentStock }}
-                  </span>
-                  <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">units</span>
-                </div>
-                <div class="mb-4">
-                  <div class="text-sm font-semibold text-gray-900 dark:text-white">Rp {{ product.regularPrice.toLocaleString() }}</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">Buy: Rp {{ product.buyPrice.toLocaleString() }}</div>
-                </div>
-                <div class="flex justify-end space-x-2 mt-auto">
-                  <IconButton
-                    variant="primary"
-                    size="sm"
-                    @click="handleEditProduct(product)"
-                  >
-                    <template #icon>
-                      <Icon name="PencilIcon" class="w-4 h-4" />
-                      <!-- Barcode Scanner -->
-  <BarcodeScanner
-    v-if="showScanner"
-    @scan-success="(result) => {
-      searchQuery = result
-      showScanner = false
-    }"
-    @scan-error="() => showScanner = false"
-    @close="showScanner = false"
-  />
-</template>
-                  </IconButton>
-                  <IconButton
-                    variant="danger"
-                    size="sm"
-                    @click="showDeleteConfirm(product)"
-                  >
-                    <template #icon>
-                      <Icon name="TrashIcon" class="w-4 h-4" />
-                      <!-- Barcode Scanner -->
-  <BarcodeScanner
-    v-if="showScanner"
-    @scan-success="(result) => {
-      searchQuery = result
-      showScanner = false
-    }"
-    @scan-error="() => showScanner = false"
-    @close="showScanner = false"
-  />
-</template>
-                  </IconButton>
-                </div>
-              </div>
-            </Card>
+            <ProductCard
+              v-for="product in getPageItems"
+              :key="product.id"
+              :product="product"
+              @edit="handleEditProduct"
+              @delete="showDeleteConfirm"
+            />
           </div>
 
           <!-- Table View -->
-          <Card v-else padding="p-2" class="border border-gray-200 dark:border-gray-700 shadow-lg mb-16">
-            <!-- Existing table code -->
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-dark-700">
-                  <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Product</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Category</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Stock</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Price</th>
-                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  <tr v-for="product in getPageItems" 
-                      :key="product.id"
-                      class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-dark-700">
-                    <td class="px-6 py-5 whitespace-nowrap">
-                      <div class="flex items-center">
-                        <div class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg shadow-sm">
-                          <img :src="product.image || '/src/assets/no-image.svg'" :alt="product.name" class="h-12 w-12 object-cover transform transition-transform duration-200 hover:scale-110">
-                        </div>
-                        <div class="ml-4">
-                          <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ product.name }}</div>
-                          <div class="text-sm text-gray-500 dark:text-gray-400 font-mono">{{ product.barcode }}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-6 py-5 whitespace-nowrap">
-                      <span class="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        {{ product.category }}
-                      </span>
-                    </td>
-                    <td class="px-6 py-5 whitespace-nowrap">
-                      <div class="flex items-center">
-                        <span class="text-sm font-medium" :class="{
-                          'text-green-600 dark:text-green-400': product.currentStock > product.minStock,
-                          'text-yellow-600 dark:text-yellow-400': product.currentStock <= product.minStock && product.currentStock > 0,
-                          'text-red-600 dark:text-red-400': product.currentStock === 0
-                        }">
-                          {{ product.currentStock }}
-                        </span>
-                        <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">units</span>
-                      </div>
-                    </td>
-                    <td class="px-6 py-5 whitespace-nowrap">
-                      <div class="text-sm font-semibold text-gray-900 dark:text-white">Rp {{ product.regularPrice.toLocaleString() }}</div>
-                      <div class="text-xs text-gray-500 dark:text-gray-400">Buy: Rp {{ product.buyPrice.toLocaleString() }}</div>
-                    </td>
-                    <td class="px-6 py-5 whitespace-nowrap text-sm font-medium flex justify-end space-x-2">
-                      <IconButton
-                        variant="primary"
-                        size="sm"
-                        @click="handleEditProduct(product)"
-                      >
-                        <template #icon>
-                          <Icon name="PencilIcon" class="w-4 h-4" />
-                          <!-- Barcode Scanner -->
-                          <BarcodeScanner
-                            v-if="showScanner"
-                            @scan-success="(result) => {
-                              searchQuery = result
-                              showScanner = false
-                            }"
-                            @scan-error="() => showScanner = false"
-                            @close="showScanner = false"
-                          />
-                        </template>
-                      </IconButton>
-                      <IconButton
-                        variant="danger"
-                        size="sm"
-                        @click="showDeleteConfirm(product)"
-                      >
-                        <template #icon>
-                          <Icon name="TrashIcon" class="w-4 h-4" />
-                          <!-- Barcode Scanner -->
-                          <BarcodeScanner
-                            v-if="showScanner"
-                            @scan-success="(result) => {
-                              searchQuery = result
-                              showScanner = false
-                            }"
-                            @scan-error="() => showScanner = false"
-                            @close="showScanner = false"
-                          />
-                        </template>
-                      </IconButton>
-                     
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+          <ProductTable
+            v-else
+            :products="getPageItems"
+            @edit="handleEditProduct"
+            @delete="showDeleteConfirm"
+          />
+
+
+          
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex-row">
+          <Card padding="p-2" class="border-t border-gray-200 dark:border-gray-700 shadow-lg">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-2 bg-white dark:bg-dark-800">
+              <div class="text-sm text-gray-700 dark:text-gray-300">
+                Showing
+                <span class="font-medium">{{ ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1 }}</span>
+                to
+                <span class="font-medium">{{ Math.min(pagination.currentPage * pagination.itemsPerPage, filteredProducts.length) }}</span>
+                of
+                <span class="font-medium">{{ filteredProducts.length }}</span>
+                results
               </div>
-            </Card>
-          </div>
-
-
-          <!-- Pagination -->
-          <div class="flex-row">
-            <Card padding="p-2" class="border-t border-gray-200 dark:border-gray-700 shadow-lg">
-              <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-2 bg-white dark:bg-dark-800">
-                <div class="text-sm text-gray-700 dark:text-gray-300">
-                  Showing
-                  <span class="font-medium">{{ ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1 }}</span>
-                  to
-                  <span class="font-medium">{{ Math.min(pagination.currentPage * pagination.itemsPerPage, filteredProducts.length) }}</span>
-                  of
-                  <span class="font-medium">{{ filteredProducts.length }}</span>
-                  results
+              <div class="flex items-center space-x-1">
+                <IconButton
+                  @click="changePage(1)"
+                  :disabled="pagination.currentPage === 1"
+                  variant="ghost"
+                  size="sm"
+                >
+                  <template #icon>
+                    <Icon name="chevrons-left" class="w-4 h-4" />
+                  </template>
+                </IconButton>
+                <IconButton
+                  @click="changePage(pagination.currentPage - 1)"
+                  :disabled="pagination.currentPage === 1"
+                  variant="ghost"
+                  size="sm"
+                >
+                  <template #icon>
+                    <Icon name="chevron-left" class="w-4 h-4" />
+                  </template>
+                </IconButton>
+                
+                <div class="hidden sm:flex space-x-1">
+                  <template v-for="page in pagination.totalPages" :key="page">
+                    <IconButton
+                      v-if="page >= pagination.startPage && page <= pagination.endPage"
+                      @click="changePage(page)"
+                      :variant="pagination.currentPage === page ? 'primary' : 'ghost'"
+                      size="sm"
+                    >
+                      {{ page }}
+                    </IconButton>
+                  </template>
                 </div>
-                <div class="flex items-center space-x-1">
-                  <IconButton
-                    @click="changePage(1)"
-                    :disabled="pagination.currentPage === 1"
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <template #icon>
-                      <Icon name="chevrons-left" class="w-4 h-4" />
-                    </template>
-                  </IconButton>
-                  <IconButton
-                    @click="changePage(pagination.currentPage - 1)"
-                    :disabled="pagination.currentPage === 1"
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <template #icon>
-                      <Icon name="chevron-left" class="w-4 h-4" />
-                    </template>
-                  </IconButton>
-                  
-                  <div class="hidden sm:flex space-x-1">
-                    <template v-for="page in pagination.totalPages" :key="page">
-                      <IconButton
-                        v-if="page >= pagination.startPage && page <= pagination.endPage"
-                        @click="changePage(page)"
-                        :variant="pagination.currentPage === page ? 'primary' : 'ghost'"
-                        size="sm"
-                      >
-                        {{ page }}
-                      </IconButton>
-                    </template>
-                  </div>
 
-                  <IconButton
-                    @click="changePage(pagination.currentPage + 1)"
-                    :disabled="pagination.currentPage >= pagination.totalPages"
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <template #icon>
-                      <Icon name="chevron-right" class="w-4 h-4" />
-                    </template>
-                  </IconButton>
-                  <IconButton
-                    @click="changePage(pagination.totalPages)"
-                    :disabled="pagination.currentPage >= pagination.totalPages"
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <template #icon>
-                      <Icon name="chevrons-right" class="w-4 h-4" />
-                    </template>
-                  </IconButton>
-                </div>
+                <IconButton
+                  @click="changePage(pagination.currentPage + 1)"
+                  :disabled="pagination.currentPage >= pagination.totalPages"
+                  variant="ghost"
+                  size="sm"
+                >
+                  <template #icon>
+                    <Icon name="chevron-right" class="w-4 h-4" />
+                  </template>
+                </IconButton>
+                <IconButton
+                  @click="changePage(pagination.totalPages)"
+                  :disabled="pagination.currentPage >= pagination.totalPages"
+                  variant="ghost"
+                  size="sm"
+                >
+                  <template #icon>
+                    <Icon name="chevrons-right" class="w-4 h-4" />
+                  </template>
+                </IconButton>
               </div>
-            </Card>
-          </div>
+            </div>
+          </Card>
         </div>
         
       </div>
-
+    </div>
      <!-- Product Form Modal -->
      <Modal
       v-model="showProductForm"
@@ -683,52 +513,47 @@ const setViewMode = (mode) => {
       v-model="showBatchOperations"
       @close="showBatchOperations = false"
     />
-     <!-- Delete Confirmation Modal -->
-     <Modal
-        v-model="productStore.showDeleteConfirm"
-        title="Confirm Delete"
-        @close="productStore.showDeleteConfirm = false"
-      >
-        <div class="p-6">
-          <p class="text-gray-700 dark:text-gray-300 mb-4">
-            Are you sure you want to delete this product?
-            <span class="font-semibold">{{ selectedProduct?.name }}</span>?
-            This action cannot be undone.
-          </p>
-          <div class="flex justify-end space-x-4">
-            <IconButton
-              @click="productStore.showDeleteConfirm = false"
-              variant="ghost"
-              size="md"
-            >
-              <span>Cancel</span>
-            </IconButton>
-            <IconButton
-              @click="confirmDelete"
-              variant="danger"
-              size="md"
-            >
-              <span>Delete</span>
-            </IconButton>
-          </div>
-        </div>
-      </Modal>
 
-    <!-- Batch Operations Modal -->
-    <BatchOperationsModal
-      v-model="showBatchOperations"
-      @close="showBatchOperations = false"
+    <!-- Delete Confirmation Modal -->
+    <Modal
+      v-model="productStore.showDeleteConfirm"
+      title="Confirm Delete"
+      @close="productStore.showDeleteConfirm = false"
+    >
+      <div class="p-6">
+        <p class="text-gray-700 dark:text-gray-300 mb-4">
+          Are you sure you want to delete this product?
+          <span class="font-semibold">{{ selectedProduct?.name }}</span>?
+          This action cannot be undone.
+        </p>
+        <div class="flex justify-end space-x-4">
+          <IconButton
+            @click="productStore.showDeleteConfirm = false"
+            variant="ghost"
+            size="md"
+          >
+            <span>Cancel</span>
+          </IconButton>
+          <IconButton
+            @click="confirmDelete"
+            variant="danger"
+            size="md"
+          >
+            <span>Delete</span>
+          </IconButton>
+        </div>
+      </div>
+    </Modal>
+
+    <!-- Barcode Scanner -->
+    <BarcodeScanner
+      v-if="showScanner"
+      @scan-success="(result) => {
+        searchQuery = result
+        showScanner = false
+      }"
+      @scan-error="() => showScanner = false"
+      @close="showScanner = false"
     />
-    
   </div>
-  <!-- Barcode Scanner -->
-  <BarcodeScanner
-    v-if="showScanner"
-    @scan-success="(result) => {
-      searchQuery = result
-      showScanner = false
-    }"
-    @scan-error="() => showScanner = false"
-    @close="showScanner = false"
-  />
 </template>

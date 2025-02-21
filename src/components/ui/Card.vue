@@ -36,12 +36,12 @@ defineProps({
       variant === 'bordered' && 'border border-secondary-200 dark:border-secondary-700'
     ]"
   >
-    <div v-if="title || subtitle" :class="['mb-4', noPadding && 'px-6 pt-6']">
+    <div v-if="title || subtitle" :class="['mb-4', noPadding && 'px-2 pt-6']">
       <h3 v-if="title" class="text-lg font-medium text-secondary-900 dark:text-white">{{ title }}</h3>
       <p v-if="subtitle" class="mt-1 text-sm text-secondary-500 dark:text-secondary-400">{{ subtitle }}</p>
     </div>
     
-    <div :class="[noPadding && 'px-6']">
+    <div :class="[noPadding || 'px-2']">
       <slot></slot>
     </div>
 
