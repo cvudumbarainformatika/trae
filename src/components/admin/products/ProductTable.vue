@@ -1,8 +1,9 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import Card from '../../ui/Card.vue'
 import IconButton from '../../ui/IconButton.vue'
 import Icon from '../../ui/Icon.vue'
+import noImage from '../../../assets/no-image.svg'
 
 const props = defineProps({
   products: {
@@ -12,6 +13,20 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['edit', 'delete'])
+
+const isTableView = ref(true)
+const checkScreenSize = () => {
+  isTableView.value = window.innerWidth >= 768
+}
+
+onMounted(() => {
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreenSize)
+})
 
 const getStockStatusClass = (product) => {
   if (product.currentStock === 0) {
@@ -35,9 +50,10 @@ const formatCurrency = (value) => {
 </script>
 
 <template>
-  <!-- <Card class="overflow-hidden" no-padding> -->
-    <div class="overflow-auto rounded-lg shadow relative">
-      <table class="w-full table-auto divide-y divide-gray-200 dark:divide-gray-700">
+  <div>
+    <!-- Table View -->
+    <div v-if="isTableView" class="overflow-x-auto rounded-lg shadow relative">
+      <table class="min-w-full table-auto divide-y divide-gray-200 dark:divide-gray-700">
 
         <thead class="bg-gray-50 dark:bg-dark-700">
           <tr>
@@ -63,32 +79,32 @@ const formatCurrency = (value) => {
         </thead>
         <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
           <tr v-for="product in products" :key="product.id">
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-6 py-4 lg:whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10">
-                  <img class="h-10 w-10 rounded-full object-cover" :src="product.image || '/placeholder.jpg'" :alt="product.name">
+                  <img class="h-10 w-10 rounded-full object-cover" :src="product.image || noImage" :alt="product.name">
                 </div>
                 <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ product.name }}</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ product.barcode }}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white lg:truncate">{{ product.name }}</div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400 lg:truncate">{{ product.barcode }}</div>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-              <div class="truncate">{{ product.category }}</div>
+            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap">
+              <div class="lg:truncate">{{ product.category }}</div>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white whitespace-nowrap">
+            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white lg:whitespace-nowrap">
               <div class="truncate">{{ formatCurrency(product.regularPrice) }}</div>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap">
               <div class="truncate">{{ product.currentStock }}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td class="px-6 py-4 lg:whitespace-nowrap">
               <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(product)]">
                 {{ getStockStatus(product) }}
               </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+            <td class="px-6 py-4 lg:whitespace-nowrap text-right text-sm font-medium space-x-2">
               <IconButton
                 @click="emit('edit', product)"
                 variant="primary"
@@ -112,5 +128,51 @@ const formatCurrency = (value) => {
         </tbody>
       </table>
     </div>
-  <!-- </Card> -->
+
+    <!-- Card View -->
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <Card v-for="product in products" :key="product.id" class="h-full" no-padding>
+        <div class="p-4">
+          <div class="flex items-center space-x-4">
+            <div class="flex-shrink-0 h-16 w-16">
+              <img class="h-16 w-16 rounded-lg object-cover" :src="product.image || noImage" :alt="product.name">
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ product.name }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ product.barcode }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ product.category }}</p>
+            </div>
+            <div class="inline-flex items-center text-sm font-semibold text-gray-900 dark:text-white">
+              {{ formatCurrency(product.regularPrice) }}
+            </div>
+          </div>
+          <div class="mt-4 flex items-center justify-between">
+            <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(product)]">
+              {{ getStockStatus(product) }} ({{ product.currentStock }})
+            </span>
+            <div class="space-x-2">
+              <IconButton
+                @click="emit('edit', product)"
+                variant="primary"
+                size="sm"
+              >
+                <template #icon>
+                  <Icon name="Edit" class="w-4 h-4" />
+                </template>
+              </IconButton>
+              <IconButton
+                @click="emit('delete', product)"
+                variant="danger"
+                size="sm"
+              >
+                <template #icon>
+                  <Icon name="Trash" class="w-4 h-4" />
+                </template>
+              </IconButton>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  </div>
 </template>
