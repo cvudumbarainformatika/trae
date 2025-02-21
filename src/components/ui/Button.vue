@@ -3,7 +3,12 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'success', 'danger', 'warning', 'info'].includes(value)
+    validator: (value) => ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'ghost'].includes(value)
+  },
+  iconPosition: {
+    type: String,
+    default: 'left',
+    validator: (value) => ['left', 'right'].includes(value)
   },
   size: {
     type: String,
@@ -30,7 +35,8 @@ const variantClasses = {
   success: 'bg-success-600 hover:bg-success-700 text-white',
   danger: 'bg-danger-600 hover:bg-danger-700 text-white',
   warning: 'bg-warning-600 hover:bg-warning-700 text-white',
-  info: 'bg-cyan-600 hover:bg-cyan-700 text-white'
+  info: 'bg-cyan-600 hover:bg-cyan-700 text-white',
+  ghost: 'bg-transparent border border-current hover:bg-current hover:bg-opacity-10'
 }
 
 const sizeClasses = {
@@ -52,6 +58,8 @@ const sizeClasses = {
       'focus:ring-' + variant + '-500'
     ]"
   >
+    <slot name="icon-left" v-if="$slots['icon-left'] && iconPosition === 'left'" class="mr-2"></slot>
     <slot></slot>
+    <slot name="icon-right" v-if="$slots['icon-right'] && iconPosition === 'right'" class="ml-2"></slot>
   </button>
 </template>

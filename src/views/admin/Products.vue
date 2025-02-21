@@ -221,7 +221,7 @@ const confirmDelete = () => {
     </div>
 
     <!-- Filters and Search Section -->
-    <div class="flex-1 flex overflow-hidden w-full space-y-4">
+    <div class="flex-1 flex overflow-hidden w-full space-y-4 relative">
       <div class="flex flex-col h-full w-full space-y-4">
         <div class="flex items-center space-x-4">
           <IconButton
@@ -319,83 +319,91 @@ const confirmDelete = () => {
           <div
             v-if="showFilters"
             ref="filterRef"
-            class="bg-white dark:bg-dark-800 rounded-lg shadow-lg p-6 mb-6 space-y-6 relative"
+            class="absolute inset-0 z-50 overflow-hidden top-0 left-0"
+            @click.self="showFilters = false"
           >
-            <!-- Close Button -->
-            <button
-              @click="showFilters = false"
-              class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
-            >
-              <Icon name="XMarkIcon" class="w-5 h-5" />
-            </button>
-            <!-- Category Filter -->
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-              <BaseSelect
-                v-model="filters.category"
-                :options="[{ label: 'All Categories', value: '' }, ...categories.map(cat => ({ label: cat, value: cat }))]"
-                placeholder="Select Category"
-              />
-            </div>
-
-            <!-- Price Range Filter -->
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price Range</label>
-              <div class="grid grid-cols-2 gap-4">
-                <BaseInput
-                  v-model.number="filters.priceRange.min"
-                  type="number"
-                  placeholder="Min Price"
-                />
-                <BaseInput
-                  v-model.number="filters.priceRange.max"
-                  type="number"
-                  placeholder="Max Price"
-                />
-              </div>
-            </div>
-
-            <!-- Stock Level Filter -->
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock Level</label>
-              <div class="grid grid-cols-2 gap-4">
-                <BaseInput
-                  v-model.number="filters.stockLevel.min"
-                  type="number"
-                  placeholder="Min Stock"
-                />
-                <BaseInput
-                  v-model.number="filters.stockLevel.max"
-                  type="number"
-                  placeholder="Max Stock"
-                />
-              </div>
-            </div>
-
-            <!-- Status Filter -->
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-              <div class="grid grid-cols-4 gap-4">
+            <div class="">
+              <div
+                class="absolute top-8 left-0 bg-white dark:bg-dark-800 rounded-lg shadow-lg p-6 space-y-6 max-w-lg w-full transform transition-all duration-300 ease-out"
+                @click.stop
+              >
+                <!-- Close Button -->
                 <button
-                  v-for="status in ['all', 'in-stock', 'low-stock', 'out-of-stock']"
-                  :key="status"
-                  @click="filters.status = status"
-                  :class="[
-                    'px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200',
-                    filters.status === status
-                      ? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200'
-                      : 'bg-gray-100 text-gray-700 dark:bg-dark-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600'
-                  ]"
+                  @click="showFilters = false"
+                  class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
                 >
-                  {{ status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') }}
+                  <Icon name="X" class="w-5 h-5" />
                 </button>
+                <!-- Category Filter -->
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                  <BaseSelect
+                    v-model="filters.category"
+                    :options="[{ label: 'All Categories', value: '' }, ...categories.map(cat => ({ label: cat, value: cat }))]" 
+                    placeholder="Select Category"
+                  />
+                </div>
+
+                <!-- Price Range Filter -->
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price Range</label>
+                  <div class="grid grid-cols-2 gap-4">
+                    <BaseInput
+                      v-model.number="filters.priceRange.min"
+                      type="number"
+                      placeholder="Min Price"
+                    />
+                    <BaseInput
+                      v-model.number="filters.priceRange.max"
+                      type="number"
+                      placeholder="Max Price"
+                    />
+                  </div>
+                </div>
+
+                <!-- Stock Level Filter -->
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock Level</label>
+                  <div class="grid grid-cols-2 gap-4">
+                    <BaseInput
+                      v-model.number="filters.stockLevel.min"
+                      type="number"
+                      placeholder="Min Stock"
+                    />
+                    <BaseInput
+                      v-model.number="filters.stockLevel.max"
+                      type="number"
+                      placeholder="Max Stock"
+                    />
+                  </div>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                  <div class="grid grid-cols-4 gap-4">
+                    <button
+                      v-for="status in ['all', 'in-stock', 'low-stock', 'out-of-stock']"
+                      :key="status"
+                      @click="filters.status = status"
+                      :class="[
+                        'px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200',
+                        filters.status === status
+                          ? 'bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200'
+                          : 'bg-gray-100 text-gray-700 dark:bg-dark-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-600'
+                      ]"
+                    >
+                      {{ status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') }}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </transition>
 
         <!-- Products Content -->
-        <div class="flex-1 overflow-y-scroll">
+        <div class="flex-1 overflow-y-scroll relative ">
           <!-- Grid View -->
           <div v-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-16">
             <ProductCard
@@ -421,75 +429,12 @@ const confirmDelete = () => {
 
         <!-- Pagination -->
         <div class="flex-row">
-          <Card padding="p-2" class="border-t border-gray-200 dark:border-gray-700 shadow-lg">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-2 bg-white dark:bg-dark-800">
-              <div class="text-sm text-gray-700 dark:text-gray-300">
-                Showing
-                <span class="font-medium">{{ ((pagination.currentPage - 1) * pagination.itemsPerPage) + 1 }}</span>
-                to
-                <span class="font-medium">{{ Math.min(pagination.currentPage * pagination.itemsPerPage, filteredProducts.length) }}</span>
-                of
-                <span class="font-medium">{{ filteredProducts.length }}</span>
-                results
-              </div>
-              <div class="flex items-center space-x-1">
-                <IconButton
-                  @click="changePage(1)"
-                  :disabled="pagination.currentPage === 1"
-                  variant="ghost"
-                  size="sm"
-                >
-                  <template #icon>
-                    <Icon name="chevrons-left" class="w-4 h-4" />
-                  </template>
-                </IconButton>
-                <IconButton
-                  @click="changePage(pagination.currentPage - 1)"
-                  :disabled="pagination.currentPage === 1"
-                  variant="ghost"
-                  size="sm"
-                >
-                  <template #icon>
-                    <Icon name="chevron-left" class="w-4 h-4" />
-                  </template>
-                </IconButton>
-                
-                <div class="hidden sm:flex space-x-1">
-                  <template v-for="page in pagination.totalPages" :key="page">
-                    <IconButton
-                      v-if="page >= pagination.startPage && page <= pagination.endPage"
-                      @click="changePage(page)"
-                      :variant="pagination.currentPage === page ? 'primary' : 'ghost'"
-                      size="sm"
-                    >
-                      {{ page }}
-                    </IconButton>
-                  </template>
-                </div>
-
-                <IconButton
-                  @click="changePage(pagination.currentPage + 1)"
-                  :disabled="pagination.currentPage >= pagination.totalPages"
-                  variant="ghost"
-                  size="sm"
-                >
-                  <template #icon>
-                    <Icon name="chevron-right" class="w-4 h-4" />
-                  </template>
-                </IconButton>
-                <IconButton
-                  @click="changePage(pagination.totalPages)"
-                  :disabled="pagination.currentPage >= pagination.totalPages"
-                  variant="ghost"
-                  size="sm"
-                >
-                  <template #icon>
-                    <Icon name="chevrons-right" class="w-4 h-4" />
-                  </template>
-                </IconButton>
-              </div>
-            </div>
-          </Card>
+          <BasePagination
+            v-model:currentPage="currentPage"
+            :total-items="filteredProducts.length"
+            :items-per-page="pagination.itemsPerPage"
+            :max-visible-pages="5"
+          />
         </div>
         
       </div>
