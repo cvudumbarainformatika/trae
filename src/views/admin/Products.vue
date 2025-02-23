@@ -1,213 +1,96 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { useThemeStore } from '../../stores/theme'
+import { computed, onMounted } from 'vue'
 import { useProductStore } from '../../stores/admin/product'
 import ProductForm from '../../components/admin/ProductForm.vue'
 import BarcodeScanner from '../../components/admin/BarcodeScanner.vue'
 import BatchOperationsModal from '../../components/admin/BatchOperationsModal.vue'
 import ProductCard from '../../components/admin/products/ProductCard.vue'
 import ProductTable from '../../components/admin/products/ProductTable.vue'
-import ProductFilters from '../../components/admin/products/ProductFilters.vue'
 import noImage from '../../assets/no-image.svg'
 
-// Edit state
-const selectedProduct = ref(null)
-const isEdit = ref(false)
-const showScanner = ref(false)
-const showBatchOperations = ref(false)
-
 // Store initialization
-const themeStore = useThemeStore()
 const productStore = useProductStore()
 
-// Add new filter state
-const showFilters = ref(false)
-const filters = ref({
-  category: '',
-  priceRange: {
-    min: null,
-    max: null
-  },
-  stockLevel: {
-    min: null,
-    max: null
-  },
-  status: 'all' // 'all', 'in-stock', 'low-stock', 'out-of-stock'
+onMounted(() => {
+  productStore.fetchProducts()
 })
 
-// Add computed property for categories
-const categories = computed(() => {
-  const uniqueCategories = new Set(productStore.products.map(p => p.category))
-  return Array.from(uniqueCategories).sort()
-})
-
-// Computed properties
+// Computed properties from store
 const viewMode = computed(() => productStore.viewMode)
-
+const isEdit = computed(() => productStore.isEdit)
 const showProductForm = computed({
   get: () => productStore.showProductForm,
   set: (value) => productStore.setShowProductForm(value)
 })
-
 const searchQuery = computed({
-  get: () => productStore.searchQuery,
+  get: () => productStore.filters.q,
   set: (value) => productStore.setSearchQuery(value)
 })
+const showFilters = computed({
+  get: () => productStore.showFilters,
+  set: (value) => productStore.setShowFilters(value)
+})
+const filters = computed(() => productStore.filters)
+const categories = computed(() => productStore.categories)
+const filteredProducts = computed(() => productStore.filteredProducts)
+const pagination = computed(() => productStore.paginationInfo)
+const currentPage = computed({
+  get: () => productStore.pagination.currentPage,
+  set: (value) => productStore.setCurrentPage(value)
+})
+const getPageItems = computed(() => productStore.paginatedProducts)
 
-// Enhance filtered products computation
-const filteredProducts = computed(() => {
-  return productStore.products.filter(product => {
-    // Search query filter
-    if (searchQuery.value) {
-      const query = searchQuery.value.toLowerCase()
-      const matchesSearch = 
-        product.name.toLowerCase().includes(query) ||
-        product.barcode.toLowerCase().includes(query) ||
-        product.category.toLowerCase().includes(query)
-      if (!matchesSearch) return false
-    }
-
-    // Category filter
-    if (filters.value.category && product.category !== filters.value.category) {
-      return false
-    }
-
-    // Price range filter
-    if (filters.value.priceRange.min && product.regularPrice < filters.value.priceRange.min) {
-      return false
-    }
-    if (filters.value.priceRange.max && product.regularPrice > filters.value.priceRange.max) {
-      return false
-    }
-
-    // Stock level filter
-    if (filters.value.stockLevel.min && product.currentStock < filters.value.stockLevel.min) {
-      return false
-    }
-    if (filters.value.stockLevel.max && product.currentStock > filters.value.stockLevel.max) {
-      return false
-    }
-
-    // Status filter
-    if (filters.value.status !== 'all') {
-      switch (filters.value.status) {
-        case 'in-stock':
-          if (product.currentStock <= product.minStock) return false
-          break
-        case 'low-stock':
-          if (product.currentStock > product.minStock || product.currentStock === 0) return false
-          break
-        case 'out-of-stock':
-          if (product.currentStock !== 0) return false
-          break
-      }
-    }
-
-    return true
-  })
+// Add missing computed properties
+const showBatchOperations = computed({
+  get: () => productStore.showBatchOperations,
+  set: (value) => productStore.showBatchOperations = value
 })
 
-// Reset filters function
-const resetFilters = () => {
-  filters.value = {
-    category: '',
-    priceRange: {
-      min: null,
-      max: null
-    },
-    stockLevel: {
-      min: null,
-      max: null
-    },
-    status: 'all'
-  }
-}
-
-// Pagination state
-const currentPage = ref(1)
-
-// Watch for search query changes to reset pagination
-watch(searchQuery, () => {
-  currentPage.value = 1
+const showScanner = computed({
+  get: () => productStore.showScanner,
+  set: (value) => productStore.showScanner = value
 })
 
-const pagination = computed(() => {
-  const totalItems = filteredProducts.value.length
-  const itemsPerPage = 12
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
+const selectedProduct = computed(() => productStore.selectedProduct)
 
-  // Calculate visible page numbers
-  const maxVisiblePages = 5
-  let startPage = Math.max(1, currentPage.value - Math.floor(maxVisiblePages / 2))
-  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
-
-  if (endPage - startPage + 1 < maxVisiblePages) {
-    startPage = Math.max(1, endPage - maxVisiblePages + 1)
-  }
-
-  return {
-    currentPage: currentPage.value,
-    totalPages,
-    itemsPerPage,
-    startPage,
-    endPage,
-    totalItems
-  }
-})
-
-// Pagination methods
-const changePage = (page) => {
-  currentPage.value = page
-}
-
-const getPageItems = computed(() => {
-  const start = (currentPage.value - 1) * pagination.value.itemsPerPage
-  const end = start + pagination.value.itemsPerPage
-  return filteredProducts.value.slice(start, end)
-})
-
-// Handle edit product
+// Event handlers
 const handleEditProduct = (product) => {
-  selectedProduct.value = { ...product }
-  showProductForm.value = true
-  isEdit.value = true
+  productStore.selectedProduct = product
+  productStore.isEdit = true
+  productStore.showProductForm = true
 }
+
 const showDeleteConfirm = (product) => {
-  selectedProduct.value = { ...product }
+  productStore.selectedProduct = product
   productStore.showDeleteConfirm = true
 }
 
-// Handle form submission
-const handleProductSubmit = (productData) => {
+const confirmDelete = async () => {
+  await productStore.deleteProduct(productStore.selectedProduct.id)
+  productStore.showDeleteConfirm = false
+}
+
+const handleProductSubmit = async (formData) => {
   if (isEdit.value) {
-    productStore.updateProduct({ ...productData, id: selectedProduct.value.id })
+    await productStore.updateProduct(formData)
   } else {
-    productStore.addProduct(productData)
+    await productStore.createProduct(formData)
   }
-  showProductForm.value = false
-  selectedProduct.value = null
-  isEdit.value = false
+  productStore.showProductForm = false
 }
 
-// Handle form cancellation
 const handleProductCancel = () => {
-  showProductForm.value = false
-  selectedProduct.value = null
-  isEdit.value = false
+  productStore.showProductForm = false
+  productStore.selectedProduct = null
+  productStore.isEdit = false
 }
 
-// View mode handlers
+const resetFilters = () => {
+  productStore.resetFilters()
+}
+
 const setViewMode = (mode) => {
-  productStore.setViewMode(mode)
-}
-
-// Delete confirmation handler
-const confirmDelete = () => {
-  if (selectedProduct.value) {
-    productStore.deleteProduct(selectedProduct.value.id)
-    productStore.showDeleteConfirm = false
-    selectedProduct.value = null
-  }
+  productStore.viewMode = mode
 }
 </script>
 
