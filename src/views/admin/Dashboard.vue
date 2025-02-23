@@ -4,6 +4,7 @@ import AdminLayout from '../../layouts/AdminLayout.vue'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 import { useThemeStore } from '../../stores/theme'
+import BaseButton from '../../components/ui/BaseButton.vue'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
@@ -22,12 +23,12 @@ const stats = ref([
     <div class="flex flex-col h-full space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-semibold text-gray-800 dark:text-white">Dashboard</h1>
-        <Button
+        <BaseButton
           @click="themeStore.toggleTheme()"
           class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
         >
           {{ themeStore.isDark ? '🌞 Light' : '🌙 Dark' }}
-        </Button>
+        </BaseButton>
       </div>
       
       <div class="flex-1 h-full space-y-4 overflow-y-auto">

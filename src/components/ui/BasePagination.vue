@@ -103,14 +103,14 @@ const paginationContent = computed(() => {
             
             <div class="hidden sm:flex space-x-1">
               <template v-for="page in pagination.totalPages" :key="page">
-                <IconButton
+                <BaseButton
                   v-if="page >= pagination.startPage && page <= pagination.endPage"
                   @click="changePage(page)"
                   :variant="pagination.currentPage === page ? 'primary' : 'ghost'"
                   size="sm"
                 >
                   {{ page }}
-                </IconButton>
+                </BaseButton>
               </template>
             </div>
 
@@ -175,14 +175,15 @@ const paginationContent = computed(() => {
           
           <div class="hidden sm:flex space-x-1">
             <template v-for="page in pagination.totalPages" :key="page">
-              <Button
+              <BaseButton
                 v-if="page >= pagination.startPage && page <= pagination.endPage"
                 @click="changePage(page)"
                 :variant="pagination.currentPage === page ? 'primary' : 'ghost'"
                 size="sm"
+                :label="page"
               >
-                {{ page }}
-              </Button>
+                
+              </BaseButton>
             </template>
           </div>
 

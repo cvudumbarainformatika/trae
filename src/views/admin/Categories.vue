@@ -23,19 +23,6 @@ const searchQuery = computed({
   set: (value) => categoryStore.setSearchQuery(value)
 })
 
-// Pagination
-const currentPage = ref(1)
-const pagination = ref({
-  itemsPerPage: 10
-})
-
-// Get paginated items
-const getPageItems = computed(() => {
-  const start = (currentPage.value - 1) * pagination.value.itemsPerPage
-  const end = start + pagination.value.itemsPerPage
-  return filteredCategories.value.slice(start, end)
-})
-
 // Categories data from store
 const categories = computed(() => categoryStore.categories)
 
@@ -125,7 +112,7 @@ const checkMobileView = () => {
     <!-- Mobile View: Category Cards -->
     <div v-if="isMobileView" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div
-        v-for="category in getPageItems"
+        v-for="category in filteredCategories"
         :key="category.id"
         class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3"
       >
@@ -180,7 +167,7 @@ const checkMobileView = () => {
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-          <tr v-for="category in getPageItems" :key="category.id">
+          <tr v-for="category in filteredCategories" :key="category.id">
             <td class="px-6 py-4 lg:whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ category.name }}</td>
             <td class="hidden md:table-cell px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ category.description }}</td>
             <td class="px-6 py-4 lg:whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -263,14 +250,6 @@ const checkMobileView = () => {
       </div>
     </Modal>
 
-    <!-- Pagination -->
-    <div class="mt-6">
-      <BasePagination
-        v-model:currentPage="currentPage"
-        :total-items="filteredCategories.length"
-        :items-per-page="pagination.itemsPerPage"
-        :max-visible-pages="5"
-      />
-    </div>
+
   </div>
 </template>

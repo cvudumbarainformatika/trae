@@ -29,17 +29,17 @@ onUnmounted(() => {
 })
 
 const getStockStatusClass = (product) => {
-  if (product.currentStock === 0) {
+  if (product.currentStock <= 0) {
     return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
   }
-  if (product.currentStock <= product.minStock) {
+  if (product.stock <= product.minstock) {
     return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
   }
   return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
 }
 
 const getStockStatus = (product) => {
-  if (product.currentStock === 0) return 'out-of-stock'
+  if (product.currentStock <= 0) return 'out-of-stock'
   if (product.currentStock <= product.minStock) return 'low-stock'
   return 'in-stock'
 }
@@ -91,13 +91,13 @@ const formatCurrency = (value) => {
               </div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap">
-              <div class="lg:truncate">{{ product.category }}</div>
+              <div class="lg:truncate">{{ product.category?.name }}</div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-900 dark:text-white lg:whitespace-nowrap">
-              <div class="truncate">{{ formatCurrency(product.regularPrice) }}</div>
+              <div class="truncate">{{ formatCurrency(product.hargajual) }}</div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap">
-              <div class="truncate">{{ product.currentStock }}</div>
+              <div class="truncate">{{ product.stock }}</div>
             </td>
             <td class="px-6 py-4 lg:whitespace-nowrap">
               <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(product)]">

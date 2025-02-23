@@ -15,8 +15,8 @@ const props = defineProps({
 const emit = defineEmits(['edit', 'delete'])
 
 const stockStatus = computed(() => {
-  if (props.product.currentStock === 0) return 'out-of-stock'
-  if (props.product.currentStock <= props.product.minStock) return 'low-stock'
+  if (props.product.stock <= 0) return 'out-of-stock'
+  if (props.product.stock <= props.product.minstock) return 'low-stock'
   return 'in-stock'
 })
 
@@ -38,7 +38,7 @@ const stockStatusClass = computed(() => {
       <div class="relative aspect-square overflow-hidden rounded-t-lg">
         <div class="absolute left-0 right-0 inset-0 bg-gradient-to-t from-black/30 to-transparent z-10"></div>
         <img
-          :src="product.image || noImage"
+          :src="product?.image || noImage"
           :alt="product.name"
           class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-in-out"
         />
@@ -57,16 +57,16 @@ const stockStatusClass = computed(() => {
             {{ product.name }}
           </h3>
           <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-            {{ product.category }}
+            {{ product?.category?.name || '-' }}
           </p>
         </div>
         <div class="flex justify-between items-center mb-2">
           <div class="space-y-1">
             <div class="text-xl font-bold text-primary-600 dark:text-primary-400">
-              {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(product.regularPrice) }}
+              {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(product.hargajual) }}
             </div>
             <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
-              Stock: {{ product.currentStock }}
+              Stock: {{ product.stock }}
             </div>
           </div>
         </div>

@@ -26,6 +26,10 @@ const props = defineProps({
   block: {
     type: Boolean,
     default: false
+  },
+  label: {
+    type: String,
+    default: ''
   }
 })
 
@@ -36,7 +40,7 @@ const variantClasses = {
   danger: 'bg-danger-600 hover:bg-danger-700 text-white',
   warning: 'bg-warning-600 hover:bg-warning-700 text-white',
   info: 'bg-cyan-600 hover:bg-cyan-700 text-white',
-  ghost: 'bg-transparent border border-current hover:bg-current hover:bg-opacity-10'
+  ghost: 'bg-transparent hover:bg-gray-700/50 dark:text-white text-gray-500'
 }
 
 const sizeClasses = {
@@ -59,7 +63,8 @@ const sizeClasses = {
     ]"
   >
     <slot name="icon-left" v-if="$slots['icon-left'] && iconPosition === 'left'" class="mr-2"></slot>
-    <slot></slot>
+    <span v-if="label">{{ label }}</span>
+    <slot v-else></slot>
     <slot name="icon-right" v-if="$slots['icon-right'] && iconPosition === 'right'" class="ml-2"></slot>
   </button>
 </template>

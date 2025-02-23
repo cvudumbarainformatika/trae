@@ -1,4 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { useCategoryStore } from './category'
 import { api } from '../../services/api'
 
 export const useProductStore = defineStore('product', {
@@ -26,16 +27,16 @@ export const useProductStore = defineStore('product', {
       status: 'all',
       category_id: null,
       sort_by: 'name',
-      sort_dir: 'asc',
-      per_page: 12,
-      stock_op: null,
-      stock_val: null,
-      hargajual_op: null,
-      hargajual_val: null,
-      hargajualcust_op: null,
-      hargajualcust_val: null,
-      hargajualantar_op: null,
-      hargajualantar_val: null
+      sort_dir: 'desc',
+      per_page: 1,
+      stock_op: '',
+      stock_val: 0,
+      hargajual_op: '',
+      hargajual_val: 0,
+      hargajualcust_op: '',
+      hargajualcust_val: 0,
+      hargajualantar_op: '',
+      hargajualantar_val: 0
     },
     sortBy: {
       field: 'name',
@@ -52,64 +53,34 @@ export const useProductStore = defineStore('product', {
   }),
 
   getters: {
-    categories: (state) => {
-      const uniqueCategories = new Set(state.products.map(p => p.category))
-      return Array.from(uniqueCategories).sort()
+    categories: () => {
+      const storeCategories = useCategoryStore()
+      return storeCategories.categories
     },
 
     filteredProducts: (state) => {
-      return state.products.filter(product => {
-        // Search query filter
-        if (state.filters?.q) {
-          const query = state.filters.q.toLowerCase()
-          if (!(
-            product?.name?.toLowerCase()?.includes(query) ||
-            product?.barcode?.toLowerCase()?.includes(query) ||
-            product?.category?.toLowerCase()?.includes(query)
-          )) {
-            return false
-          }
-        }
-
-        // Category filter
-        if (state.filters?.category && product?.category !== state.filters.category) {
-          return false
-        }
-
-        // Price range filter
-        if (state.filters?.priceRange?.min && product?.regularPrice < state.filters.priceRange.min) {
-          return false
-        }
-        if (state.filters?.priceRange?.max && product?.regularPrice > state.filters.priceRange.max) {
-          return false
-        }
-
-        // Stock level filter
-        if (state.filters?.stockLevel?.min && product?.currentStock < state.filters.stockLevel.min) {
-          return false
-        }
-        if (state.filters?.stockLevel?.max && product?.currentStock > state.filters.stockLevel.max) {
-          return false
-        }
-
-        // Status filter
-        if (state.filters?.status !== 'all') {
-          switch (state.filters.status) {
-            case 'in-stock':
-              if (product?.currentStock <= product?.minStock) return false
-              break
-            case 'low-stock':
-              if (product?.currentStock > product?.minStock || product?.currentStock === 0) return false
-              break
-            case 'out-of-stock':
-              if (product?.currentStock !== 0) return false
-              break
-          }
-        }
-
-        return true
-      })
+      // Server-side filtering is now handled by the API
+      // This getter now only provides the current products state
+      return state.products
     },
+
+    // Add new getters for API parameters
+    apiParams: (state) => {
+      const params = {
+        ...state.filters,
+        page: state.pagination.currentPage
+      }
+      
+      // Only include non-null filter values
+      Object.keys(params).forEach(key => {
+        if (params[key] === null || params[key] === '') {
+          delete params[key]
+        }
+      })
+      
+      return params
+    },
+           
 
     paginatedProducts: (state, getters) => {
       const filteredProducts = getters?.filteredProducts || []
@@ -119,7 +90,7 @@ export const useProductStore = defineStore('product', {
     },
 
     paginationInfo: (state, getters) => {
-      const totalItems = getters?.filteredProducts?.length
+      const totalItems = state.pagination?.total
       const totalPages = Math.ceil(totalItems / state.pagination.itemsPerPage)
 
       let startPage = Math.max(1, state.pagination.currentPage - Math.floor(state.pagination.maxVisiblePages / 2))
@@ -130,12 +101,13 @@ export const useProductStore = defineStore('product', {
       }
 
       return {
-        currentPage: state.pagination.currentPage,
+        currentPage: state.pagination?.currentPage,
         totalPages,
-        itemsPerPage: state.pagination.itemsPerPage,
+        itemsPerPage: state.pagination?.itemsPerPage,
         startPage,
         endPage,
-        totalItems
+        totalItems,
+        maxVisiblePages: state.pagination?.maxVisiblePages
       }
     }
   },
@@ -143,6 +115,12 @@ export const useProductStore = defineStore('product', {
   actions: {
     setViewMode(mode) {
       this.viewMode = mode
+    },
+
+    setFilter(name,value) {
+      this.filters[name] = value
+      this.setCurrentPage(1)
+      this.fetchProducts()
     },
 
     setShowProductForm(value) {
@@ -155,7 +133,7 @@ export const useProductStore = defineStore('product', {
 
     setSearchQuery(query) {
       this.filters.q = query
-      this.pagination.currentPage = 1
+      this.setCurrentPage(1)
     },
 
     setShowFilters(value) {
@@ -165,7 +143,9 @@ export const useProductStore = defineStore('product', {
     resetFilters() {
       this.filters = {
         ...this.filters,
-        category: '',
+        sort_by: this.sortBy.field,
+        per_page: this.pagination?.itemsPerPage,
+        category_id: null,
         priceRange: {
           min: null,
           max: null
@@ -175,7 +155,10 @@ export const useProductStore = defineStore('product', {
           max: null
         },
         status: 'all'
-      }
+      },
+
+      this.pagination.currentPage = 1
+      this.fetchProducts()
     },
 
     setCurrentPage(page) {
@@ -210,6 +193,12 @@ export const useProductStore = defineStore('product', {
       this.isEdit = false
     },
 
+    handlePage(page) {
+      this.pagination.currentPage = page
+      this.fetchProducts()
+    },
+    
+
     async fetchProducts() {
       this.loading = true
       this.error = null
@@ -226,8 +215,13 @@ export const useProductStore = defineStore('product', {
 
         console.log('fetch products', response.data);
         
-        this.products = response.data.data
-        this.pagination.total = response.data.total
+        this.products = response.data?.data
+        this.pagination = {
+          currentPage: response.data?.meta?.current_page,
+          total: response.data?.meta?.total,
+          itemsPerPage: this.pagination.itemsPerPage,
+          maxVisiblePages: this.pagination.maxVisiblePages
+        } 
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch products'
         console.error('Error fetching products:', error)

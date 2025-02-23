@@ -6,13 +6,18 @@ import BarcodeScanner from '../../components/admin/BarcodeScanner.vue'
 import BatchOperationsModal from '../../components/admin/BatchOperationsModal.vue'
 import ProductCard from '../../components/admin/products/ProductCard.vue'
 import ProductTable from '../../components/admin/products/ProductTable.vue'
-import noImage from '../../assets/no-image.svg'
+import { useCategoryStore } from '../../stores/admin/category'
 
 // Store initialization
 const productStore = useProductStore()
+const categoryStore = useCategoryStore()
 
 onMounted(() => {
-  productStore.fetchProducts()
+  Promise.all([
+    productStore.resetFilters(),
+    categoryStore.fetchCategories(),
+    productStore.fetchProducts()
+  ])
 })
 
 // Computed properties from store
@@ -38,7 +43,7 @@ const currentPage = computed({
   get: () => productStore.pagination.currentPage,
   set: (value) => productStore.setCurrentPage(value)
 })
-const getPageItems = computed(() => productStore.paginatedProducts)
+const getPageItems = computed(() => productStore.products)
 
 // Add missing computed properties
 const showBatchOperations = computed({
@@ -236,9 +241,12 @@ const setViewMode = (mode) => {
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
                     <BaseSelect
                       v-model="filters.category"
-                      :options="[{ label: 'All Categories', value: '' }, ...categories.map(cat => ({ label: cat, value: cat }))]" 
+                      :options="[{ label: 'All Categories', value: '' }, ...categories?.map(cat => ({ label: cat?.name, value: cat?.id }))]" 
+                      options-label="label"
+                      options-value="value"
                       placeholder="Select Category"
                       class="w-full"
+                      @update:model-value="(val)=> productStore.setFilter('category_id', val)"
                     />
                   </div>
 
@@ -334,9 +342,10 @@ const setViewMode = (mode) => {
         <div class="flex-row">
           <BasePagination
             v-model:currentPage="currentPage"
-            :total-items="filteredProducts.length"
+            :total-items="pagination?.totalItems"
             :items-per-page="pagination.itemsPerPage"
-            :max-visible-pages="5"
+            :max-visible-pages="pagination.maxVisiblePages"
+            @update:currentPage="(val)=> productStore.handlePage(val)"
           />
         </div>
         
