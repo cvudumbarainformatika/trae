@@ -15,7 +15,6 @@ export const useProductStore = defineStore('product', {
     showFilters: false,
     filters: {
       q: '',
-      category: '',
       priceRange: {
         min: null,
         max: null
@@ -26,8 +25,9 @@ export const useProductStore = defineStore('product', {
       },
       status: 'all',
       category_id: null,
+      satuan_id: null,
       sort_by: 'name',
-      sort_dir: 'desc',
+      sort_dir: 'asc',
       per_page: 1,
       stock_op: '',
       stock_val: 0,
@@ -132,8 +132,10 @@ export const useProductStore = defineStore('product', {
     },
 
     setSearchQuery(query) {
+      
       this.filters.q = query
       this.setCurrentPage(1)
+      this.fetchProducts()
     },
 
     setShowFilters(value) {
@@ -144,6 +146,7 @@ export const useProductStore = defineStore('product', {
       this.filters = {
         ...this.filters,
         sort_by: this.sortBy.field,
+        sort_dir: this.sortBy.direction,
         per_page: this.pagination?.itemsPerPage,
         category_id: null,
         priceRange: {

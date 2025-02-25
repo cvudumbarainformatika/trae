@@ -6,6 +6,7 @@ import App from './App.vue'
 import UIPlugin from './plugins/ui'
 // import IconsPlugin from './plugins/icons'
 import { useThemeStore } from './stores/theme'
+import { htmlSafe } from './directives/htmlSafe'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -20,3 +21,5 @@ app.mount('#app')
 // Initialize theme
 const themeStore = useThemeStore()
 themeStore.initTheme()
+
+app.directive('html-safe', htmlSafe)

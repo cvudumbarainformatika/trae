@@ -197,13 +197,15 @@ const setViewMode = (mode) => {
             </IconButton>
           </div>
 
-          <div class="w-full sm:flex-1">
+          <div class="w-full sm:flex-1 relative">
             <BaseInput
               v-model="searchQuery"
               placeholder="Search products..."
               type="text"
               class="w-full"
-            />
+              clearable
+            >
+            </BaseInput>
           </div>
         </div>
 
@@ -218,12 +220,13 @@ const setViewMode = (mode) => {
           <div
             v-if="showFilters"
             ref="filterRef"
-            class="fixed inset-0 z-50 overflow-hidden bg-black/50 flex items-start justify-center p-4 sm:p-6"
+            class="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-6"
             @click.self="showFilters = false"
           >
-            <div class="w-full max-w-lg">
+            <div class="w-full max-w-lg relative">
+              <div class="fixed inset-0 bg-black/50" @click="showFilters = false"></div>
               <div
-                class="bg-white dark:bg-dark-800 rounded-lg shadow-lg p-4 sm:p-6 space-y-4 sm:space-y-6 transform transition-all duration-300 ease-out relative max-h-[90vh] overflow-y-auto"
+                class="relative z-[60] bg-white dark:bg-dark-800 rounded-lg shadow-lg p-4 sm:p-6 space-y-4 sm:space-y-6 transform transition-all duration-300 ease-out"
                 @click.stop
               >
                 <!-- Close Button -->
@@ -240,52 +243,36 @@ const setViewMode = (mode) => {
                   <div class="space-y-2 mb-4">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
                     <BaseSelect
-                      v-model="filters.category"
+                      v-model="filters.category_id"
                       :options="[{ label: 'All Categories', value: '' }, ...categories?.map(cat => ({ label: cat?.name, value: cat?.id }))]" 
                       options-label="label"
                       options-value="value"
                       placeholder="Select Category"
                       class="w-full"
+                      clearable
                       @update:model-value="(val)=> productStore.setFilter('category_id', val)"
+
                     />
                   </div>
 
-                  <!-- Price Range Filter -->
+                  <!-- Satuan Filter -->
                   <div class="space-y-2 mb-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price Range</label>
-                    <div class="grid grid-cols-2 gap-2 sm:gap-4">
-                      <BaseInput
-                        v-model.number="filters.priceRange.min"
-                        type="number"
-                        placeholder="Min Price"
-                        class="w-full"
-                      />
-                      <BaseInput
-                        v-model.number="filters.priceRange.max"
-                        type="number"
-                        placeholder="Max Price"
-                        class="w-full"
-                      />
-                    </div>
-                  </div>
-
-                  <!-- Stock Level Filter -->
-                  <div class="space-y-2 mb-4">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock Level</label>
-                    <div class="grid grid-cols-2 gap-2 sm:gap-4">
-                      <BaseInput
-                        v-model.number="filters.stockLevel.min"
-                        type="number"
-                        placeholder="Min Stock"
-                        class="w-full"
-                      />
-                      <BaseInput
-                        v-model.number="filters.stockLevel.max"
-                        type="number"
-                        placeholder="Max Stock"
-                        class="w-full"
-                      />
-                    </div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Satuan</label>
+                    <BaseSelect
+                      v-model="filters.satuan_id"
+                      :options="[
+                        { label: 'Semua Satuan', value: '' },
+                        { label: 'PCS', value: 1 },
+                        { label: 'Box', value: 'box' },
+                        { label: 'Pack', value: 'pack' }
+                      ]"
+                      options-label="label"
+                      options-value="value"
+                      placeholder="Pilih Satuan"
+                      class="w-full"
+                      clearable
+                      @update:model-value="(val)=> productStore.setFilter('satuan_id', val)"
+                    />
                   </div>
 
                   <!-- Status Filter -->
@@ -295,7 +282,7 @@ const setViewMode = (mode) => {
                       <button
                         v-for="status in ['all', 'in-stock', 'low-stock', 'out-of-stock']"
                         :key="status"
-                        @click="filters.status = status"
+                        @click="productStore.setFilter('status', status)"
                         :class="[
                           'px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 w-full',
                           filters.status === status
@@ -321,6 +308,16 @@ const setViewMode = (mode) => {
               v-for="product in getPageItems"
               :key="product.id"
               :product="product"
+              :search-query="searchQuery"
+              v-html-safe="{ 
+                data: { 
+                  name: product.name, 
+                  barcode: product.barcode, 
+                  'category.name': product.category?.name 
+                },   
+                fields: ['name', 'barcode', 'category.name'], 
+                searchQuery: searchQuery 
+              }"
               @edit="handleEditProduct"
               @delete="showDeleteConfirm"
             />
@@ -330,11 +327,11 @@ const setViewMode = (mode) => {
           <ProductTable
             v-else
             :products="getPageItems"
+            :search-query="searchQuery"
             @edit="handleEditProduct"
             @delete="showDeleteConfirm"
           />
-
-
+        
           
         </div>
 
@@ -414,3 +411,9 @@ const setViewMode = (mode) => {
     />
   </div>
 </template>
+
+<style scoped>
+:deep(.highlight) {
+  @apply bg-yellow-200 dark:bg-yellow-600 rounded;
+}
+</style>

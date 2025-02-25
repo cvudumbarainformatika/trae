@@ -9,6 +9,10 @@ const props = defineProps({
   products: {
     type: Array,
     required: true
+  },
+  searchQuery: {
+    type: String,
+    default: ''
   }
 })
 
@@ -78,20 +82,32 @@ const formatCurrency = (value) => {
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <tr v-for="product in products" :key="product.id">
+          <tr v-for="product in products" :key="product.id"
+          class="hover:bg-gray-50 dark:hover:bg-dark-700"
+          v-html-safe="{ 
+            data: { 
+              name: product.name, 
+              barcode: product.barcode, 
+              'category.name': product.category?.name 
+            },  
+            fields: ['name', 'barcode', 'category.name'], 
+            searchQuery: searchQuery 
+          }"
+          >
             <td class="px-6 py-4 lg:whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10">
                   <img class="h-10 w-10 rounded-full object-cover" :src="product.image || noImage" :alt="product.name">
                 </div>
                 <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white lg:truncate">{{ product.name }}</div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400 lg:truncate">{{ product.barcode }}</div>
+                <div class="lg:truncate">{{ product.category?.name }}</div>
+                  <div data-field="name" class="text-sm font-medium text-gray-900 dark:text-white lg:truncate">{{ product.name }}</div>
+                  <div data-field="barcode" class="text-sm text-gray-500 dark:text-gray-400 lg:truncate">{{ product.barcode }}</div>
                 </div>
               </div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap">
-              <div class="lg:truncate">{{ product.category?.name }}</div>
+              <div data-field="category.name" class="lg:truncate">{{ product.category?.name }}</div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-900 dark:text-white lg:whitespace-nowrap">
               <div class="truncate">{{ formatCurrency(product.hargajual) }}</div>

@@ -53,10 +53,10 @@ const stockStatusClass = computed(() => {
       </div>
       <div class="p-4 flex-1 flex flex-col">
         <div class="space-y-1 mb-2">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">
+          <h3 data-field="name" class="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">
             {{ product.name }}
           </h3>
-          <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+          <p data-field="category.name" class="text-sm font-medium text-gray-600 dark:text-gray-400">
             {{ product?.category?.name || '-' }}
           </p>
         </div>
@@ -64,6 +64,9 @@ const stockStatusClass = computed(() => {
           <div class="space-y-1">
             <div class="text-xl font-bold text-primary-600 dark:text-primary-400">
               {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(product.hargajual) }}
+              <span class="inline-flex items-center ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-fuchsia-500/25">
+                {{ product?.satuan?.name || '-' }}
+              </span>
             </div>
             <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
               Stock: {{ product.stock }}
