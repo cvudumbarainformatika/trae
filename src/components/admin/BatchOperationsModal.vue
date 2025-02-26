@@ -114,101 +114,105 @@ const close = () => {
     @update:model-value="$emit('update:modelValue', $event)"
     @close="close"
   >
-    <div class="p-6 space-y-6">
+    <div class="p-6 space-y-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-800 dark:to-dark-900 rounded-lg shadow-inner">
       <!-- Operation Type -->
       <div class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Operation Type</label>
-        <select
+        <BaseSelect
           v-model="operationType"
-          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md dark:bg-dark-700 dark:text-white"
-        >
-          <option value="price">Adjust Prices</option>
-          <option value="stock">Update Stock</option>
-        </select>
+          label="Jenis Operasi"
+          clearable
+          :options="[
+            { value: 'price', label: 'Sesuaikan Harga' },
+            { value: 'stock', label: 'Perbarui Stok' }
+          ]"
+        />
       </div>
 
       <!-- Price Validation Toggle -->
-      <div class="flex items-center space-x-2" v-if="operationType === 'price'">
+      <div v-if="operationType === 'price'" class="flex items-center p-4 space-x-3 bg-gray-100 dark:bg-dark-700 rounded-lg transition-all duration-300 hover:bg-gray-200 dark:hover:bg-dark-600">
         <input
           type="checkbox"
           id="priceValidation"
           v-model="showPriceValidation"
-          class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+          class="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded-lg transition-colors duration-200"
         >
         <label for="priceValidation" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Show products with selling price below buying price
+          Tampilkan produk dengan harga jual di bawah harga beli
         </label>
       </div>
 
       <!-- Price Validation Summary -->
-      <div v-if="showPriceValidation" class="space-y-2 p-4 bg-red-50 dark:bg-red-900/20 rounded-md">
-        <p class="text-sm text-red-700 dark:text-red-400">
-          Found:
-          <span class="font-medium">{{ productsWithInvalidRegularPrice.length }}</span> products with regular price below buying price
-          <br>
-          <span class="font-medium">{{ productsWithInvalidCustomerPrice.length }}</span> products with customer price below buying price
-          <br>
-          <span class="font-medium">{{ productsWithInvalidWholesalePrice.length }}</span> products with wholesale price below buying price
-        </p>
-      </div>
+      <Card v-if="showPriceValidation" class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500">
+        <div class="space-y-2 p-4">
+          <p class="text-sm text-red-700 dark:text-red-400 space-y-1">
+            <span class="block">Ditemukan:</span>
+            <span class="block ml-4">
+              <span class="font-medium">{{ productsWithInvalidRegularPrice.length }}</span> produk dengan harga reguler di bawah harga beli
+            </span>
+            <span class="block ml-4">
+              <span class="font-medium">{{ productsWithInvalidCustomerPrice.length }}</span> produk dengan harga pelanggan di bawah harga beli
+            </span>
+            <span class="block ml-4">
+              <span class="font-medium">{{ productsWithInvalidWholesalePrice.length }}</span> produk dengan harga grosir di bawah harga beli
+            </span>
+          </p>
+        </div>
+      </Card>
 
       <!-- Adjustment Type -->
       <div class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Adjustment Type</label>
-        <select
+        <BaseSelect
           v-model="adjustmentType"
-          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md dark:bg-dark-700 dark:text-white"
-        >
-          <option value="percentage">Percentage</option>
-          <option value="fixed">Fixed Amount</option>
-        </select>
+          label="Jenis Penyesuaian"
+          clearable
+          :options="[
+            { value: 'percentage', label: 'Persentase (%)' },
+            { value: 'fixed', label: 'Nominal (Rp)' }
+          ]"
+        />
       </div>
 
       <!-- Adjustment Value -->
       <div class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Adjustment Value</label>
-        <div class="mt-1 relative rounded-md shadow-sm">
-          <input
-            type="number"
-            v-model.number="adjustmentValue"
-            :placeholder="adjustmentType === 'percentage' ? 'Enter percentage' : 'Enter amount'"
-            class="block w-full pr-12 sm:text-sm border-gray-300 dark:border-gray-600 rounded-md dark:bg-dark-700 dark:text-white focus:ring-primary-500 focus:border-primary-500"
-          >
-          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <span class="text-gray-500 sm:text-sm" v-if="adjustmentType === 'percentage'">%</span>
-            <span class="text-gray-500 sm:text-sm" v-else>Rp</span>
-          </div>
-        </div>
+        <BaseInput
+          v-model="adjustmentValue"
+          type="number"
+          :label="adjustmentType === 'percentage' ? 'Persentase Penyesuaian' : 'Nominal Penyesuaian'"
+          :placeholder="adjustmentType === 'percentage' ? 'Contoh: 10 untuk menaikkan 10%' : 'Masukkan nominal dalam Rupiah'"
+        >
+          <template #suffix>
+            <span class="text-gray-500 dark:text-gray-400">{{ adjustmentType === 'percentage' ? '%' : 'Rp' }}</span>
+          </template>
+        </BaseInput>
       </div>
 
       <!-- Category Filter -->
       <div class="space-y-2">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Category</label>
-        <select
+        <BaseSelect
           v-model="selectedCategory"
-          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md dark:bg-dark-700 dark:text-white"
-        >
-          <option value="">All Categories</option>
-          <option v-for="category in categories" :key="category" :value="category">
-            {{ category }}
-          </option>
-        </select>
+          label="Filter berdasarkan Kategori"
+          clearable
+          :options="[{ value: '', label: 'Semua Kategori' }, ...categories.map(c => ({ value: c?.id, label: c?.name }))]">
+        </BaseSelect>
       </div>
 
       <!-- Preview Changes -->
       <div v-if="previewChanges.length > 0" class="space-y-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Preview Changes</h3>
-        <div class="max-h-60 overflow-y-auto">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center space-x-2">
+          <span>Pratinjau Perubahan</span>
+          <span class="text-sm text-primary-600 dark:text-primary-400">({{ previewChanges.length }} item)</span>
+        </h3>
+        <div class="max-h-60 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
           <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-dark-700">
+            <thead class="bg-gray-50 dark:bg-dark-700 sticky top-0 z-10">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Current</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">New</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Produk</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Saat Ini</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Baru</th>
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <tr v-for="change in previewChanges" :key="change.id">
+              <tr v-for="change in previewChanges" :key="change.id" class="hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors duration-150">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                   {{ change.name }}
                 </td>
@@ -236,19 +240,19 @@ const close = () => {
     </div>
 
     <!-- Modal Footer -->
-    <div class="bg-gray-50 dark:bg-dark-700 px-6 py-3 flex justify-end space-x-3">
+    <div class="bg-gray-50 dark:bg-dark-700 px-6 py-4 flex justify-end space-x-3 rounded-b-lg border-t border-gray-200 dark:border-gray-600">
       <button
         @click="close"
-        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-800 hover:bg-gray-50 dark:hover:bg-dark-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-800 hover:bg-gray-50 dark:hover:bg-dark-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
       >
-        Cancel
+        Batal
       </button>
       <button
         @click="applyChanges"
         :disabled="previewChanges.length === 0"
-        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-6 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
       >
-        Apply Changes
+        Terapkan Perubahan
       </button>
     </div>
   </Modal>

@@ -3,7 +3,6 @@ import { computed, onMounted } from 'vue'
 import { useProductStore } from '../../stores/admin/product'
 import ProductForm from '../../components/admin/ProductForm.vue'
 import BarcodeScanner from '../../components/admin/BarcodeScanner.vue'
-import BatchOperationsModal from '../../components/admin/BatchOperationsModal.vue'
 import ProductCard from '../../components/admin/products/ProductCard.vue'
 import ProductTable from '../../components/admin/products/ProductTable.vue'
 import { useCategoryStore } from '../../stores/admin/category'
@@ -46,10 +45,6 @@ const currentPage = computed({
 const getPageItems = computed(() => productStore.products)
 
 // Add missing computed properties
-const showBatchOperations = computed({
-  get: () => productStore.showBatchOperations,
-  set: (value) => productStore.showBatchOperations = value
-})
 
 const showScanner = computed({
   get: () => productStore.showScanner,
@@ -117,6 +112,8 @@ const setViewMode = (mode) => {
               variant="ghost"
               size="md"
               class="flex items-center space-x-2"
+              tooltip="Filters"
+              tooltip-position="bottom"
             >
               <template #icon>
                 <Icon name="filter" class="w-4 h-4" />
@@ -131,7 +128,8 @@ const setViewMode = (mode) => {
             <IconButton
               v-if="filters.category || filters.priceRange.min || filters.priceRange.max || filters.stockLevel.min || filters.stockLevel.max || filters.status !== 'all'"
               @click="resetFilters"
-              variant="ghost"
+              variant="danger"
+              mode="solid"
               size="md"
             >
               <template #icon>
@@ -152,17 +150,6 @@ const setViewMode = (mode) => {
                 <Icon name="Plus" class="w-5 h-5" />
               </template>
               <span class="hidden sm:inline ml-2">Add</span>
-            </IconButton>
-            <IconButton
-              variant="info"
-              size="md"
-              @click="showBatchOperations = true"
-              class="sm:w-auto"
-            >
-              <template #icon>
-                <Icon name="Settings" class="w-5 h-5" />
-              </template>
-              <span class="hidden sm:inline ml-2">Batch</span>
             </IconButton>
             <IconButton
               variant="info"
@@ -304,37 +291,75 @@ const setViewMode = (mode) => {
         <div class="flex-1 overflow-auto relative ">
           <!-- Grid View -->
           <div v-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-16">
-            <ProductCard
-              v-for="product in getPageItems"
-              :key="product.id"
-              :product="product"
-              :search-query="searchQuery"
-              v-html-safe="{ 
-                data: { 
-                  name: product.name, 
-                  barcode: product.barcode, 
-                  'category.name': product.category?.name 
-                },   
-                fields: ['name', 'barcode', 'category.name'], 
-                searchQuery: searchQuery 
-              }"
-              @edit="handleEditProduct"
-              @delete="showDeleteConfirm"
+            <template v-if="getPageItems.length > 0">
+              <ProductCard
+                v-for="product in getPageItems"
+                :key="product.id"
+                :product="product"
+                :search-query="searchQuery"
+                v-html-safe="{ 
+                  data: { 
+                    name: product.name, 
+                    barcode: product.barcode, 
+                    'category.name': product.category?.name 
+                  },   
+                  fields: ['name', 'barcode', 'category.name'], 
+                  searchQuery: searchQuery 
+                }"
+                @edit="handleEditProduct"
+                @delete="showDeleteConfirm"
+              />
+            </template>
+            <!-- <div v-else class="col-span-full flex flex-col items-center justify-center p-8 text-center">
+              <div class="w-24 h-24 mb-4 text-gray-400 dark:text-gray-600">
+                <Icon name="Package" class="w-full h-full" />
+              </div>
+              <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Belum Ada Data Product</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Tidak ditemukan data pada system kami</p>
+              <IconButton
+                variant="primary"
+                size="md"
+                @click="showProductForm = true"
+              >
+                <template #icon>
+                  <Icon name="Plus" class="w-5 h-5" />
+                </template>
+                <span>Add Product</span>
+              </IconButton>
+            </div> -->
+            <NoData
+              v-else
+              title="Belum Ada Data Product"
+              description="Tidak ditemukan data pada system kami"
+              icon="Package"
+              action-label="Add Product"
+              @action="showProductForm = true"
+              class="col-span-full"
             />
           </div>
-
-          <!-- Table View -->
-          <ProductTable
-            v-else
-            :products="getPageItems"
-            :search-query="searchQuery"
-            @edit="handleEditProduct"
-            @delete="showDeleteConfirm"
-          />
-        
           
+          <!-- Table View -->
+          <div v-else class="w-full">
+            <template v-if="getPageItems.length > 0">
+              <ProductTable
+                :products="getPageItems"
+                :search-query="searchQuery"
+                @edit="handleEditProduct"
+                @delete="showDeleteConfirm"
+              />
+            </template>
+            <NoData
+              v-else
+              title="Belum Ada Data Product"
+              description="Tidak ditemukan data pada system kami"
+              icon="Package"
+              action-label="Add Product"
+              @action="showProductForm = true"
+            />
+            
+          </div>
         </div>
-
+        
         <!-- Pagination -->
         <div class="flex-row">
           <BasePagination
@@ -362,11 +387,6 @@ const setViewMode = (mode) => {
       />
     </Modal>
 
-    <!-- Batch Operations Modal -->
-    <BatchOperationsModal
-      v-model="showBatchOperations"
-      @close="showBatchOperations = false"
-    />
 
     <!-- Delete Confirmation Modal -->
     <Modal
