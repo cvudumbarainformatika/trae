@@ -73,7 +73,7 @@ defineComponent({
 </script>
 
 <template>
-  <aside class="fixed w-[60px] bg-gray-900 flex flex-col h-screen border-r border-gray-700/50 relative">
+  <aside class="w-[60px] bg-gray-900 flex flex-col h-screen border-r border-gray-700/50 relative">
     <!-- Sidebar Header -->
     <div class="h-16 flex items-center justify-center border-b border-gray-700/50">
       <div class="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-700/50 transition-colors">
