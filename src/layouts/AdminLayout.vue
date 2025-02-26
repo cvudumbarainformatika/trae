@@ -1,6 +1,6 @@
 <script setup>
-import { useThemeStore } from '../stores/theme'
-import Sidebar from '../components/admin/Sidebar.vue'
+import { useThemeStore } from '@/stores/theme'
+import Sidebar from '@/components/admin/Sidebar.vue'
 
 const themeStore = useThemeStore()
 </script>

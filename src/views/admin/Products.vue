@@ -1,11 +1,11 @@
 <script setup>
 import { computed, onMounted } from 'vue'
-import { useProductStore } from '../../stores/admin/product'
-import ProductForm from '../../components/admin/ProductForm.vue'
-import BarcodeScanner from '../../components/admin/BarcodeScanner.vue'
-import ProductCard from '../../components/admin/products/ProductCard.vue'
-import ProductTable from '../../components/admin/products/ProductTable.vue'
-import { useCategoryStore } from '../../stores/admin/category'
+import { useProductStore } from '@/stores/admin/product'
+import ProductForm from '@/components/admin/products/ProductForm.vue'
+import BarcodeScanner from '@/components/admin/BarcodeScanner.vue'
+import ProductCard from '@/components/admin/products/ProductCard.vue'
+import ProductTable from '@/components/admin/products/ProductTable.vue'
+import { useCategoryStore } from '@/stores/admin/category'
 
 // Store initialization
 const productStore = useProductStore()

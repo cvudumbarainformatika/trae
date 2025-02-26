@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from 'vue'
-import Card from '../../ui/Card.vue'
-import IconButton from '../../ui/IconButton.vue'
-import Icon from '../../ui/Icon.vue'
-import noImage from '../../../assets/no-image.svg'
+import Card from '@/components/ui/Card.vue'
+import IconButton from '@/components/ui/IconButton.vue'
+import Icon from '@/components/ui/Icon.vue'
+import noImage from '@/assets/no-image.svg'
 
 const props = defineProps({
   product: {

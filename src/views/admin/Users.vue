@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import AdminLayout from '../../layouts/AdminLayout.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const users = ref([
   { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },

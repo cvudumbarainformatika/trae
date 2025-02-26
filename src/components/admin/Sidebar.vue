@@ -1,6 +1,6 @@
 <script setup>
 import { ref, defineComponent, computed, watch } from 'vue'
-import { useThemeStore } from '../../stores/theme'
+import { useThemeStore } from '@/stores/theme'
 import { useRoute } from 'vue-router'
 import { Package, Tag, Users, Receipt, ShoppingBag, RotateCcw, BarChart3, FileText, PieChart, Home, Database, ShoppingCart, Settings, BoxIcon } from 'lucide-vue-next'
 

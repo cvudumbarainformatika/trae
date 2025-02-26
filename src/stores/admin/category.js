@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { api } from '../../services/api'
+import { api } from '@/services/api'
 
 export const useCategoryStore = defineStore('category', {
   state: () => ({

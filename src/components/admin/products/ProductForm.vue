@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import { useThemeStore } from '../../stores/theme'
-import noImage from '../../assets/no-image.svg'
+import { useThemeStore } from '@/stores/theme'
+import noImage from '@/assets/no-image.svg'
 
 const props = defineProps({
   product: {

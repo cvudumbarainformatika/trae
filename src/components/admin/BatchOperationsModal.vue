@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { useProductStore } from '../../stores/admin/product'
+import { useProductStore } from '@/stores/admin/product'
 
 const props = defineProps({
   modelValue: {

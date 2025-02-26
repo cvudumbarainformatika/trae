@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useThemeStore } from '../../stores/theme'
-import { useCategoryStore } from '../../stores/admin/category'
-import CategoryForm from '../../components/admin/CategoryForm.vue'
+import { useThemeStore } from '@/stores/theme'
+import { useCategoryStore } from '@/stores/admin/category'
+import CategoryForm from '@/components/admin/CategoryForm.vue'
 
 // Store initialization
 const themeStore = useThemeStore()

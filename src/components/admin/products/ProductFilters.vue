@@ -1,7 +1,5 @@
 <script setup>
 import { ref, watch } from 'vue'
-import BaseInput from '../../ui/BaseInput.vue'
-import BaseSelect from '../../ui/BaseSelect.vue'
 
 const props = defineProps({
   categories: {
