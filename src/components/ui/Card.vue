@@ -31,7 +31,7 @@ defineProps({
 <template>
   <div
     :class="[
-      'bg-white dark:bg-gray-900 rounded-lg shadow-md',
+      'bg-white dark:bg-dark-600 rounded-lg shadow-md',
       !noPadding && padding,
       variant === 'bordered' && 'border border-secondary-200 dark:border-secondary-700'
     ]"

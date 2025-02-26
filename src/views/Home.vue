@@ -1,8 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { useMainStore } from '@/stores'
 
-const store = useMainStore()
 const welcomeMessage = ref('Welcome to Your Vue.js Application')
 </script>
 

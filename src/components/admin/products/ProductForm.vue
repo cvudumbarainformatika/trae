@@ -1,25 +1,11 @@
 <script setup>
-import { ref } from 'vue'
-import { useThemeStore } from '@/stores/theme'
+import { useProductFormStore } from '@/stores/forms/productForm'
 import noImage from '@/assets/no-image.svg'
 
 const props = defineProps({
   product: {
     type: Object,
-    default: () => ({
-      barcode: '',
-      name: '',
-      unit: '',
-      category: '',
-      buyPrice: 0,
-      regularPrice: 0,
-      customerPrice: 0,
-      wholesalePrice: 0,
-      initialStock: 0,
-      minStock: 0,
-      rack: '',
-      image: null
-    })
+    default: () => ({})
   },
   isEdit: {
     type: Boolean,
@@ -29,11 +15,8 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel'])
 
-const formData = ref({ ...props.product })
-const imagePreview = ref(null)
-
-const units = ['pcs', 'kg', 'box', 'pack']
-const categories = ['Electronics', 'Fashion', 'Food & Beverage', 'Home & Living']
+const productFormStore = useProductFormStore()
+const { formData, imagePreview, satuans, categories, formatPrice, submitForm } = productFormStore
 
 const handleImageChange = (event) => {
   const file = event.target.files[0]
@@ -44,7 +27,10 @@ const handleImageChange = (event) => {
 }
 
 const handleSubmit = () => {
-  emit('submit', formData.value)
+  // emit('submit', formData.value)
+  // console.log('form',formData);
+  submitForm()
+  
 }
 
 const handleCancel = () => {
@@ -57,47 +43,56 @@ const handleCancel = () => {
     <div class="p-4 space-y-4 pb-[100px]">
       <!-- Form Header -->
       <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ isEdit ? 'Edit' : 'New' }} Product</h2>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Fill in the information below to {{ isEdit ? 'update' : 'create' }} your product.</p>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Produk {{ isEdit ? 'Edit' : 'Baru' }} </h2>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Isi informasi di bawah untuk {{ isEdit ? 'memperbarui' : 'membuat' }} produk Anda.</p>
       </div>
 
       <!-- Basic Information Section -->
       <div class="space-y-4">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center space-x-2">
           <span class="material-icons text-primary-500">info</span>
-          <span>Basic Information</span>
+          <span>Informasi Dasar</span>
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
           <BaseInput
             v-model="formData.barcode"
             label="Barcode"
             type="text"
-            placeholder="Enter product barcode"
+            required
+            clearable
+            placeholder="Masukkan barcode produk"
           />
 
           <BaseInput
             v-model="formData.name"
-            label="Product Name"
+            label="Nama Produk"
             type="text"
             required
-            placeholder="Enter product name"
+            clearable
+            placeholder="Masukkan nama produk"
           />
 
           <div class="relative">
             <BaseSelect
-              v-model="formData.unit"
-              label="Unit"
-              :options="units"
-              placeholder="Select Unit"
+              v-model="formData.satuan_id"
+              label="Satuan"
+              :options="satuans"
+              option-label="label"
+              option-value="value"
+              required
+              clearable
+              placeholder="Pilih Satuan"
             />
           </div>
 
           <div class="relative">
             <BaseSelect
-              v-model="formData.category"
-              label="Category"
+              v-model="formData.category_id"
+              label="Kategori"
+              option-label="label"
+              option-value="value"
               :options="categories"
-              placeholder="Select Category"
+              placeholder="Pilih Kategori"
             />
           </div>
         </div>
@@ -107,39 +102,39 @@ const handleCancel = () => {
       <div class="space-y-4">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center space-x-2">
           <span class="material-icons text-primary-500">payments</span>
-          <span>Pricing Details</span>
+          <span>Detail Harga</span>
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
           <BaseInput
-            v-model.number="formData.buyPrice"
-            label="Buy Price"
+            v-model.number="formData.hargabeli"
+            label="Harga Beli"
             type="number"
             min="0"
-            placeholder="0.00"
+            placeholder="0"
           />
 
           <BaseInput
-            v-model.number="formData.regularPrice"
-            label="Regular Price"
+            v-model.number="formData.hargajual"
+            label="Harga Regular"
             type="number"
             min="0"
-            placeholder="0.00"
+            placeholder="0"
           />
 
           <BaseInput
-            v-model.number="formData.customerPrice"
-            label="Customer Price"
+            v-model.number="formData.hargajualcust"
+            label="Harga Customer"
             type="number"
             min="0"
-            placeholder="0.00"
+            placeholder="0"
           />
 
           <BaseInput
-            v-model.number="formData.wholesalePrice"
-            label="Wholesale Price"
+            v-model.number="formData.hargajualantar"
+            label="Harga Antar"
             type="number"
             min="0"
-            placeholder="0.00"
+            placeholder="0"
           />
         </div>
       </div>
@@ -147,31 +142,31 @@ const handleCancel = () => {
       <!-- Stock Information Section -->
       <div class="space-y-4">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center space-x-2">
-          <span class="material-icons text-primary-500">inventory_2</span>
-          <span>Stock Management</span>
+          <span class="material-icons text-primary-500">inventory</span>
+          <span>Manajemen Stok</span>
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
           <BaseInput
-            v-model.number="formData.initialStock"
-            label="Initial Stock"
+            v-model.number="formData.stock"
+            label="Stok Awal"
             type="number"
             min="0"
-            placeholder="Enter initial stock"
+            placeholder="Masukkan stok awal"
           />
 
           <BaseInput
-            v-model.number="formData.minStock"
-            label="Minimum Stock"
+            v-model.number="formData.minstock"
+            label="Stok Minimum"
             type="number"
             min="0"
-            placeholder="Enter minimum stock"
+            placeholder="Masukkan stok minimum"
           />
 
           <BaseInput
-            v-model="formData.rack"
-            label="Rack Location"
+            v-model="formData.rak"
+            label="Lokasi Rak"
             type="text"
-            placeholder="Enter rack location"
+            placeholder="Masukkan lokasi rak"
           />
         </div>
       </div>
@@ -180,7 +175,7 @@ const handleCancel = () => {
       <div class="space-y-4">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center space-x-2">
           <span class="material-icons text-primary-500">image</span>
-          <span>Product Image</span>
+          <span>Gambar Produk</span>
         </h3>
         <div class="p-4 bg-gray-50 dark:bg-dark-700 rounded-lg">
           <div class="flex items-center space-x-6">
@@ -190,7 +185,7 @@ const handleCancel = () => {
               <img
                 :src="imagePreview || formData.image || noImage"
                 class="h-full w-full object-cover"
-                alt="Product preview"
+                alt="Preview produk"
               >
             </div>
             <div class="flex-1 space-y-2">
@@ -206,16 +201,12 @@ const handleCancel = () => {
                   dark:file:bg-primary-900 dark:file:text-primary-300
                   transition-all duration-300"
               >
-              <p class="text-xs text-gray-500 dark:text-gray-400">Supported formats: JPG, PNG, GIF (max. 5MB)</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Format yang didukung: JPG, PNG, GIF (maks. 5MB)</p>
             </div>
           </div>
         </div>
       </div>
-
-      
     </div>
-
-
 
     <!-- Form Actions -->
     <div class="p-4 border-t border-gray-200 dark:border-gray-700 space-x-4 flex justify-end fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-700 w-full">
@@ -224,14 +215,14 @@ const handleCancel = () => {
           @click="handleCancel"
           class="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-700 hover:bg-gray-50 dark:hover:bg-dark-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300"
         >
-          Cancel
+          Batal
         </button>
         <button
           type="submit"
           class="px-6 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-300 flex items-center space-x-2"
         >
           <span class="material-icons text-sm"></span>
-          <span>{{ isEdit ? 'Update' : 'Create' }} Product</span>
+          <span>{{ isEdit ? 'Perbarui' : 'Buat' }} Produk</span>
         </button>
       </div>
   </form>

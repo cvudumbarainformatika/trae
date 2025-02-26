@@ -1,15 +1,12 @@
 <script setup>
-import { ref, onMounted, defineAsyncComponent } from 'vue'
-import AdminLayout from '../../layouts/AdminLayout.vue'
+import { ref } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 import { useThemeStore } from '../../stores/theme'
-import BaseButton from '../../components/ui/BaseButton.vue'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const themeStore = useThemeStore()
-// const Card = defineAsyncComponent(() => import('../../components/ui/Card.vue'))
 
 const stats = ref([
   { title: 'Total Users', value: '1,234', change: '+12%', trend: 'up' },

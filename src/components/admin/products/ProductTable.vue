@@ -100,7 +100,6 @@ const formatCurrency = (value) => {
                   <img class="h-10 w-10 rounded-full object-cover" :src="product.image || noImage" :alt="product.name">
                 </div>
                 <div class="ml-4">
-                <div class="lg:truncate">{{ product.category?.name }}</div>
                   <div data-field="name" class="text-sm font-medium text-gray-900 dark:text-white lg:truncate">{{ product.name }}</div>
                   <div data-field="barcode" class="text-sm text-gray-500 dark:text-gray-400 lg:truncate">{{ product.barcode }}</div>
                 </div>

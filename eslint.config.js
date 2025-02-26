@@ -19,8 +19,9 @@ export default [
   {
     files: ['**/*.js'],
     rules: {
-      'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-      'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+      'no-console': 'off',
+      // 'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+      // 'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-unused-vars': 'error'
     }
   }

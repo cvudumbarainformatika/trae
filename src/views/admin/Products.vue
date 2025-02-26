@@ -1,6 +1,8 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useProductStore } from '@/stores/admin/product'
+import { useProductFormStore } from '@/stores/forms/productForm'
+import { useSatuanStore } from '@/stores/admin/satuan'
 import ProductForm from '@/components/admin/products/ProductForm.vue'
 import BarcodeScanner from '@/components/admin/BarcodeScanner.vue'
 import ProductCard from '@/components/admin/products/ProductCard.vue'
@@ -9,10 +11,13 @@ import { useCategoryStore } from '@/stores/admin/category'
 
 // Store initialization
 const productStore = useProductStore()
+const form = useProductFormStore()
+const satuanStore = useSatuanStore()
 const categoryStore = useCategoryStore()
 
 onMounted(() => {
   Promise.all([
+    satuanStore.fetchSatuans(),
     productStore.resetFilters(),
     categoryStore.fetchCategories(),
     productStore.fetchProducts()
@@ -36,7 +41,7 @@ const showFilters = computed({
 })
 const filters = computed(() => productStore.filters)
 const categories = computed(() => productStore.categories)
-const filteredProducts = computed(() => productStore.filteredProducts)
+const satuans = computed(() => productStore.satuans)
 const pagination = computed(() => productStore.paginationInfo)
 const currentPage = computed({
   get: () => productStore.pagination.currentPage,
@@ -56,7 +61,14 @@ const selectedProduct = computed(() => productStore.selectedProduct)
 // Event handlers
 const handleEditProduct = (product) => {
   productStore.selectedProduct = product
-  productStore.isEdit = true
+  productStore.setEdit(true)
+  form.resetForm()
+  productStore.showProductForm = true
+}
+const handleAddProduct = () => {
+  productStore.selectedProduct = null
+  productStore.setEdit(false)
+  form.resetForm()
   productStore.showProductForm = true
 }
 
@@ -70,14 +82,6 @@ const confirmDelete = async () => {
   productStore.showDeleteConfirm = false
 }
 
-const handleProductSubmit = async (formData) => {
-  if (isEdit.value) {
-    await productStore.updateProduct(formData)
-  } else {
-    await productStore.createProduct(formData)
-  }
-  productStore.showProductForm = false
-}
 
 const handleProductCancel = () => {
   productStore.showProductForm = false
@@ -143,7 +147,7 @@ const setViewMode = (mode) => {
             <IconButton 
               variant="info" 
               size="md"
-              @click="showProductForm = true"
+              @click="handleAddProduct"
               class="sm:w-auto"
             >
               <template #icon>
@@ -247,12 +251,7 @@ const setViewMode = (mode) => {
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Satuan</label>
                     <BaseSelect
                       v-model="filters.satuan_id"
-                      :options="[
-                        { label: 'Semua Satuan', value: '' },
-                        { label: 'PCS', value: 1 },
-                        { label: 'Box', value: 'box' },
-                        { label: 'Pack', value: 'pack' }
-                      ]"
+                      :options="[{ label: 'All Satuans', value: '' }, ...satuans?.map(sat => ({ label: sat?.name, value: sat?.id }))]"
                       options-label="label"
                       options-value="value"
                       placeholder="Pilih Satuan"
@@ -382,7 +381,7 @@ const setViewMode = (mode) => {
       <ProductForm
         :product="selectedProduct"
         :is-edit="isEdit"
-        @submit="handleProductSubmit"
+        
         @cancel="handleProductCancel"
       />
     </Modal>

@@ -1,5 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { useCategoryStore } from './category'
+import { useSatuanStore } from './satuan'
 import { api } from '@/services/api'
 
 export const useProductStore = defineStore('product', {
@@ -26,8 +27,8 @@ export const useProductStore = defineStore('product', {
       status: 'all',
       category_id: null,
       satuan_id: null,
-      sort_by: 'name',
-      sort_dir: 'asc',
+      sort_by: null,
+      sort_dir: null,
       per_page: 1,
       stock_op: '',
       stock_val: 0,
@@ -39,8 +40,8 @@ export const useProductStore = defineStore('product', {
       hargajualantar_val: 0
     },
     sortBy: {
-      field: 'name',
-      direction: 'asc'
+      field: 'created_at',
+      direction: 'desc'
     },
     pagination: {
       currentPage: 1,
@@ -56,6 +57,10 @@ export const useProductStore = defineStore('product', {
     categories: () => {
       const storeCategories = useCategoryStore()
       return storeCategories.categories
+    },
+    satuans: () => {
+      const storeSatuans = useSatuanStore()
+      return storeSatuans.satuans
     },
 
     filteredProducts: (state) => {
@@ -89,7 +94,7 @@ export const useProductStore = defineStore('product', {
       return filteredProducts.slice(start, end)
     },
 
-    paginationInfo: (state, getters) => {
+    paginationInfo: (state) => {
       const totalItems = state.pagination?.total
       const totalPages = Math.ceil(totalItems / state.pagination.itemsPerPage)
 
@@ -127,7 +132,7 @@ export const useProductStore = defineStore('product', {
       this.showProductForm = value
       if (!value) {
         this.selectedProduct = null
-        this.isEdit = false
+        this.setEdit(false)
       }
     },
 
@@ -171,7 +176,11 @@ export const useProductStore = defineStore('product', {
     handleEditProduct(product) {
       this.selectedProduct = { ...product }
       this.showProductForm = true
-      this.isEdit = true
+      this.setEdit(true)
+    },
+
+    setEdit(val){
+      this.isEdit = val
     },
 
     showDeleteConfirmation(product) {
@@ -187,13 +196,13 @@ export const useProductStore = defineStore('product', {
       }
       this.showProductForm = false
       this.selectedProduct = null
-      this.isEdit = false
+      this.setEdit(false)
     },
 
     handleProductCancel() {
       this.showProductForm = false
       this.selectedProduct = null
-      this.isEdit = false
+      this.setEdit(false)
     },
 
     handlePage(page) {
@@ -216,7 +225,7 @@ export const useProductStore = defineStore('product', {
           }
         })
 
-        console.log('fetch products', response.data);
+        // console.log('fetch products', response.data);
         
         this.products = response.data?.data
         this.pagination = {
@@ -227,7 +236,7 @@ export const useProductStore = defineStore('product', {
         } 
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch products'
-        console.error('Error fetching products:', error)
+        // console.error('Error fetching products:', error)
       } finally {
         this.loading = false
       }
@@ -246,7 +255,7 @@ export const useProductStore = defineStore('product', {
         this.showProductForm = false
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to add product'
-        console.error('Error adding product:', error)
+        // console.error('Error adding product:', error)
         throw error
       } finally {
         this.loading = false
@@ -265,7 +274,7 @@ export const useProductStore = defineStore('product', {
         this.showProductForm = false
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to update product'
-        console.error('Error updating product:', error)
+        // console.error('Error updating product:', error)
         throw error
       } finally {
         this.loading = false
@@ -281,7 +290,7 @@ export const useProductStore = defineStore('product', {
         this.showDeleteConfirm = false
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to delete product'
-        console.error('Error deleting product:', error)
+        // console.error('Error deleting product:', error)
         throw error
       } finally {
         this.loading = false
