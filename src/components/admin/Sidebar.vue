@@ -2,7 +2,7 @@
 import { ref, defineComponent, computed, watch } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { useRoute } from 'vue-router'
-import { Package, Tag, Users, Receipt, ShoppingBag, RotateCcw, BarChart3, FileText, PieChart, Home, Database, ShoppingCart, Settings, BoxIcon } from 'lucide-vue-next'
+import { Package, Tag, Users, Receipt, ShoppingBag, RotateCcw, BarChart3, FileText, PieChart, Home, Database, ShoppingCart, Settings, BoxIcon, UserCheck } from 'lucide-vue-next'
 
 const themeStore = useThemeStore()
 const route = useRoute()
@@ -13,7 +13,8 @@ const submenus = {
     { name: 'Products', path: '/admin/master-data/products' },
     { name: 'Categories', path: '/admin/master-data/categories' },
     { name: 'Satuan', path: '/admin/master-data/satuan' },
-    { name: 'Suppliers', path: '/admin/master-data/suppliers' }
+    { name: 'Suppliers', path: '/admin/master-data/suppliers' },
+    { name: 'Customers', path: '/admin/master-data/customers' }
   ],
   'transaction': [
     { name: 'Sales', path: '/admin/transaction/sales' },
@@ -57,6 +58,7 @@ const getSubmenuIcon = (name) => {
     'Products': Package,
     'Categories': Tag,
     'Suppliers': Users,
+    'Customers': UserCheck, // Menggunakan ikon UserCheck untuk Customers
     'Sales': Receipt,
     'Purchases': ShoppingBag,
     'Returns': RotateCcw,
