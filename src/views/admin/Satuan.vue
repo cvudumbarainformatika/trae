@@ -1,12 +1,12 @@
 <template>
-  <BasePage title="Categories" subtitle="Manage your product categories">
+  <BasePage title="Units" subtitle="Manage your product units">
     <template #actions>
       <button
         type="button"
-        @click="categoryStore.setShowCategoryForm(true)"
+        @click="satuanStore.setShowSatuanForm(true)"
         class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
       >
-        Add Category
+        Add Unit
       </button>
     </template>
 
@@ -16,8 +16,8 @@
           <i class="ri-search-line text-gray-400" />
         </div>
         <BaseInput
-          v-model="categoryStore.searchQuery"
-          placeholder="Search categories..."
+          v-model="satuanStore.searchQuery"
+          placeholder="Search units..."
           type="text"
           class="w-full"
           clearable
@@ -26,9 +26,7 @@
       </div>
     </template>
 
-      
-
-    <!-- Categories Table Section with Scroll -->
+    <!-- Units Table Section with Scroll -->
     <div class="flex-1 overflow-auto relative">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
@@ -48,36 +46,36 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-dark-800">
-                <tr v-if="categoryStore.loading" class="animate-pulse">
+                <tr v-if="satuanStore.loading" class="animate-pulse">
                   <td colspan="3" class="p-4 text-center text-gray-500 dark:text-gray-400">
-                    Loading categories...
+                    Loading units...
                   </td>
                 </tr>
-                <tr v-else-if="categoryStore.error" class="bg-red-50 dark:bg-red-900">
+                <tr v-else-if="satuanStore.error" class="bg-red-50 dark:bg-red-900">
                   <td colspan="3" class="p-4 text-center text-red-600 dark:text-red-200">
-                    {{ categoryStore.error }}
+                    {{ satuanStore.error }}
                   </td>
                 </tr>
-                <tr v-else-if="!categoryStore.filteredCategories.length" class="bg-gray-50 dark:bg-gray-800">
+                <tr v-else-if="!satuanStore.filteredSatuans.length" class="bg-gray-50 dark:bg-gray-800">
                   <td colspan="3" class="p-4 text-center text-gray-500 dark:text-gray-400">
-                    No categories found
+                    No units found
                   </td>
                 </tr>
-                <tr v-for="category in categoryStore.filteredCategories" :key="category.id" class="hover:bg-gray-50 dark:hover:bg-dark-700">
+                <tr v-for="satuan in satuanStore.filteredSatuans" :key="satuan.id" class="hover:bg-gray-50 dark:hover:bg-dark-700">
                   <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-700 dark:text-gray-300 sm:pl-6">
-                    {{ category.name }}
+                    {{ satuan.name }}
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400">
-                    {{ category.description }}
+                    {{ satuan.description }}
                   </td>
                   <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                     <div class="space-x-2">
-                      <IconButton @click="editCategory(category)" variant="primary" size="sm">
+                      <IconButton @click="editSatuan(satuan)" variant="primary" size="sm">
                         <template #icon>
                           <Icon name="Edit" class="w-4 h-4" />
                         </template>
                       </IconButton>
-                      <IconButton @click="deleteCategory(category)" variant="danger" size="sm">
+                      <IconButton @click="deleteSatuan(satuan)" variant="danger" size="sm">
                         <template #icon>
                           <Icon name="Trash" class="w-4 h-4" />
                         </template>
@@ -92,26 +90,24 @@
       </div>
     </div>
 
-    <!-- Category Form Modal -->
-    <CategoryForm
-      v-if="showCategoryForm"
-      v-model="showCategoryForm"
-      :category="selectedCategory"
-      :is-edit="!!selectedCategory"
+    <!-- Unit Form Modal -->
+    <SatuanForm
+      v-if="showSatuanForm"
+      v-model="showSatuanForm"
+      :satuan="selectedSatuan"
+      :is-edit="!!selectedSatuan"
       @close="handleClose"
       @submit="handleSubmit"
     />
 
-
-
     <!-- Delete Confirmation Modal -->
     <Modal 
       v-model="showDeleteModal" 
-      title="Hapus Kategori"
+      title="Delete Unit"
       @close="showDeleteModal = false"
     >
       <div class="mt-2">
-        <p class="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete this category? This action cannot be undone.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to delete this unit? This action cannot be undone.</p>
       </div>
       <template #footer>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
@@ -135,29 +131,29 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useCategoryStore } from '@/stores/admin/category'
-import CategoryForm from '@/components/admin/categories/CategoryForm.vue'
+import { useSatuanStore } from '@/stores/admin/satuan'
+import SatuanForm from '@/components/admin/satuan/SatuanForm.vue'
 
-const categoryStore = useCategoryStore()
-const selectedCategory = ref(null)
+const satuanStore = useSatuanStore()
+const selectedSatuan = ref(null)
 const showDeleteModal = ref(false)
-const categoryToDelete = ref(null)
+const satuanToDelete = ref(null)
 
 onMounted(() => {
-  categoryStore.fetchCategories()
+  satuanStore.fetchSatuans()
 })
 
-const showCategoryForm = computed({
-  get: () => categoryStore.showCategoryForm,
-  set: (value) => categoryStore.setShowCategoryForm(value)
+const showSatuanForm = computed({
+  get: () => satuanStore.showSatuanForm,
+  set: (value) => satuanStore.setShowSatuanForm(value)
 })
 
 const handleSubmit = async (formData) => {
   try {
-    if (selectedCategory.value) {
-      await categoryStore.updateCategory({ ...formData, id: selectedCategory.value.id })
+    if (selectedSatuan.value) {
+      await satuanStore.updateSatuan({ ...formData, id: selectedSatuan.value.id })
     } else {
-      await categoryStore.addCategory(formData)
+      await satuanStore.addSatuan(formData)
     }
     closeForm()
   } catch (error) {
@@ -169,30 +165,28 @@ const handleClose = () => {
   closeForm()
 }
 
-const editCategory = (category) => {
-  selectedCategory.value = { ...category }
-  categoryStore.setShowCategoryForm(true)
+const editSatuan = (satuan) => {
+  selectedSatuan.value = { ...satuan }
+  satuanStore.setShowSatuanForm(true)
 }
 
-const deleteCategory = (category) => {
-  categoryToDelete.value = category
+const deleteSatuan = (satuan) => {
+  satuanToDelete.value = satuan
   showDeleteModal.value = true
 }
 
 const confirmDelete = async () => {
   try {
-    await categoryStore.deleteCategory(categoryToDelete.value.id)
+    await satuanStore.deleteSatuan(satuanToDelete.value.id)
     showDeleteModal.value = false
-    categoryToDelete.value = null
+    satuanToDelete.value = null
   } catch (error) {
     // Error is handled by the store
   }
 }
 
 const closeForm = () => {
-  selectedCategory.value = null
-  categoryStore.setShowCategoryForm(false)
+  selectedSatuan.value = null
+  satuanStore.setShowSatuanForm(false)
 }
-
-
 </script>

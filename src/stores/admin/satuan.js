@@ -26,6 +26,16 @@ export const useSatuanStore = defineStore('satuan', {
   },
 
   actions: {
+    resetForm(satuan = null) {
+      this.error = null
+      this.loading = false
+      this.formData = satuan ? { ...satuan } : {
+        name: '',
+        description: ''
+      }
+      this.showSatuanForm = false
+    },
+
     async fetchSatuans() {
       this.loading = true
       this.error = null
@@ -96,6 +106,7 @@ export const useSatuanStore = defineStore('satuan', {
 
     setShowSatuanForm(show) {
       this.showSatuanForm = show
+      
     },
 
     setSearchQuery(query) {

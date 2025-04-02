@@ -33,7 +33,7 @@ onUnmounted(() => {
 })
 
 const getStockStatusClass = (product) => {
-  if (product.currentStock <= 0) {
+  if (product.stock <= 0) {
     return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
   }
   if (product.stock <= product.minstock) {
@@ -43,8 +43,8 @@ const getStockStatusClass = (product) => {
 }
 
 const getStockStatus = (product) => {
-  if (product.currentStock <= 0) return 'out-of-stock'
-  if (product.currentStock <= product.minStock) return 'low-stock'
+  if (product.stock <= 0) return 'out-of-stock'
+  if (product.stock <= product.minstock) return 'low-stock'
   return 'in-stock'
 }
 

@@ -11,8 +11,8 @@ const themeStore = useThemeStore()
     <Sidebar class="w-16 h-full flex-shrink-0" />
 
     <!-- Main Content -->
-    <main class="flex-1 p-6 overflow-hidden ">
-      <div class="h-full overflow-y-auto">
+    <main class="flex-1 p-8 overflow-hidden flex justify-center">
+      <div class="h-ful overflow-y-auto w-full max-w-[1440px] min-w-[320px] mx-auto">
         <router-view></router-view>
       </div>
     </main>

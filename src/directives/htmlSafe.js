@@ -4,15 +4,17 @@ export const htmlSafe = {
     const data = binding.value?.data || {}
     const searchQuery = binding.value?.searchQuery || ''
     
-    if (!searchQuery) return
-
     fields.forEach(field => {
       if (data[field]) {
         const elements = el.querySelectorAll(`[data-field="${field}"]`)
         elements.forEach(element => {
           const text = data[field]
-          const regex = new RegExp(`(${searchQuery})`, 'gi')
-          element.innerHTML = text.replace(regex, '<em class="highlight">$1</em>')
+          if (searchQuery) {
+            const regex = new RegExp(`(${searchQuery})`, 'gi')
+            element.innerHTML = text.replace(regex, '<span class="highlight">$1</span>')
+          } else {
+            element.innerHTML = text
+          }
         })
       }
     })
@@ -22,15 +24,17 @@ export const htmlSafe = {
     const data = binding.value?.data || {}
     const searchQuery = binding.value?.searchQuery || ''
     
-    if (!searchQuery) return
-
     fields.forEach(field => {
       if (data[field]) {
         const elements = el.querySelectorAll(`[data-field="${field}"]`)
         elements.forEach(element => {
           const text = data[field]
-          const regex = new RegExp(`(${searchQuery})`, 'gi')
-          element.innerHTML = text.replace(regex, '<span class="highlight">$1</span>')
+          if (searchQuery) {
+            const regex = new RegExp(`(${searchQuery})`, 'gi')
+            element.innerHTML = text.replace(regex, '<span class="highlight">$1</span>')
+          } else {
+            element.innerHTML = text
+          }
         })
       }
     })

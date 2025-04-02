@@ -1,5 +1,7 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+
+const inputRef = ref(null)
 
 const props = defineProps({
   modelValue: {
@@ -22,6 +24,14 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  hint: {
+    type: String,
+    default: ''
+  },
+  showRupiahHint: {
+    type: Boolean,
+    default: false
+  },
   required: {
     type: Boolean,
     default: false
@@ -33,6 +43,10 @@ const props = defineProps({
   clearable: {
     type: Boolean,
     default: false
+  },
+  debounce: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -51,6 +65,31 @@ const inputClasses = computed(() => {
       : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
   ]
 })
+
+let debounceTimeout
+
+const handleInput = (e) => {
+  const value = e.target.value
+  
+  if (props.debounce > 0) {
+    clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(() => {
+      emit('update:modelValue', value)
+    }, props.debounce)
+  } else {
+    emit('update:modelValue', value)
+  }
+}
+
+const formattedRupiah = computed(() => {
+  if (!props.modelValue) return 'Rp 0'
+  
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(props.modelValue)
+})
 </script>
 
 <template>
@@ -65,9 +104,10 @@ const inputClasses = computed(() => {
     
     <div class="relative">
       <input
+        ref="inputRef"
         :type="type"
         :value="modelValue"
-        @input="emit('update:modelValue', $event.target.value)"
+        @input="handleInput"
         :placeholder="placeholder"
         :disabled="disabled"
         :required="required"
@@ -77,7 +117,10 @@ const inputClasses = computed(() => {
       <div v-if="clearable && modelValue" class="absolute inset-y-0 right-0 flex items-center pr-3">
         <button
           type="button"
-          @click="emit('update:modelValue', '')"
+          @click="()=> {
+            emit('update:modelValue', '')
+            emit('clear')
+          }"
           class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -92,6 +135,20 @@ const inputClasses = computed(() => {
       class="text-sm text-red-500 font-medium"
     >
       {{ error }}
+    </p>
+    
+    <p
+      v-else-if="showRupiahHint && modelValue"
+      class="text-sm text-gray-500 dark:text-gray-400 font-medium"
+    >
+      {{ formattedRupiah }}
+    </p>
+    
+    <p
+      v-else-if="hint"
+      class="text-sm text-gray-500 dark:text-gray-400"
+    >
+      {{ hint }}
     </p>
   </div>
 </template>

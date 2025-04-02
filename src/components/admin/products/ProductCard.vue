@@ -45,7 +45,7 @@ const stockStatusClass = computed(() => {
         <span 
           :class="[
             'absolute top-3 right-3 z-20 px-3 py-1.5 text-xs font-medium rounded-full shadow-md',
-            stockStatusClass
+            stockStatusClass 
           ]"
         >
           {{ stockStatus }}

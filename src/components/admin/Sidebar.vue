@@ -12,6 +12,7 @@ const submenus = {
   'master-data': [
     { name: 'Products', path: '/admin/master-data/products' },
     { name: 'Categories', path: '/admin/master-data/categories' },
+    { name: 'Satuan', path: '/admin/master-data/satuan' },
     { name: 'Suppliers', path: '/admin/master-data/suppliers' }
   ],
   'transaction': [

@@ -41,6 +41,11 @@ const routes = [
         component: () => import('../views/admin/Categories.vue')
       },
       {
+        path: 'master-data/satuan',
+        name: 'admin-satuan',
+        component: () => import('../views/admin/Satuan.vue')
+      },
+      {
         path: 'master-data/suppliers',
         name: 'admin-suppliers',
         component: () => import('../views/admin/Suppliers.vue')

@@ -99,12 +99,10 @@ const setViewMode = (mode) => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full space-y-4 md:space-y-6">
-    <!-- Header Section -->
-    <div class="flex flex-wrap items-center justify-between gap-4">
-      <h1 class="text-xl md:text-2xl font-semibold text-gray-800 dark:text-white">Product Management</h1>
-    </div>
-
+  <BasePage
+    title="Product Management"
+  >
+  
     <!-- Filters and Search Section -->
     <div class="flex-1 flex overflow-hidden w-full space-y-4 relative">
       <div class="flex flex-col h-full w-full space-y-4">
@@ -189,12 +187,25 @@ const setViewMode = (mode) => {
           </div>
 
           <div class="w-full sm:flex-1 relative">
+            <!-- <BaseInput
+              :modelValue="searchQuery"
+              placeholder="Search products..."
+              type="text"
+              class="w-full"
+              clearable
+              @keydown.enter="(e)=> {
+                searchQuery = e.target.value
+              }"
+              @clear="searchQuery = ''"
+            >
+            </BaseInput> -->
             <BaseInput
               v-model="searchQuery"
               placeholder="Search products..."
               type="text"
               class="w-full"
               clearable
+              :debounce="300"
             >
             </BaseInput>
           </div>
@@ -303,29 +314,24 @@ const setViewMode = (mode) => {
                     'category.name': product.category?.name 
                   },   
                   fields: ['name', 'barcode', 'category.name'], 
-                  searchQuery: searchQuery 
+                  searchQuery: searchQuery || ''
                 }"
                 @edit="handleEditProduct"
                 @delete="showDeleteConfirm"
               />
             </template>
-            <!-- <div v-else class="col-span-full flex flex-col items-center justify-center p-8 text-center">
-              <div class="w-24 h-24 mb-4 text-gray-400 dark:text-gray-600">
-                <Icon name="Package" class="w-full h-full" />
+            <template v-else-if="productStore.loading">
+              <div v-for="n in 8" :key="n" class="animate-pulse">
+                <div class="bg-gray-200 dark:bg-dark-700 rounded-lg h-[300px] flex flex-col">
+                  <div class="h-48 bg-gray-300 dark:bg-dark-600 rounded-t-lg"></div>
+                  <div class="p-4 space-y-3">
+                    <div class="h-4 bg-gray-300 dark:bg-dark-600 rounded w-3/4"></div>
+                    <div class="h-4 bg-gray-300 dark:bg-dark-600 rounded w-1/2"></div>
+                    <div class="h-4 bg-gray-300 dark:bg-dark-600 rounded w-1/4"></div>
+                  </div>
+                </div>
               </div>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Belum Ada Data Product</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Tidak ditemukan data pada system kami</p>
-              <IconButton
-                variant="primary"
-                size="md"
-                @click="showProductForm = true"
-              >
-                <template #icon>
-                  <Icon name="Plus" class="w-5 h-5" />
-                </template>
-                <span>Add Product</span>
-              </IconButton>
-            </div> -->
+            </template>
             <NoData
               v-else
               title="Belum Ada Data Product"
@@ -428,7 +434,8 @@ const setViewMode = (mode) => {
       @scan-error="() => showScanner = false"
       @close="showScanner = false"
     />
-  </div>
+  </BasePage>
+
 </template>
 
 <style scoped>

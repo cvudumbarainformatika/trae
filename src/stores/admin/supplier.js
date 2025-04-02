@@ -4,80 +4,82 @@ import { api } from '@/services/api'
 export const useSupplierStore = defineStore('supplier', {
   state: () => ({
     suppliers: [],
-    loading: false,
-    error: null,
-    showSupplierForm: false,
-    showDeleteConfirm: false,
     searchQuery: '',
-    filters: {
-      q: '',
-      sort_by: 'name',
-      sort_dir: 'asc',
-      per_page: 12
+    showSupplierForm: false,
+    params: {
+      page: 1,
+      per_page: 10,
+      sort_by: 'created_at',
+      sort_direction: 'desc',
+      q: ''
     },
     pagination: {
-      currentPage: 1,
-      itemsPerPage: 12,
       total: 0,
-      maxVisiblePages: 5
-    }
+      current_page: 1,
+      last_page: 1
+    },
+    loading: false,
+    error: null
   }),
 
   getters: {
     filteredSuppliers: (state) => {
-      return state.suppliers.filter(supplier => {
-        if (!state.searchQuery) return true
-        
-        const query = state.searchQuery.toLowerCase()
-        return (
-          supplier.name.toLowerCase().includes(query) ||
-          supplier.address?.toLowerCase().includes(query) ||
-          supplier.phone?.toLowerCase().includes(query) ||
-          supplier.email?.toLowerCase().includes(query)
-        )
-      })
+      return state.suppliers
     },
-
+    
     paginationInfo: (state) => {
-      const totalItems = state.pagination?.total
-      const totalPages = Math.ceil(totalItems / state.pagination.itemsPerPage)
-
-      let startPage = Math.max(1, state.pagination.currentPage - Math.floor(state.pagination.maxVisiblePages / 2))
-      let endPage = Math.min(totalPages, startPage + state.pagination.maxVisiblePages - 1)
-
-      if (endPage - startPage + 1 < state.pagination.maxVisiblePages) {
-        startPage = Math.max(1, endPage - state.pagination.maxVisiblePages + 1)
-      }
-
       return {
-        currentPage: state.pagination?.currentPage,
-        totalPages,
-        itemsPerPage: state.pagination?.itemsPerPage,
-        startPage,
-        endPage,
-        totalItems,
-        maxVisiblePages: state.pagination?.maxVisiblePages
+        currentPage: state.pagination.current_page,
+        totalPages: state.pagination.last_page,
+        totalItems: state.pagination.total,
+        itemsPerPage: state.params.per_page
       }
     }
   },
 
   actions: {
+    setShowSupplierForm(value) {
+      this.showSupplierForm = value
+    },
+
+    setSearchQuery(query) {
+      this.params.q = query
+      this.params.page = 1
+      this.fetchSuppliers()
+    },
+    
+    setPage(page) {
+      this.params.page = page
+      this.fetchSuppliers()
+    },
+    
+    setSorting(field, direction) {
+      this.params.sort_by = field
+      this.params.sort_direction = direction
+      this.params.page = 1
+      this.fetchSuppliers()
+    },
+    
+    setPerPage(perPage) {
+      this.params.per_page = perPage
+      this.params.page = 1
+      this.fetchSuppliers()
+    },
+
     async fetchSuppliers() {
       this.loading = true
       this.error = null
       try {
-        const response = await api.get('/api/v1/suppliers', {
-          params: {
-            page: this.pagination.currentPage,
-            per_page: this.pagination.itemsPerPage,
-            ...this.filters
+        const response = await api.get('/api/v1/suppliers', { params: this.params })
+        this.suppliers = response.data.data || []
+        
+        // Update pagination info
+        if (response.data.meta) {
+          this.pagination = {
+            total: response.data.meta.total,
+            current_page: response.data.meta.current_page,
+            last_page: response.data.meta.last_page
           }
-        })
-        this.suppliers = response.data?.data || []
-        this.pagination = {
-          ...this.pagination,
-          currentPage: response.data?.meta?.current_page || 1,
-          total: response.data?.meta?.total || 0
         }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch suppliers'
@@ -91,11 +93,20 @@ export const useSupplierStore = defineStore('supplier', {
       this.loading = true
       this.error = null
       try {
-        const response = await api.post('/api/v1/suppliers', supplierData)
-        this.suppliers.push(response.data)
-        this.showSupplierForm = false
+        // Make sure we include the new fields
+        const dataToSend = {
+          ...supplierData,
+          initial_amount: supplierData.initial_amount || 0,
+          current_amount: supplierData.initial_amount || 0, // Set to same as initial on creation
+          notes: supplierData.notes || null
+        }
+        
+        const response = await api.post('/api/v1/suppliers', dataToSend)
+        this.suppliers.unshift(response.data)
+        return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to add supplier'
+        console.error('Error adding supplier:', error)
         throw error
       } finally {
         this.loading = false
@@ -111,8 +122,10 @@ export const useSupplierStore = defineStore('supplier', {
         if (index !== -1) {
           this.suppliers[index] = response.data
         }
+        return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to update supplier'
+        console.error('Error updating supplier:', error)
         throw error
       } finally {
         this.loading = false
@@ -124,42 +137,14 @@ export const useSupplierStore = defineStore('supplier', {
       this.error = null
       try {
         await api.delete(`/api/v1/suppliers/${supplierId}`)
-        const index = this.suppliers.findIndex(s => s.id === supplierId)
-        if (index !== -1) {
-          this.suppliers.splice(index, 1)
-        }
+        this.suppliers = this.suppliers.filter(s => s.id !== supplierId)
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to delete supplier'
+        console.error('Error deleting supplier:', error)
         throw error
       } finally {
         this.loading = false
       }
-    },
-
-    setShowSupplierForm(show) {
-      this.showSupplierForm = show
-    },
-
-    setSearchQuery(query) {
-      this.searchQuery = query
-      this.pagination.currentPage = 1
-      this.fetchSuppliers()
-    },
-
-    setCurrentPage(page) {
-      this.pagination.currentPage = page
-      this.fetchSuppliers()
-    },
-
-    resetFilters() {
-      this.filters = {
-        q: '',
-        sort_by: 'name',
-        sort_dir: 'asc',
-        per_page: this.pagination.itemsPerPage
-      }
-      this.pagination.currentPage = 1
-      this.fetchSuppliers()
     }
   }
 })
