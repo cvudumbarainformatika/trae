@@ -30,6 +30,7 @@ const routes = [
         name: 'admin-settings',
         component: () => import('../views/admin/Settings.vue')
       },
+      // master data
       {
         path: 'master-data/products',
         name: 'admin-products',
@@ -54,7 +55,14 @@ const routes = [
         path: 'master-data/customers',
         name: 'admin-customers',
         component: () => import('../views/admin/Customers.vue')
-      }
+      },
+
+      // transaksi
+      {
+        path:'transaksi/po',
+        name: 'transaksi-po',
+        component: () => import('../views/admin/transaksi/order_pembelian/IndexPage.vue')
+      },
     ]
   }
 ]

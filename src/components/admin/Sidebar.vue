@@ -10,16 +10,17 @@ const activeSubmenu = ref(null)
 
 const submenus = {
   'master-data': [
-    { name: 'Products', path: '/admin/master-data/products' },
-    { name: 'Categories', path: '/admin/master-data/categories' },
-    { name: 'Satuan', path: '/admin/master-data/satuan' },
-    { name: 'Suppliers', path: '/admin/master-data/suppliers' },
-    { name: 'Customers', path: '/admin/master-data/customers' }
+    { name: 'Products', label:'Produk', path: '/admin/master-data/products' },
+    { name: 'Categories', label:'Kategori', path: '/admin/master-data/categories' },
+    { name: 'Satuan', label:'Satuan', path: '/admin/master-data/satuan' },
+    { name: 'Suppliers', label:'Supplier', path: '/admin/master-data/suppliers' },
+    { name: 'Customers', label: 'Pelanggan', path: '/admin/master-data/customers' }
   ],
   'transaction': [
-    { name: 'Sales', path: '/admin/transaction/sales' },
-    { name: 'Purchases', path: '/admin/transaction/purchases' },
-    { name: 'Returns', path: '/admin/transaction/returns' }
+    { name: 'PO', label:'Order Pembelian', path: '/admin/transaksi/po' },
+    { name: 'Purchases', label:'Pembelian', path: '/admin/transaction/purchases' },
+    { name: 'Sales', label:'Penjualan', path: '/admin/transaction/sales' },
+    { name: 'Returns', label: 'Retur', path: '/admin/transaction/returns' }
   ],
   'reports': [
     { name: 'Sales Report', path: '/admin/reports/sales' },
@@ -61,6 +62,7 @@ const getSubmenuIcon = (name) => {
     'Customers': UserCheck, // Menggunakan ikon UserCheck untuk Customers
     'Sales': Receipt,
     'Purchases': ShoppingBag,
+    'PO': ShoppingBag,
     'Returns': RotateCcw,
     'Sales Report': BarChart3,
     'Inventory Report': BoxIcon,
