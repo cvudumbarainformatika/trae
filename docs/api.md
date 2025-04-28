@@ -54,8 +54,8 @@
 
 ## Supplier
 ### Endpoint
-- `POST /api/suppliers` — Menambah supplier baru beserta hutang awal
-- `GET /api/suppliers/{id}` — Detail supplier beserta saldo hutang
+- `POST /api/v1/suppliers` — Menambah supplier baru beserta hutang awal
+- `GET /api/v1/suppliers/{id}` — Detail supplier beserta saldo hutang
 
 #### Contoh Request Tambah Supplier
 ```json
@@ -89,8 +89,8 @@
 
 ## Customer
 ### Endpoint
-- `POST /api/customers` — Menambah customer baru beserta piutang awal
-- `GET /api/customers/{id}` — Detail customer beserta saldo piutang
+- `POST /api/v1/customers` — Menambah customer baru beserta piutang awal
+- `GET /api/v1/customers/{id}` — Detail customer beserta saldo piutang
 
 #### Contoh Request Tambah Customer
 ```json
@@ -124,11 +124,11 @@
 
 ## Purchase Order
 ### Endpoint
-- `GET /api/purchase-orders` — List semua order pembelian
-- `POST /api/purchase-orders` — Membuat order pembelian baru
-- `GET /api/purchase-orders/{id}` — Detail order pembelian
-- `PUT /api/purchase-orders/items/{id}/status` — Update status item order pembelian
-- `DELETE /api/purchase-orders/{id}` — Hapus order pembelian
+- `GET /api/v1/purchase-orders` — List semua order pembelian
+- `POST /api/v1/purchase-orders` — Membuat order pembelian baru
+- `GET /api/v1/purchase-orders/{id}` — Detail order pembelian
+- `PUT /api/v1/purchase-orders/items/{id}/status` — Update status item order pembelian
+- `DELETE /api/v1/purchase-orders/{id}` — Hapus order pembelian
 
 #### Contoh Request Tambah Purchase Order
 ```json
@@ -203,12 +203,12 @@ Dokumentasi akan diperbarui setiap ada fitur baru yang selesai.
 
 ## Purchase
 ### Endpoint
-- `GET /api/purchases` — List semua transaksi pembelian
-- `POST /api/purchases` — Membuat transaksi pembelian baru
-- `GET /api/purchases/{id}` — Detail transaksi pembelian
-- `DELETE /api/purchases/{id}` — Hapus transaksi pembelian
+- `GET /api/v1/purchases` — List semua transaksi pembelian
+- `POST /api/v1/purchases` — Membuat transaksi pembelian baru
+- `GET /api/v1/purchases/{id}` — Detail transaksi pembelian
+- `DELETE /api/v1/purchases/{id}` — Hapus transaksi pembelian
 
-#### Parameter Pencarian (GET /api/purchases)
+#### Parameter Pencarian (GET /api/v1/purchases)
 | Nama      | Tipe   | Keterangan                                 |
 |-----------|--------|--------------------------------------------|
 | supplier  | string | (opsional) Nama supplier, pencarian fuzzy  |
@@ -216,7 +216,7 @@ Dokumentasi akan diperbarui setiap ada fitur baru yang selesai.
 
 Contoh Request:
 ```
-GET /api/purchases?supplier=makmur
+GET /api/v1/purchases?supplier=makmur
 ```
 
 Contoh Response:
@@ -269,7 +269,7 @@ Contoh Response:
 ```
 
 #### Contoh Request Tambah Pembelian
-POST /api/purchases
+POST /api/v1/purchases
 {
   "purchase_order_id": 1,
   "purchase_date": "2024-06-08",

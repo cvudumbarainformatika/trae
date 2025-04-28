@@ -47,8 +47,8 @@
     </div>
 
     <PurchaseOrderForm 
-      v-model="showCreateDialog"
-      @success="fetchPurchaseOrders"
+      v-model="purchaseOrderStore.showCreateDialog"
+      @success="purchaseOrderStore.fetchPurchaseOrders"
     />
   </BasePage>
 </template>
@@ -57,11 +57,11 @@
 import { onMounted } from 'vue'
 import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
 import PurchaseOrderForm from './PurchaseOrderForm.vue'
+import BaseTable from '@/components/ui/BaseTable.vue'
+import BaseInput from '@/components/ui/BaseInput.vue'
+import BasePage from '@/components/ui/BasePage.vue'
 
 const purchaseOrderStore = usePurchaseOrderStore()
-
-const { showCreateDialog, headers, items, loading, searchQuery, pagination } = purchaseOrderStore
- 
 
 // Fetch initial data
 onMounted(() => {
