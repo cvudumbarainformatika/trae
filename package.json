@@ -7,13 +7,14 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "icon-check": "node scripts/icon-check.js",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
     "format": "prettier --write \"src/**/*.{js,vue}\"",
     "component-check": "node scripts/component-check.js"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run component-check && lint-staged"
+      "pre-commit": "npm run component-check && npm run icon-check && lint-staged"
     }
   },
   "lint-staged": {

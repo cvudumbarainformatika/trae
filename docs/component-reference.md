@@ -10,6 +10,22 @@
 | `BaseDialog` | Modal/dialog dengan berbagai ukuran | [Dokumentasi](./components/BaseDialog.md) |
 | `BasePage` | Layout halaman dengan header dan actions | [Dokumentasi](./components/BasePage.md) |
 | `SearchDropdown` | Dropdown dengan fungsi pencarian | [Dokumentasi](./components/SearchDropdown.md) |
+| `Icon` | Komponen untuk menampilkan ikon Lucide | [Dokumentasi](./components/Icon.md) |
+
+## Penggunaan Ikon
+
+Selalu gunakan komponen `Icon` untuk menampilkan ikon:
+
+```vue
+<Icon name="Plus" class="w-4 h-4" />
+```
+
+Ukuran standar:
+- Kecil: `w-4 h-4`
+- Sedang: `w-6 h-6`
+- Besar: `w-8 h-8`
+
+Daftar ikon yang tersedia dapat dilihat di [dokumentasi Lucide](https://lucide.dev/icons/).
 
 ## Contoh Penggunaan Umum
 
@@ -23,7 +39,7 @@
       :error="errors.name"
       required
     />
-    
+
     <BaseSelect
       v-model="form.category"
       :options="categories"
@@ -31,7 +47,7 @@
       :error="errors.category"
       required
     />
-    
+
     <BaseButton type="submit">Simpan</BaseButton>
   </form>
 </template>
@@ -42,7 +58,7 @@
 <template>
   <BaseDialog v-model="showDialog" title="Konfirmasi">
     <p>Apakah Anda yakin ingin melanjutkan?</p>
-    
+
     <template #footer>
       <BaseButton @click="showDialog = false" variant="ghost">
         Batal
