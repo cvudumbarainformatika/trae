@@ -13,7 +13,11 @@ export default [
       'vue/no-unused-components': 'error',
       'vue/multi-word-component-names': 'off',
       'vue/require-default-prop': 'off',
-      'vue/no-v-html': 'off'
+      'vue/no-v-html': 'off',
+      // Custom rule to remind about component documentation
+      'vue/comment-directive': ['error', {
+        'directives': ['component-check']
+      }]
     }
   },
   {

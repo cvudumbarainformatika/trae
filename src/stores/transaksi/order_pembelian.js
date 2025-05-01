@@ -12,14 +12,22 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   // Form state
   const form = ref({
     supplier_id: '',
-    order_number: '',
-    order_date: new Date().toISOString().split('T')[0],
-    notes: '',
+    date: new Date().toISOString().split('T')[0],
+    due_date: '',
     status: 'draft',
-    items: [
-      { product_id: '', quantity: 1, price: 0 }
-    ]
+    items: []
   })
+
+  // Reset form
+  const resetForm = () => {
+    form.value = {
+      supplier_id: '',
+      date: new Date().toISOString().split('T')[0],
+      due_date: '',
+      status: 'draft',
+      items: []
+    }
+  }
 
   // Existing state
   const headers = ref([
@@ -38,19 +46,6 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     itemsPerPage: 10,
     totalItems: 0
   })
-
-  // Form actions
-  const resetForm = () => {
-    form.value = {
-      supplier_id: '',
-      po_number: '',
-      date: new Date().toISOString().split('T')[0],
-      due_date: '',
-      items: [
-        { product_id: '', quantity: 1, price: 0 }
-      ]
-    }
-  }
 
   const addItem = () => {
     form.value.items.push({ product_id: '', quantity: 1, price: 0 })
@@ -74,10 +69,43 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     }
   }
 
-  // Data fetching
-  const fetchSuppliers = async () => {
+  // Tambahkan fungsi untuk menyimpan draft
+  const saveDraft = async (isAutosave = false) => {
+    // Jika autosave, jangan tampilkan loading state
+    if (!isAutosave) loading.value = true
+    
     try {
-      const { data } = await api.get('/suppliers')
+      const response = await api.post('/purchase-orders/draft', form.value)
+      
+      // Jika bukan autosave, refresh data dan reset form
+      if (!isAutosave) {
+        await fetchPurchaseOrders()
+        showCreateDialog.value = false
+        resetForm()
+      } else {
+        // Jika autosave, update form dengan ID dari response
+        if (response.data && response.data.id) {
+          form.value.id = response.data.id
+        }
+      }
+      
+      return response
+    } catch (error) {
+      console.error('Error saving draft purchase order:', error)
+      throw error
+    } finally {
+      if (!isAutosave) loading.value = false
+    }
+  }
+
+  // Data fetching
+  const fetchSuppliers = async (q) => {
+    try {
+      const { data } = await api.get('/api/v1/suppliers', {
+        params: {
+          q: q
+        }
+      })
       suppliers.value = data.data
     } catch (error) {
       console.error('Error fetching suppliers:', error)
@@ -98,15 +126,23 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     try {
       const { data } = await api.get('/api/v1/purchase-orders', {
         params: {
-          supplier: searchQuery.value, // menggunakan parameter yang didokumentasikan
+          supplier: searchQuery.value,
           page: pagination.value.page,
-          // limit dihapus karena tidak ada di dokumentasi
         }
       })
-      items.value = data.data
-      pagination.value.totalItems = data.meta.total
+      
+      // Gunakan optional chaining dan nullish coalescing untuk penanganan yang lebih ringkas
+      items.value = data?.data || []
+      pagination.value.totalItems = data?.meta?.total || 0
+      
+      // Tambahkan warning jika meta data tidak lengkap
+      if (!data?.meta?.total && data) {
+        console.warn('Meta data tidak lengkap dalam respons API purchase orders')
+      }
     } catch (error) {
       console.error('Error fetching purchase orders:', error)
+      items.value = []
+      pagination.value.totalItems = 0
     } finally {
       loading.value = false
     }
@@ -129,6 +165,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     addItem,
     removeItem,
     submitForm,
+    saveDraft, // Tambahkan fungsi baru
     fetchSuppliers,
     fetchProducts,
     fetchPurchaseOrders

@@ -1,0 +1,17 @@
+{
+  "aiAssistant": {
+    "prompts": {
+      "componentCheck": "Sebelum membuat komponen baru, pastikan untuk memeriksa komponen yang sudah ada di docs/components/, src/components/ui/, dan src/plugins/ui.js. Prioritaskan penggunaan komponen yang sudah ada untuk menjaga konsistensi UI dan menghindari duplikasi kode.",
+      "developmentWorkflow": "Ikuti checklist pengembangan di docs/development-checklist.md untuk memastikan kualitas dan konsistensi kode."
+    },
+    "settings": {
+      "alwaysCheckExistingComponents": true,
+      "suggestExistingComponentsFirst": true,
+      "documentationPaths": [
+        "docs/components/",
+        "docs/component-reference.md",
+        "docs/development-checklist.md"
+      ]
+    }
+  }
+}

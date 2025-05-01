@@ -12,7 +12,7 @@ const themeStore = useThemeStore()
 
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-hidden flex justify-center">
-      <div class="h-ful overflow-y-auto w-full max-w-[1440px] min-w-[320px] mx-auto">
+      <div class="h-ful overflow-y-auto w-full max-w-[1280px] min-w-[320px] mx-auto">
         <router-view></router-view>
       </div>
     </main>

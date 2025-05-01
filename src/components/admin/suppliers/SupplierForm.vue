@@ -3,7 +3,7 @@
     :modelValue="modelValue"
     :title="isEdit ? 'Edit Supplier' : 'Add Supplier'"
     @update:modelValue="$emit('update:modelValue', $event)"
-    @close="$emit('close')"
+    @close="handleClose"
   >
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <!-- Grid layout for desktop, stack on mobile -->
@@ -85,7 +85,7 @@
       <div class="flex justify-end space-x-3">
         <BaseButton
           variant="secondary"
-          @click="$emit('close')"
+          @click="handleClose"
         >
           Cancel
         </BaseButton>
@@ -102,13 +102,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineModel } from 'vue'
+
+// Gunakan defineModel untuk menangani v-model dengan lebih baik
+const modelValue = defineModel()
 
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  },
   supplier: {
     type: Object,
     default: null
@@ -119,7 +118,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'close', 'submit'])
+const emit = defineEmits(['close', 'submit'])
 
 const form = ref({
   name: '',
@@ -173,5 +172,9 @@ const handleSubmit = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleClose = () => {
+  emit('close')
 }
 </script>
