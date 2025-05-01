@@ -185,7 +185,6 @@
                       :api-params="{ per_page: 10 }"
                       :use-api="true"
                       @select="addProductToOrder"
-                      @add-new="navigateToProductPage"
                       @items-loaded="onProductsLoaded"
                     >
                       <template #item="{ item }">
@@ -397,8 +396,16 @@ const isFormValid = computed(() =>
 )
 
 const canSubmitForm = computed(() => {
-  // Cukup validasi supplier_id saja untuk mengaktifkan tombol
-  return !!store.form.supplier_id;
+  // Untuk debugging
+  console.log('canSubmitForm check:', {
+    supplier_id: !!store.form.supplier_id,
+    items_length: store.form.items.length > 0,
+    date: !!store.form.date,
+    due_date: !!store.form.due_date
+  });
+
+  // Validasi minimal: harus ada supplier dan minimal satu item
+  return !!store.form.supplier_id && store.form.items.length > 0;
 })
 
 // Methods
@@ -423,39 +430,8 @@ const handleClose = () => {
 
 const closeDialog = handleClose
 
-const setupAutosave = () => {
-  if (autosaveTimer) clearTimeout(autosaveTimer)
 
-  if (canSaveDraft.value) {
-    autosaveTimer = setTimeout(async () => {
-      try {
-        store.form.status = 'draft'
-        await store.saveDraft(true)
-        console.log('Draft auto-saved')
-      } catch (error) {
-        console.error('Error auto-saving draft:', error)
-      }
-    }, AUTOSAVE_DELAY)
-  }
-}
 
-const searchSuppliers = (query) => {
-  if (query.length < 3) return
-
-  supplierLoading.value = true
-
-  store.fetchSuppliers(query)
-    .then(() => {
-      filteredSuppliers.value = store.suppliers
-    })
-    .catch(error => {
-      console.error('Error searching suppliers:', error)
-      filteredSuppliers.value = []
-    })
-    .finally(() => {
-      supplierLoading.value = false
-    })
-}
 
 const selectSupplier = (supplier) => {
   store.form.supplier_id = supplier.id
@@ -466,29 +442,6 @@ const clearSelectedSupplier = () => {
   store.form.supplier_id = null
 }
 
-const searchProducts = (query) => {
-  if (query.length < 3) return
-
-  productLoading.value = true
-
-  // Gunakan API untuk pencarian produk
-  api.get('/api/v1/products/search', {
-    params: {
-      q: query,
-      per_page: 10 // Batasi hasil pencarian
-    }
-  })
-  .then(response => {
-    filteredProducts.value = response.data?.data || []
-  })
-  .catch(error => {
-    console.error('Error searching products:', error)
-    filteredProducts.value = []
-  })
-  .finally(() => {
-    productLoading.value = false
-  })
-}
 
 const addProductToOrder = (product) => {
   // Panggil fungsi addItem di store dengan produk yang dipilih
@@ -527,6 +480,9 @@ const formatNumber = (value) =>
   new Intl.NumberFormat('id-ID').format(value)
 
 const submitForm = () => {
+  // Tambahkan log untuk debugging
+  console.log('Submit form triggered', store.form);
+
   // Tambahkan validasi sebelum submit
   if (!isFormValid.value) {
     // Tampilkan pesan error jika perlu
@@ -538,14 +494,22 @@ const submitForm = () => {
       alert('Silakan tambahkan minimal satu item');
       return;
     }
+
+
     return;
   }
 
+  // Set status to 'ordered' when submitting
+  // store.form.status = 'ordered';
+
   store.submitForm()
-    .then(() => emit('success'))
+    .then(() => {
+      console.log('Form submitted successfully');
+      emit('success');
+    })
     .catch(error => {
       console.error('Error submitting form:', error);
-      // Handle error jika perlu
+      alert('Terjadi kesalahan saat menyimpan order. Silakan coba lagi.');
     });
 }
 
@@ -579,29 +543,6 @@ const handleSupplierSubmit = async (formData) => {
 }
 
 // Fungsi untuk navigasi ke halaman produk
-const navigateToProductPage = () => {
-  // Simpan draft terlebih dahulu jika memungkinkan
-  if (canSaveDraft.value) {
-    store.saveDraft(true).then(() => {
-      // Navigasi ke halaman produk dengan parameter untuk kembali
-      router.push({
-        name: 'admin-products',
-        query: {
-          returnTo: 'purchase-order',
-          q: productSearch.value // Pre-fill search query
-        }
-      })
-    })
-  } else {
-    router.push({
-      name: 'admin-products',
-      query: {
-        returnTo: 'purchase-order',
-        q: productSearch.value
-      }
-    })
-  }
-}
 
 // Inisialisasi router
 const router = useRouter()
@@ -640,10 +581,7 @@ const updateItemTotal = (index) => {
 }
 
 // Watchers
-watch([() => store.form.supplier_id, () => store.form.items],
-  () => setupAutosave(),
-  { deep: true }
-)
+
 
 watch(supplierSearch, (newVal) => {
   if (!newVal) showSupplierResults.value = false

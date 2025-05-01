@@ -130,43 +130,23 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   const submitForm = async () => {
     loading.value = true
     try {
-      await api.post('/purchase-orders', form.value)
-      await fetchPurchaseOrders()
-      showCreateDialog.value = false
-      resetForm()
+      console.log('Submitting form to API:', form.value);
+
+      // Pastikan endpoint API benar
+      const response = await api.post('/api/v1/purchase-orders', form.value);
+
+      console.log('API response:', response);
+
+      await fetchPurchaseOrders();
+      showCreateDialog.value = false;
+      resetForm();
+
+      return response;
     } catch (error) {
-      console.error('Error creating purchase order:', error)
+      console.error('Error creating purchase order:', error);
+      throw error;
     } finally {
-      loading.value = false
-    }
-  }
-
-  // Tambahkan fungsi untuk menyimpan draft
-  const saveDraft = async (isAutosave = false) => {
-    // Jika autosave, jangan tampilkan loading state
-    if (!isAutosave) loading.value = true
-
-    try {
-      const response = await api.post('api/v1/purchase-orders/store', form.value)
-
-      // Jika bukan autosave, refresh data dan reset form
-      if (!isAutosave) {
-        await fetchPurchaseOrders()
-        showCreateDialog.value = false
-        resetForm()
-      } else {
-        // Jika autosave, update form dengan ID dari response
-        if (response.data && response.data.id) {
-          form.value.id = response.data.id
-        }
-      }
-
-      return response
-    } catch (error) {
-      console.error('Error saving draft purchase order:', error)
-      throw error
-    } finally {
-      if (!isAutosave) loading.value = false
+      loading.value = false;
     }
   }
 
@@ -238,7 +218,6 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     removeItem,
     updateItemQuantity,
     submitForm,
-    saveDraft, // Tambahkan fungsi baru
     fetchSuppliers,
     fetchProducts,
     fetchPurchaseOrders
