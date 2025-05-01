@@ -151,27 +151,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   }
 
   // Data fetching
-  const fetchSuppliers = async (q) => {
-    try {
-      const { data } = await api.get('/api/v1/suppliers', {
-        params: {
-          q: q
-        }
-      })
-      suppliers.value = data.data
-    } catch (error) {
-      console.error('Error fetching suppliers:', error)
-    }
-  }
 
-  const fetchProducts = async () => {
-    try {
-      const { data } = await api.get('/products')
-      products.value = data.data
-    } catch (error) {
-      console.error('Error fetching products:', error)
-    }
-  }
 
   const fetchPurchaseOrders = async () => {
     loading.value = true
@@ -218,8 +198,6 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     removeItem,
     updateItemQuantity,
     submitForm,
-    fetchSuppliers,
-    fetchProducts,
     fetchPurchaseOrders
   }
 })

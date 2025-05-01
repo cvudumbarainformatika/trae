@@ -390,8 +390,6 @@ const selectedSupplierDetails = computed(() =>
 
 const isFormValid = computed(() =>
   store.form.supplier_id &&
-  store.form.date &&
-  store.form.due_date &&
   store.form.items.length > 0
 )
 
