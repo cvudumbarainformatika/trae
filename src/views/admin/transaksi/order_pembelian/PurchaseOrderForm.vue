@@ -1,7 +1,7 @@
 <template>
   <div>
-    <BaseDialog 
-      v-model="showDialog" 
+    <BaseDialog
+      v-model="showDialog"
       title="Order Pembelian Baru"
       max-width="6xl"
       @close="closeDialog"
@@ -26,7 +26,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Main Content -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Kolom Kiri - Supplier (1/3 lebar) -->
@@ -34,9 +34,9 @@
             <!-- Supplier Search Card -->
             <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm p-4 transition-all duration-300 hover:shadow-md">
               <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4 flex items-center">
-                <i class="ri-user-3-line mr-2 text-primary-500"></i> Informasi Supplier
+                <Icon name="User" class="mr-2 text-primary-500" /> Informasi Supplier
               </h3>
-              
+
               <!-- Supplier Search -->
               <div class="relative mb-4">
                 <SearchDropdown
@@ -59,16 +59,16 @@
                   <template #item="{ item }">
                     <div class="font-medium text-secondary-900 dark:text-white">{{ item.name }}</div>
                     <div class="text-sm text-secondary-500 dark:text-secondary-400 flex items-center gap-2">
-                      <i class="ri-phone-line"></i> {{ item.phone || 'Tidak ada telepon' }}
+                      <Icon name="Phone" class="w-4 h-4" /> {{ item.phone || 'Tidak ada telepon' }}
                       <span class="mx-1">•</span>
-                      <i class="ri-mail-line"></i> {{ item.email || 'Tidak ada email' }}
+                      <Icon name="Mail" class="w-4 h-4" /> {{ item.email || 'Tidak ada email' }}
                     </div>
                   </template>
                 </SearchDropdown>
               </div>
-              
+
               <!-- Selected Supplier Card -->
-              <!-- <div v-if="store.form.supplier_id" 
+              <!-- <div v-if="store.form.supplier_id"
                    class="p-3 bg-secondary-50 dark:bg-secondary-700 rounded-lg border-l-4 border-primary-500 animate-fadeIn">
                 <div class="flex justify-between items-start">
                   <div>
@@ -79,37 +79,37 @@
                       {{ selectedSupplierDetails?.address || 'Tidak ada alamat' }}
                     </div>
                   </div>
-                  <button @click="clearSelectedSupplier" 
+                  <button @click="clearSelectedSupplier"
                           class="text-secondary-400 hover:text-secondary-600 dark:hover:text-secondary-300">
                     <i class="ri-close-line"></i>
                   </button>
                 </div>
               </div> -->
             </div>
-            
+
             <!-- Ganti Dates Card dengan Supplier Info Card saat draft -->
-            <div v-if="store.form.supplier_id && store.form.status === 'draft'" 
+            <div v-if="store.form.supplier_id && store.form.status === 'draft'"
                  class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm p-4 transition-all duration-300 hover:shadow-md">
               <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4 flex items-center">
-                <i class="ri-user-3-line mr-2 text-primary-500"></i> Detail Supplier
+                <Icon name="User" class="mr-2 text-primary-500" /> Detail Supplier
               </h3>
-              
+
               <div class="space-y-3">
                 <div class="flex flex-col">
                   <span class="text-sm text-secondary-500 dark:text-secondary-400">Perusahaan</span>
                   <span class="font-medium text-secondary-900 dark:text-white">{{ selectedSupplierDetails?.name }}</span>
                 </div>
-                
+
                 <div class="flex flex-col">
                   <span class="text-sm text-secondary-500 dark:text-secondary-400">Kontak</span>
                   <span class="font-medium text-secondary-900 dark:text-white">{{ selectedSupplierDetails?.phone || 'Tidak ada telepon' }}</span>
                 </div>
-                
+
                 <div class="flex flex-col">
                   <span class="text-sm text-secondary-500 dark:text-secondary-400">Email</span>
                   <span class="font-medium text-secondary-900 dark:text-white">{{ selectedSupplierDetails?.email || 'Tidak ada email' }}</span>
                 </div>
-                
+
                 <div class="flex flex-col">
                   <span class="text-sm text-secondary-500 dark:text-secondary-400">Alamat</span>
                   <span class="font-medium text-secondary-900 dark:text-white">{{ selectedSupplierDetails?.address || 'Tidak ada alamat' }}</span>
@@ -118,10 +118,10 @@
             </div>
 
             <!-- Tampilkan placeholder card jika belum ada supplier -->
-            <div v-if="!store.form.supplier_id && store.form.status === 'draft'" 
+            <div v-if="!store.form.supplier_id && store.form.status === 'draft'"
                  class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm p-4 transition-all duration-300 hover:shadow-md">
               <div class="flex flex-col items-center justify-center py-6 text-center">
-                <i class="ri-user-search-line text-4xl text-primary-400 mb-3"></i>
+                <Icon name="UserSearch" class="w-12 h-12 text-primary-400 mb-3" />
                 <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-2">Belum Ada Supplier</h3>
                 <p class="text-secondary-500 dark:text-secondary-400 text-sm max-w-md">
                   Silakan cari dan pilih supplier di atas untuk melanjutkan order pembelian Anda
@@ -130,22 +130,22 @@
             </div>
 
             <!-- Tampilkan Order Dates jika status bukan draft -->
-            <div v-if="store.form.status !== 'draft'" 
+            <div v-if="store.form.status !== 'draft'"
                  class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm p-4 transition-all duration-300 hover:shadow-md">
               <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4 flex items-center">
                 <i class="ri-calendar-line mr-2 text-primary-500"></i> Tanggal Order
               </h3>
-              
+
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <BaseDatePicker 
-                  v-model="store.form.date" 
-                  label="Tanggal Order" 
+                <BaseDatePicker
+                  v-model="store.form.date"
+                  label="Tanggal Order"
                   required
                 />
-                
-                <BaseDatePicker 
-                  v-model="store.form.due_date" 
-                  label="Jatuh Tempo" 
+
+                <BaseDatePicker
+                  v-model="store.form.due_date"
+                  label="Jatuh Tempo"
                   required
                   :min="store.form.date"
                 />
@@ -158,13 +158,13 @@
             <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm p-4 h-full transition-all duration-300 hover:shadow-md">
               <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4 flex items-center justify-between">
                 <span class="flex items-center">
-                  <i class="ri-shopping-basket-line mr-2 text-primary-500"></i> Item Order
+                  <Icon name="ShoppingBasket" class="mr-2 text-primary-500" /> Item Order
                 </span>
                 <span class="text-sm font-normal text-secondary-500 dark:text-secondary-400">
                   {{ store.form.items.length }} item
                 </span>
               </h3>
-              
+
               <!-- Product Search -->
               <div class="relative mb-4">
                 <div class="flex gap-2">
@@ -197,14 +197,14 @@
                       </template>
                     </SearchDropdown>
                   </div>
-                  
+
                   <!-- Barcode Scanner Button -->
-                  <button 
+                  <button
                     @click="openBarcodeScanner"
                     class="px-3 py-2 bg-secondary-100 dark:bg-secondary-700 text-secondary-700 dark:text-secondary-300 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-600 transition-colors duration-200"
                     title="Scan Barcode"
                   >
-                    <i class="ri-barcode-line text-lg"></i>
+                    <Icon name="Scan" class="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -221,7 +221,7 @@
               <div class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                 <!-- Tampilan saat tidak ada item yang dipilih -->
                 <div v-if="store.form.items.length === 0" class="text-center py-12 text-secondary-400 dark:text-secondary-500 bg-secondary-50 dark:bg-secondary-800/50 rounded-lg border-2 border-dashed border-secondary-200 dark:border-secondary-700">
-                  <i class="ri-shopping-basket-line text-5xl mb-3"></i>
+                  <Icon name="ShoppingBasket" class="w-16 h-16 mb-3 mx-auto" />
                   <h3 class="text-lg font-medium text-secondary-700 dark:text-secondary-300 mb-2">Belum Ada Item</h3>
                   <p class="text-sm max-w-md mx-auto">
                     Cari dan tambahkan produk ke order pembelian Anda menggunakan kotak pencarian di atas
@@ -232,8 +232,8 @@
                     </button>
                   </div> -->
                 </div>
-                
-                <div v-for="(item, index) in store.form.items" :key="index" 
+
+                <div v-for="(item, index) in store.form.items" :key="index"
                      class="p-3 bg-secondary-50 dark:bg-secondary-700 rounded-lg border-l-4 border-primary-500 animate-fadeIn">
                   <!-- Header: Product name, barcode, and delete button -->
                   <div class="flex justify-between items-start mb-2">
@@ -243,32 +243,37 @@
                         {{ item.product?.barcode || 'Tidak ada barcode' }}
                       </div>
                     </div>
-                    
-                    <button @click="removeItem(index)" 
+
+                    <button @click="removeItem(index)"
                             class="text-red-500 hover:text-red-600 dark:hover:text-red-400 ml-2">
-                      <i class="ri-delete-bin-line"></i>
+                      <Icon name="Trash" class="w-4 h-4" />
                     </button>
                   </div>
-                  
+
                   <!-- Price and quantity controls in one row -->
                   <div class="flex justify-between items-center mt-1">
                     <div class="flex items-center gap-2">
                       <div class="relative">
                         <span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-secondary-500 dark:text-secondary-400">Rp</span>
-                        <input v-model.number="item.price" type="number" min="0" 
-                               class="w-36 h-7 pl-7 text-sm rounded-l border border-secondary-200 dark:border-secondary-600 bg-white dark:bg-secondary-800 focus:outline-none focus:ring-1 focus:ring-primary-500 text-secondary-900 dark:text-white" />
+                        <input
+                          v-model.number="item.price"
+                          type="number"
+                          min="0"
+                          @input="updateItemTotal(index)"
+                          class="w-36 h-7 pl-7 text-sm rounded-l border border-secondary-200 dark:border-secondary-600 bg-white dark:bg-secondary-800 focus:outline-none focus:ring-1 focus:ring-primary-500 text-secondary-900 dark:text-white"
+                        />
                       </div>
                       <span class="text-xs text-secondary-500 dark:text-secondary-400">×</span>
                       <div class="flex items-center">
-                        <button @click="decrementQuantity(index)" 
+                        <button @click="decrementQuantity(index)"
                                 class="w-6 h-6 flex items-center justify-center rounded-l-md bg-secondary-200 dark:bg-secondary-600 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-300 dark:hover:bg-secondary-500 transition-colors">
-                          <i class="ri-subtract-line text-xs"></i>
+                          <Icon name="Minus" class="w-3 h-3" />
                         </button>
-                        <input v-model.number="item.quantity" type="number" min="1" 
+                        <input v-model.number="item.quantity" type="number" min="1"
                                class="w-14 h-6 text-center text-xs border-y border-secondary-200 dark:border-secondary-600 bg-white dark:bg-secondary-800 focus:outline-none focus:ring-1 focus:ring-primary-500 text-secondary-900 dark:text-white" />
-                        <button @click="incrementQuantity(index)" 
+                        <button @click="incrementQuantity(index)"
                                 class="w-6 h-6 flex items-center justify-center rounded-r-md bg-secondary-200 dark:bg-secondary-600 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-300 dark:hover:bg-secondary-500 transition-colors">
-                          <i class="ri-add-line text-xs"></i>
+                          <Icon name="Plus" class="w-3 h-3" />
                         </button>
                       </div>
                     </div>
@@ -278,7 +283,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Order Summary -->
               <div class="mt-6 pt-4 border-t border-secondary-200 dark:border-secondary-700">
                 <div class="flex justify-between items-center font-medium text-lg">
@@ -289,14 +294,18 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Footer Actions -->
         <div class="flex justify-end gap-3 mt-4">
           <BaseButton variant="secondary" @click="handleClose">
             Batal
           </BaseButton>
-          <BaseButton variant="primary" :disabled="!isFormValid" @click="submitForm">
-            <i class="ri-save-line mr-1"></i> Simpan Order
+          <BaseButton
+            variant="primary"
+            :disabled="!canSubmitForm"
+            @click="submitForm"
+          >
+            <Icon name="Save" class="w-4 h-4 mr-1" /> Simpan Order
           </BaseButton>
         </div>
       </div>
@@ -319,6 +328,7 @@ import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import Icon from '@/components/ui/Icon.vue'
 import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
 import SupplierForm from '@/components/admin/suppliers/SupplierForm.vue'
 import { useSupplierStore } from '@/stores/admin/supplier'
@@ -362,7 +372,7 @@ const showDialog = computed({
   set: (value) => {
     // Prevent recursion if value hasn't changed
     if (value === store.showCreateDialog) return
-    
+
     if (!value) {
       handleCloseWithoutSettingDialog()
     } else {
@@ -371,20 +381,25 @@ const showDialog = computed({
   }
 })
 
-const canSaveDraft = computed(() => 
+const canSaveDraft = computed(() =>
   store.form.supplier_id && store.form.items.length > 0
 )
 
-const selectedSupplierDetails = computed(() => 
+const selectedSupplierDetails = computed(() =>
   store.suppliers.find(s => s.id === store.form.supplier_id) || null
 )
 
-const isFormValid = computed(() => 
-  store.form.supplier_id && 
-  store.form.date && 
-  store.form.due_date && 
+const isFormValid = computed(() =>
+  store.form.supplier_id &&
+  store.form.date &&
+  store.form.due_date &&
   store.form.items.length > 0
 )
+
+const canSubmitForm = computed(() => {
+  // Cukup validasi supplier_id saja untuk mengaktifkan tombol
+  return !!store.form.supplier_id;
+})
 
 // Methods
 const handleCloseWithoutSettingDialog = async () => {
@@ -397,7 +412,7 @@ const handleCloseWithoutSettingDialog = async () => {
       console.error('Error auto-saving draft:', error)
     }
   }
-  
+
   // Update store directly, not through computed
   store.showCreateDialog = false
 }
@@ -410,7 +425,7 @@ const closeDialog = handleClose
 
 const setupAutosave = () => {
   if (autosaveTimer) clearTimeout(autosaveTimer)
-  
+
   if (canSaveDraft.value) {
     autosaveTimer = setTimeout(async () => {
       try {
@@ -426,9 +441,9 @@ const setupAutosave = () => {
 
 const searchSuppliers = (query) => {
   if (query.length < 3) return
-  
+
   supplierLoading.value = true
-  
+
   store.fetchSuppliers(query)
     .then(() => {
       filteredSuppliers.value = store.suppliers
@@ -453,9 +468,9 @@ const clearSelectedSupplier = () => {
 
 const searchProducts = (query) => {
   if (query.length < 3) return
-  
+
   productLoading.value = true
-  
+
   // Gunakan API untuk pencarian produk
   api.get('/api/v1/products/search', {
     params: {
@@ -476,23 +491,27 @@ const searchProducts = (query) => {
 }
 
 const addProductToOrder = (product) => {
+  // Panggil fungsi addItem di store dengan produk yang dipilih
   store.addItem({
     product_id: product.id,
-    product,
+    product: product,
     quantity: 1,
-    price: product.hargabeli
-  })
-  
-  productSearch.value = ''
+    price: product.hargabeli || 0
+  });
+
+  // Reset pencarian
+  productSearch.value = '';
 }
 
 const incrementQuantity = (index) => {
-  store.form.items[index].quantity++
+  const currentQuantity = store.form.items[index].quantity;
+  store.updateItemQuantity(index, currentQuantity + 1);
 }
 
 const decrementQuantity = (index) => {
-  if (store.form.items[index].quantity > 1) {
-    store.form.items[index].quantity--
+  const currentQuantity = store.form.items[index].quantity;
+  if (currentQuantity > 1) {
+    store.updateItemQuantity(index, currentQuantity - 1);
   }
 }
 
@@ -500,16 +519,34 @@ const removeItem = (index) => {
   store.removeItem(index)
 }
 
-const calculateTotal = () => 
-  store.form.items.reduce((total, item) => 
+const calculateTotal = () =>
+  store.form.items.reduce((total, item) =>
     total + (item.price * item.quantity), 0)
 
-const formatNumber = (value) => 
+const formatNumber = (value) =>
   new Intl.NumberFormat('id-ID').format(value)
 
 const submitForm = () => {
+  // Tambahkan validasi sebelum submit
+  if (!isFormValid.value) {
+    // Tampilkan pesan error jika perlu
+    if (!store.form.supplier_id) {
+      alert('Silakan pilih supplier terlebih dahulu');
+      return;
+    }
+    if (store.form.items.length === 0) {
+      alert('Silakan tambahkan minimal satu item');
+      return;
+    }
+    return;
+  }
+
   store.submitForm()
     .then(() => emit('success'))
+    .catch(error => {
+      console.error('Error submitting form:', error);
+      // Handle error jika perlu
+    });
 }
 
 const closeDropdowns = (e) => {
@@ -531,7 +568,7 @@ const handleSupplierSubmit = async (formData) => {
   try {
     const newSupplier = await supplierStore.addSupplier(formData)
     showSupplierForm.value = false
-    
+
     // Otomatis pilih supplier yang baru ditambahkan
     if (newSupplier?.id) {
       selectSupplier(newSupplier)
@@ -549,7 +586,7 @@ const navigateToProductPage = () => {
       // Navigasi ke halaman produk dengan parameter untuk kembali
       router.push({
         name: 'admin-products',
-        query: { 
+        query: {
           returnTo: 'purchase-order',
           q: productSearch.value // Pre-fill search query
         }
@@ -558,7 +595,7 @@ const navigateToProductPage = () => {
   } else {
     router.push({
       name: 'admin-products',
-      query: { 
+      query: {
         returnTo: 'purchase-order',
         q: productSearch.value
       }
@@ -576,9 +613,13 @@ const openBarcodeScanner = () => {
 
 // Fungsi untuk menangani hasil scan barcode
 const handleBarcodeScan = (barcode) => {
-  productSearch.value = barcode
-  productSearchRef.value?.fetchFromApi(barcode)
-  showScanner.value = false
+  showScanner.value = false;
+  productSearch.value = barcode;
+
+  // Gunakan ref untuk memanggil metode fetchFromApi pada komponen SearchDropdown
+  if (productSearchRef.value) {
+    productSearchRef.value.fetchFromApi(barcode);
+  }
 }
 
 // Handler untuk event items-loaded
@@ -587,12 +628,20 @@ const onSuppliersLoaded = (suppliers) => {
 }
 
 const onProductsLoaded = (products) => {
-  filteredProducts.value = products
+  // Jika hanya ada satu produk dan itu hasil dari scan barcode, tambahkan langsung
+  if (products.length === 1 && productSearch.value.length > 5) {
+    addProductToOrder(products[0]);
+  }
+}
+
+const updateItemTotal = (index) => {
+  const item = store.form.items[index];
+  item.total = item.quantity * item.price;
 }
 
 // Watchers
-watch([() => store.form.supplier_id, () => store.form.items], 
-  () => setupAutosave(), 
+watch([() => store.form.supplier_id, () => store.form.items],
+  () => setupAutosave(),
   { deep: true }
 )
 
@@ -606,8 +655,6 @@ watch(productSearch, (newVal) => {
 
 // Lifecycle hooks
 onMounted(() => {
-  store.fetchSuppliers()
-  store.fetchProducts()
   document.addEventListener('click', closeDropdowns)
 })
 

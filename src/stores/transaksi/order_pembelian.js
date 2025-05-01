@@ -8,7 +8,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   const loading = ref(false)
   const suppliers = ref([])
   const products = ref([])
-  
+
   // Form state
   const form = ref({
     supplier_id: '',
@@ -47,12 +47,84 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     totalItems: 0
   })
 
-  const addItem = () => {
-    form.value.items.push({ product_id: '', quantity: 1, price: 0 })
+  const addItem = (item) => {
+    // Validasi data sesuai aturan backend
+    if (!item.product_id) {
+      console.error('product_id diperlukan');
+      return;
+    }
+
+    // Pastikan quantity ada dan valid
+    const quantity = item.quantity || 1;
+    if (quantity < 1) {
+      console.error('quantity minimal 1');
+      return;
+    }
+
+    // Pastikan price ada dan valid
+    const price = item.price || item.product?.hargabeli || 0;
+    if (price < 0) {
+      console.error('price tidak boleh negatif');
+      return;
+    }
+
+    // Hitung total
+    const total = quantity * price;
+
+    // Periksa apakah produk sudah ada di dalam daftar
+    const existingItemIndex = form.value.items.findIndex(
+      existingItem => existingItem.product_id === item.product_id
+    );
+
+    if (existingItemIndex >= 0) {
+      // Jika produk sudah ada, tambahkan quantity dan update total
+      const updatedQuantity = form.value.items[existingItemIndex].quantity + 1;
+      const updatedTotal = updatedQuantity * form.value.items[existingItemIndex].price;
+
+      // Buat salinan item yang diperbarui
+      const updatedItem = {
+        ...form.value.items[existingItemIndex],
+        quantity: updatedQuantity,
+        total: updatedTotal
+      };
+
+      // Hapus item dari posisi saat ini
+      form.value.items.splice(existingItemIndex, 1);
+
+      // Tambahkan item yang diperbarui ke awal array
+      form.value.items.unshift(updatedItem);
+    } else {
+      // Jika produk belum ada, tambahkan sebagai item baru di awal array
+      form.value.items.unshift({
+        product_id: item.product_id,
+        product: { ...item.product },
+        quantity: quantity,
+        price: price,
+        total: total
+      });
+    }
   }
 
   const removeItem = (index) => {
-    form.value.items.splice(index, 1)
+    form.value.items.splice(index, 1);
+  }
+
+  // Tambahkan fungsi untuk increment/decrement quantity
+  const updateItemQuantity = (index, newQuantity) => {
+    if (index < 0 || index >= form.value.items.length) return;
+
+    // Pastikan quantity minimal 1
+    newQuantity = Math.max(1, newQuantity);
+
+    // Update quantity dan total
+    const item = form.value.items[index];
+    const newTotal = newQuantity * item.price;
+
+    form.value.items[index] = {
+      ...item,
+      quantity: newQuantity,
+      total: newTotal
+    };
   }
 
   const submitForm = async () => {
@@ -73,10 +145,10 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   const saveDraft = async (isAutosave = false) => {
     // Jika autosave, jangan tampilkan loading state
     if (!isAutosave) loading.value = true
-    
+
     try {
-      const response = await api.post('/purchase-orders/draft', form.value)
-      
+      const response = await api.post('api/v1/purchase-orders/store', form.value)
+
       // Jika bukan autosave, refresh data dan reset form
       if (!isAutosave) {
         await fetchPurchaseOrders()
@@ -88,7 +160,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
           form.value.id = response.data.id
         }
       }
-      
+
       return response
     } catch (error) {
       console.error('Error saving draft purchase order:', error)
@@ -130,11 +202,11 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
           page: pagination.value.page,
         }
       })
-      
+
       // Gunakan optional chaining dan nullish coalescing untuk penanganan yang lebih ringkas
       items.value = data?.data || []
       pagination.value.totalItems = data?.meta?.total || 0
-      
+
       // Tambahkan warning jika meta data tidak lengkap
       if (!data?.meta?.total && data) {
         console.warn('Meta data tidak lengkap dalam respons API purchase orders')
@@ -164,6 +236,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     resetForm,
     addItem,
     removeItem,
+    updateItemQuantity,
     submitForm,
     saveDraft, // Tambahkan fungsi baru
     fetchSuppliers,
