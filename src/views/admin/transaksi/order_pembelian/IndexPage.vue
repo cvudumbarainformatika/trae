@@ -91,7 +91,12 @@
               <!-- Action Buttons and Status - Inline with justify-between -->
               <div class="flex justify-between items-center mt-2">
                 <!-- Status Badge -->
-                <span class="text-xs px-2 py-0.5 rounded-full"
+                <div class="flex gap-x-4 items-center  text-gray-500 dark:text-gray-400">
+                  <div class="flex space-x-1 items-center">
+                    <Icon name="Receipt" class="w-4 h-4" />
+                    <div class="text-base">{{ item?.unique_code }}</div>
+                  </div>
+                  <span class="text-xs px-2 py-0.5 rounded-full"
                       :class="{
                         'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': item.status === 'draft',
                         'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': item.status === 'ordered',
@@ -102,10 +107,11 @@
                      item.status === 'ordered' ? 'Ordered' :
                      item.status === 'received' ? 'Received' : 'Cancelled' }}
                 </span>
+                </div>
 
                 <!-- Action Buttons -->
                 <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button class="p-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:hover:bg-indigo-800/50 dark:text-indigo-400 transition-colors">
+                  <button @click="viewPurchaseOrderDetail(item.id)" class="p-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:hover:bg-indigo-800/50 dark:text-indigo-400 transition-colors">
                     <Icon name="Eye" class="w-3.5 h-3.5" />
                   </button>
                   <button class="p-1.5 rounded-full bg-green-50 hover:bg-green-100 text-green-600 dark:bg-green-900/30 dark:hover:bg-green-800/50 dark:text-green-400 transition-colors">
@@ -126,13 +132,19 @@
       v-model="purchaseOrderStore.showCreateDialog"
       @success="purchaseOrderStore.fetchPurchaseOrders"
     />
+
+    <PurchaseOrderDetail
+      v-model="showDetailDialog"
+      :purchase-order-id="selectedPurchaseOrderId"
+    />
   </BasePage>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
 import PurchaseOrderForm from './PurchaseOrderForm.vue'
+import PurchaseOrderDetail from './PurchaseOrderDetail.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BasePage from '@/components/ui/BasePage.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -140,6 +152,8 @@ import BaseList from '@/components/ui/BaseList.vue'
 import Icon from '@/components/ui/Icon.vue'
 
 const purchaseOrderStore = usePurchaseOrderStore()
+const showDetailDialog = ref(false)
+const selectedPurchaseOrderId = ref(null)
 
 // Fetch initial data
 onMounted(() => {
@@ -158,6 +172,12 @@ const handlePageChange = (page) => {
   }
 
   purchaseOrderStore.fetchPurchaseOrders()
+}
+
+// View purchase order detail
+const viewPurchaseOrderDetail = (id) => {
+  selectedPurchaseOrderId.value = id
+  showDetailDialog.value = true
 }
 </script>
 

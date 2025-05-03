@@ -1,5 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+// Tambahkan import untuk komponen pembelian
+import PurchaseIndex from '@/views/admin/transaksi/pembelian/IndexPage.vue'
+import PurchaseDetail from '@/views/admin/transaksi/pembelian/PurchaseDetail.vue'
+import PurchaseForm from '@/views/admin/transaksi/pembelian/PurchaseForm.vue'
+
 const routes = [
   {
     path: '/',
@@ -63,6 +68,30 @@ const routes = [
         name: 'transaksi-po',
         component: () => import('../views/admin/transaksi/order_pembelian/IndexPage.vue')
       },
+      {
+        path:'transaksi/po/create',
+        name: 'transaksi-po-create',
+        component: () => import('../views/admin/transaksi/order_pembelian/PurchaseOrderForm.vue')
+      },
+      // Tambahkan rute untuk pembelian
+      {
+        path: 'transaksi/pembelian',
+        name: 'purchase-index',
+        component: PurchaseIndex,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'transaksi/pembelian/create',
+        name: 'purchase-create',
+        component: PurchaseForm,
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'transaksi/pembelian/:id',
+        name: 'purchase-detail',
+        component: PurchaseDetail,
+        meta: { requiresAuth: true }
+      }
     ]
   }
 ]
