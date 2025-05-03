@@ -37,12 +37,14 @@
         size="sm"
         class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300"
         :class="{ 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700': true }"
+        @click="purchaseOrderStore.changeStatusParams('semua')"
       >
         <span class="relative z-10">Semua</span>
         <span class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
 
       <BaseButton
+        @click="purchaseOrderStore.changeStatusParams('draft')"
         variant="ghost"
         size="sm"
         class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
@@ -55,6 +57,7 @@
       </BaseButton>
 
       <BaseButton
+        @click="purchaseOrderStore.changeStatusParams('ordered')"
         variant="ghost"
         size="sm"
         class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300"
@@ -67,6 +70,7 @@
       </BaseButton>
 
       <BaseButton
+        @click="purchaseOrderStore.changeStatusParams('received')"
         variant="ghost"
         size="sm"
         class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
@@ -79,6 +83,7 @@
       </BaseButton>
 
       <BaseButton
+        @click="purchaseOrderStore.changeStatusParams('cancelled')"
         variant="ghost"
         size="sm"
         class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300"

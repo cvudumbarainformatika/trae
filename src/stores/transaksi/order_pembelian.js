@@ -4,9 +4,28 @@ import { ref, computed } from 'vue'
 import { api } from '@/services/api'
 
 export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
+
+  const items = ref([])
+  const params = ref({
+    page: 1,
+    per_page: 10,
+    sort_by: 'created_at',
+    sort_direction: 'desc',
+    q: '',
+    status: 'semua'
+  })
+  const searchQuery = ref('')
+  const pagination = ref({
+    page: 1,
+    itemsPerPage: 10,
+    totalItems: 0
+  })
+
+
   const showCreateDialog = ref(false)
   const loading = ref(false)
   const suppliers = ref([])
+  const meta = ref(null)
   const products = ref([])
   const purchaseOrder = ref(null)
 
@@ -52,13 +71,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     { text: 'Actions', value: 'actions', class: 'text-right' }
   ])
 
-  const items = ref([])
-  const searchQuery = ref('')
-  const pagination = ref({
-    page: 1,
-    itemsPerPage: 10,
-    totalItems: 0
-  })
+
 
   const addItem = (item) => {
     // Validasi data sesuai aturan backend
@@ -197,25 +210,27 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
 
   // Data fetching
 
+  const changeStatusParams = (status) => {
+    // console.log('Changing status to:', status);
+    params.value.status = status
+    fetchPurchaseOrders()
+  }
 
   const fetchPurchaseOrders = async () => {
     loading.value = true
+
+    params.value.q = searchQuery.value
+    params.value.page = pagination.value.page
+
+
+
     try {
-      const { data } = await api.get('/api/v1/purchase-orders', {
-        params: {
-          supplier: searchQuery.value,
-          page: pagination.value.page,
-        }
-      })
+      const { data } = await api.get('/api/v1/purchase-orders',{params: params.value})
 
       // Gunakan optional chaining dan nullish coalescing untuk penanganan yang lebih ringkas
       items.value = data?.data || []
-      pagination.value.totalItems = data?.meta?.total || 0
-
-      // Tambahkan warning jika meta data tidak lengkap
-      if (!data?.meta?.total && data) {
-        console.warn('Meta data tidak lengkap dalam respons API purchase orders')
-      }
+      meta.value = data?.meta || null
+      pagination.value.totalItems = parseInt(data?.meta?.total) || 0
     } catch (error) {
       console.error('Error fetching purchase orders:', error)
       items.value = []
@@ -294,7 +309,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     try {
       console.log('Fetching all suppliers')
       const { data } = await api.get('/api/v1/suppliers')
-      suppliers.value = data.data || []
+      suppliers.value = data?.data || []
       return suppliers.value
     } catch (error) {
       console.error('Error fetching suppliers:', error)
@@ -328,6 +343,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     fetchPurchaseOrderById,
     setEditMode,
     fetchSupplierById,
-    fetchSuppliers
+    fetchSuppliers,
+    changeStatusParams
   }
 })

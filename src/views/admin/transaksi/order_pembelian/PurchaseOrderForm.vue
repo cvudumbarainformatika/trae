@@ -2,7 +2,7 @@
   <div>
     <BaseDialog
       v-model="showDialog"
-      :title="store.editMode ? 'Edit Order Pembelian' : 'Order Pembelian Baru'"
+      :title="store.editMode ? `Edit Order Pembelian #${store.purchaseOrder?.unique_code}` : 'Order Pembelian Baru'"
       max-width="6xl"
       :is-edit-dialog="store.editMode"
       @close="closeDialog"

@@ -9,7 +9,12 @@
       <!-- Header with Actions -->
       <div class="flex justify-between items-center p-4 bg-white dark:bg-secondary-800 rounded-xl shadow-sm">
         <div>
-          .
+          <BaseButton @click="printPurchaseOrder" variant="secondary" size="sm">
+            <template #icon-left>
+              <Icon name="Printer" class="w-4 h-4" />
+            </template>
+            <div class="ml-2">Cetak</div>
+          </BaseButton>
         </div>
         <div class="flex items-center gap-3">
           <BaseButton
@@ -26,12 +31,7 @@
 
 
 
-          <BaseButton @click="printPurchaseOrder" variant="secondary" size="sm">
-            <template #icon-left>
-              <Icon name="Printer" class="w-4 h-4" />
-            </template>
-            <div class="ml-2">Cetak</div>
-          </BaseButton>
+
 
           <!-- Tombol untuk membuat pembelian aktual (hanya muncul jika status received) -->
           <BaseButton
