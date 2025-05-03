@@ -31,7 +31,7 @@ const emit = defineEmits(['update:currentPage'])
 
 const pagination = computed(() => {
   const totalPages = Math.ceil(props.totalItems / props.itemsPerPage)
-  
+
   // Calculate visible page numbers
   let startPage = Math.max(1, props.currentPage - Math.floor(props.maxVisiblePages / 2))
   let endPage = Math.min(totalPages, startPage + props.maxVisiblePages - 1)
@@ -64,151 +64,72 @@ const paginationContent = computed(() => {
 </script>
 
 <template>
-  <div class="flex-row">
-    <template v-if="showCard">
-      <Card padding="p-2" class="border-t border-gray-200 dark:border-gray-700 shadow-lg">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-2 bg-white dark:bg-dark-800">
-          <slot name="content">
-            <div class="text-sm text-gray-700 dark:text-gray-300">
-              Showing
-              <span class="font-medium">{{ paginationContent.start }}</span>
-              to
-              <span class="font-medium">{{ paginationContent.end }}</span>
-              of
-              <span class="font-medium">{{ pagination.totalItems }}</span>
-              results
-            </div>
-          </slot>
-          <div class="flex items-center space-x-1">
-            <IconButton
-              @click="changePage(1)"
-              :disabled="pagination.currentPage === 1"
-              variant="ghost"
-              size="sm"
-            >
-              <template #icon>
-                <Icon name="chevrons-left" class="w-4 h-4" />
-              </template>
-            </IconButton>
-            <IconButton
-              @click="changePage(pagination.currentPage - 1)"
-              :disabled="pagination.currentPage === 1"
-              variant="ghost"
-              size="sm"
-            >
-              <template #icon>
-                <Icon name="chevron-left" class="w-4 h-4" />
-              </template>
-            </IconButton>
-            
-            <div class="hidden sm:flex space-x-1">
-              <template v-for="page in pagination.totalPages" :key="page">
-                <BaseButton
-                  v-if="page >= pagination.startPage && page <= pagination.endPage"
-                  @click="changePage(page)"
-                  :variant="pagination.currentPage === page ? 'primary' : 'ghost'"
-                  size="sm"
-                >
-                  {{ page }}
-                </BaseButton>
-              </template>
-            </div>
-
-            <IconButton
-              @click="changePage(pagination.currentPage + 1)"
-              :disabled="pagination.currentPage >= pagination.totalPages"
-              variant="ghost"
-              size="sm"
-            >
-              <template #icon>
-                <Icon name="chevron-right" class="w-4 h-4" />
-              </template>
-            </IconButton>
-            <IconButton
-              @click="changePage(pagination.totalPages)"
-              :disabled="pagination.currentPage >= pagination.totalPages"
-              variant="ghost"
-              size="sm"
-            >
-              <template #icon>
-                <Icon name="chevrons-right" class="w-4 h-4" />
-              </template>
-            </IconButton>
-          </div>
-        </div>
-      </Card>
-    </template>
-    <template v-else>
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <slot name="content">
-          <div class="text-sm text-gray-700 dark:text-gray-300">
-            Showing
-            <span class="font-medium">{{ paginationContent.start }}</span>
-            to
-            <span class="font-medium">{{ paginationContent.end }}</span>
-            of
-            <span class="font-medium">{{ pagination.totalItems }}</span>
-            results
-          </div>
-        </slot>
-        <div class="flex items-center space-x-1">
-          <IconButton
-            @click="changePage(1)"
-            :disabled="pagination.currentPage === 1"
-            variant="ghost"
-            size="sm"
-          >
-            <template #icon>
-              <Icon name="chevrons-left" class="w-4 h-4" />
-            </template>
-          </IconButton>
-          <IconButton
-            @click="changePage(pagination.currentPage - 1)"
-            :disabled="pagination.currentPage === 1"
-            variant="ghost"
-            size="sm"
-          >
-            <template #icon>
-              <Icon name="chevron-left" class="w-4 h-4" />
-            </template>
-          </IconButton>
-          
-          <div class="hidden sm:flex space-x-1">
-            <template v-for="page in pagination.totalPages" :key="page">
-              <BaseButton
-                v-if="page >= pagination.startPage && page <= pagination.endPage"
-                @click="changePage(page)"
-                :variant="pagination.currentPage === page ? 'primary' : 'ghost'"
-                size="sm"
-                :label="page"
-              >
-                
-              </BaseButton>
-            </template>
-          </div>
-
-          <IconButton
-            @click="changePage(pagination.currentPage + 1)"
-            :disabled="pagination.currentPage >= pagination.totalPages"
-            variant="ghost"
-            size="sm"
-          >
-            <template #icon>
-              <Icon name="chevron-right" class="w-4 h-4" />
-            </template>
-          </IconButton>
-          <IconButton
-            @click="changePage(pagination.totalPages)"
-            :disabled="pagination.currentPage >= pagination.totalPages"
-            variant="ghost"
-            size="sm"
-          >
-            <template #icon>
-              <Icon name="chevrons-right" class="w-4 h-4" />
-            </template>
-          </IconButton>
-        </div>
+  <div class="mt-6">
+    <div class="flex items-center justify-between">
+      <div class="text-sm text-gray-700 dark:text-gray-300">
+        Showing
+        <span class="font-medium">{{ paginationContent.start }}</span>
+        to
+        <span class="font-medium">{{ paginationContent.end }}</span>
+        of
+        <span class="font-medium">{{ pagination.totalItems }}</span>
+        results
       </div>
-    </template>
+
+      <div class="flex space-x-2">
+        <button
+          @click="changePage(1)"
+          :disabled="pagination.currentPage <= 1"
+          class="inline-flex items-center px-2 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          :class="{ 'opacity-50 cursor-not-allowed': pagination.currentPage <= 1 }"
+        >
+          <Icon name="chevrons-left" class="w-4 h-4" />
+        </button>
+
+        <button
+          @click="changePage(pagination.currentPage - 1)"
+          :disabled="pagination.currentPage <= 1"
+          class="inline-flex items-center px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          :class="{ 'opacity-50 cursor-not-allowed': pagination.currentPage <= 1 }"
+        >
+          <Icon name="ChevronLeft" class="w-4 h-4 mr-1" />
+          Previous
+        </button>
+
+        <div class="hidden md:flex space-x-1">
+          <template v-for="page in pagination.totalPages" :key="page">
+            <button
+              v-if="page >= pagination.startPage && page <= pagination.endPage"
+              @click="changePage(page)"
+              class="inline-flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium transition-colors"
+              :class="pagination.currentPage === page
+                ? 'bg-indigo-600 text-white'
+                : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+            >
+              {{ page }}
+            </button>
+          </template>
+        </div>
+
+        <button
+          @click="changePage(pagination.currentPage + 1)"
+          :disabled="pagination.currentPage >= pagination.totalPages"
+          class="inline-flex items-center px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          :class="{ 'opacity-50 cursor-not-allowed': pagination.currentPage >= pagination.totalPages }"
+        >
+          Next
+          <Icon name="ChevronRight" class="w-4 h-4 ml-1" />
+        </button>
+
+        <button
+          @click="changePage(pagination.totalPages)"
+          :disabled="pagination.currentPage >= pagination.totalPages"
+          class="inline-flex items-center px-2 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          :class="{ 'opacity-50 cursor-not-allowed': pagination.currentPage >= pagination.totalPages }"
+        >
+          <Icon name="chevrons-right" class="w-4 h-4" />
+        </button>
+      </div>
+    </div>
   </div>
 </template>

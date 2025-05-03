@@ -3,7 +3,7 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'ghost'].includes(value)
+    validator: (value) => ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'ghost', 'indigo'].includes(value)
   },
   mode: {
     type: String,
@@ -66,6 +66,10 @@ const variantClasses = {
   ghost: {
     ghost: 'text-gray-400 hover:text-gray-300',
     solid: 'bg-gray-600 hover:bg-gray-700 text-white'
+  },
+  indigo: {
+    ghost: 'text-indigo-500 hover:text-indigo-600',
+    solid: 'bg-indigo-600 hover:bg-indigo-700 text-white'
   }
 }
 

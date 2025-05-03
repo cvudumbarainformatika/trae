@@ -23,7 +23,6 @@
           v-model="purchaseOrderStore.searchQuery"
           placeholder="Cari order pembelian..."
           type="text"
-
           clearable
           :debounce="500"
           @update:model-value="purchaseOrderStore.fetchPurchaseOrders"
@@ -31,11 +30,71 @@
       </div>
     </template>
 
+    <!-- Status Filter Buttons -->
+    <div class="flex flex-wrap gap-2 mb-4 mt-2">
+      <BaseButton
+        variant="ghost"
+        size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300"
+        :class="{ 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700': true }"
+      >
+        <span class="relative z-10">Semua</span>
+        <span class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+      </BaseButton>
+
+      <BaseButton
+        variant="ghost"
+        size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
+      >
+        <span class="relative z-10 flex items-center">
+          <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
+          Draft
+        </span>
+        <span class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+      </BaseButton>
+
+      <BaseButton
+        variant="ghost"
+        size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300"
+      >
+        <span class="relative z-10 flex items-center">
+          <span class="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+          Ordered
+        </span>
+        <span class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+      </BaseButton>
+
+      <BaseButton
+        variant="ghost"
+        size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
+      >
+        <span class="relative z-10 flex items-center">
+          <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+          Received
+        </span>
+        <span class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+      </BaseButton>
+
+      <BaseButton
+        variant="ghost"
+        size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300"
+      >
+        <span class="relative z-10 flex items-center">
+          <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+          Cancelled
+        </span>
+        <span class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-rose-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+      </BaseButton>
+    </div>
+
     <!-- Futuristic Order List Section -->
     <BaseList
       :items="purchaseOrderStore.items"
       :loading="purchaseOrderStore.loading"
-      :pagination="purchaseOrderStore.pagination"
       empty-icon="PackageOpen"
       empty-title="Belum Ada Order"
       empty-description="Belum ada order pembelian yang tersedia. Klik tombol 'Tambah Order' untuk membuat order baru."
@@ -111,23 +170,37 @@
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-3">
-                  <button
+                  <IconButton
+                    @click="viewPurchaseOrderDetail(item)"
+                    variant="primary"
+                    size="sm"
+                    title="Lihat Detail"
+                  >
+                    <template #icon>
+                      <Icon name="Eye"  />
+                    </template>
+                  </IconButton>
+                  <IconButton
                     v-if="item.status === 'draft'"
-                    @click.stop="editPurchaseOrder(item)"
-                    class="p-1 text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
+                    @click="editPurchaseOrder(item)"
+                    variant="primary"
+                    size="sm"
                     title="Edit"
                   >
-                    <Icon name="Edit" class="w-4 h-4" />
-                  </button>
-                  <button @click="viewPurchaseOrderDetail(item)" class="p-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:hover:bg-indigo-800/50 dark:text-indigo-400 transition-colors">
-                    <Icon name="Eye" class="w-4 h-4" />
-                  </button>
-                  <!-- <button class="p-1.5 rounded-full bg-green-50 hover:bg-green-100 text-green-600 dark:bg-green-900/30 dark:hover:bg-green-800/50 dark:text-green-400 transition-colors">
-                    <Icon name="Edit" class="w-3.5 h-3.5" />
-                  </button>
-                  <button class="p-1.5 rounded-full bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-400 transition-colors">
-                    <Icon name="Trash" class="w-3.5 h-3.5" />
-                  </button> -->
+                    <template #icon>
+                      <Icon name="Edit"  />
+                    </template>
+                  </IconButton>
+                  <IconButton
+                    @click="copyPurchaseOrder(item)"
+                    variant="primary"
+                    size="sm"
+                    title="Copy Order"
+                  >
+                    <template #icon>
+                      <Icon name="Copy"  />
+                    </template>
+                  </IconButton>
                 </div>
               </div>
             </div>
@@ -135,6 +208,12 @@
         </div>
       </template>
     </BaseList>
+
+    <BasePagination v-model:current-page="purchaseOrderStore.pagination.page"
+      :total-items="purchaseOrderStore.pagination.totalItems"
+      :items-per-page="purchaseOrderStore.pagination.itemsPerPage"
+      @update:current-page="handlePageChange"
+    />
 
   <div>
     <PurchaseOrderDetail
@@ -168,6 +247,7 @@ import BasePage from '@/components/ui/BasePage.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseList from '@/components/ui/BaseList.vue'
 import Icon from '@/components/ui/Icon.vue'
+import BasePagination from '../../../../components/ui/BasePagination.vue'
 
 const purchaseOrderStore = usePurchaseOrderStore()
 const showDetailDialog = ref(false)
