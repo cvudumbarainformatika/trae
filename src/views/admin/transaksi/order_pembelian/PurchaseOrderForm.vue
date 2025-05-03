@@ -4,6 +4,7 @@
       v-model="showDialog"
       :title="store.editMode ? 'Edit Order Pembelian' : 'Order Pembelian Baru'"
       max-width="6xl"
+      :is-edit-dialog="store.editMode"
       @close="closeDialog"
     >
       <div class="h-full flex flex-col gap-6 p-4 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900 dark:to-secondary-800">

@@ -408,7 +408,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -428,6 +428,10 @@ const props = defineProps({
   purchaseOrderId: {
     type: [Number, String],
     default: null
+  },
+  dataOrder: {
+    type: Object,
+    default: null
   }
 })
 
@@ -444,6 +448,12 @@ const printTemplate = ref(null)
 const statusLoading = ref(false)
 const showReceiveItemsDialog = ref(false)
 const receiveItems = ref([])
+
+
+onMounted(async () => {
+  purchaseOrder.value = props.dataOrder
+
+})
 
 const closeDialog = () => {
   showDialog.value = false
@@ -724,8 +734,8 @@ const editPurchaseOrder = async () => {
     // Tampilkan dialog
     purchaseOrderStore.showCreateDialog = true
 
-    // Tutup dialog detail
-    showDialog.value = false
+    // Baris ini dihapus untuk membiarkan dialog detail tetap terbuka
+    // showDialog.value = false
   } catch (error) {
     console.error('Error preparing purchase order for edit:', error)
   }
@@ -743,6 +753,12 @@ watch([() => props.purchaseOrderId, () => showDialog.value], ([newId, isOpen]) =
   if (isOpen && newId) {
     fetchPurchaseOrderDetail()
   }
+}, { immediate: true })
+
+watch(() => props.dataOrder, (newData) => {
+  console.log('watch data order', newData);
+
+  purchaseOrder.value = newData
 }, { immediate: true })
 </script>
 

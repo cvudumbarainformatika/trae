@@ -82,7 +82,7 @@
 
                 <!-- Right: Amount - Larger -->
                 <div class="text-right">
-                  <div class="text-lg font-bold text-gray-900 dark:text-white">
+                  <div class="text-xl font-bold text-gray-900 dark:text-white">
                     {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.total_amount || 0) }}
                   </div>
                 </div>
@@ -117,17 +117,17 @@
                     class="p-1 text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
                     title="Edit"
                   >
-                    <Icon name="Edit" class="w-3.5 h-3.5" />
+                    <Icon name="Edit" class="w-4 h-4" />
                   </button>
-                  <button @click="viewPurchaseOrderDetail(item.id)" class="p-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:hover:bg-indigo-800/50 dark:text-indigo-400 transition-colors">
-                    <Icon name="Eye" class="w-3.5 h-3.5" />
+                  <button @click="viewPurchaseOrderDetail(item)" class="p-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:hover:bg-indigo-800/50 dark:text-indigo-400 transition-colors">
+                    <Icon name="Eye" class="w-4 h-4" />
                   </button>
-                  <button class="p-1.5 rounded-full bg-green-50 hover:bg-green-100 text-green-600 dark:bg-green-900/30 dark:hover:bg-green-800/50 dark:text-green-400 transition-colors">
+                  <!-- <button class="p-1.5 rounded-full bg-green-50 hover:bg-green-100 text-green-600 dark:bg-green-900/30 dark:hover:bg-green-800/50 dark:text-green-400 transition-colors">
                     <Icon name="Edit" class="w-3.5 h-3.5" />
                   </button>
                   <button class="p-1.5 rounded-full bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/30 dark:hover:bg-red-800/50 dark:text-red-400 transition-colors">
                     <Icon name="Trash" class="w-3.5 h-3.5" />
-                  </button>
+                  </button> -->
                 </div>
               </div>
             </div>
@@ -136,17 +136,25 @@
       </template>
     </BaseList>
 
+  <div>
+    <PurchaseOrderDetail
+        v-model="showDetailDialog"
+        :purchase-order-id="selectedPurchaseOrderId"
+        :data-order="purchaseOrderStore.purchaseOrder"
+        @status-updated="handleStatusUpdated"
+      />
+  </div>
+
+   <div>
     <PurchaseOrderForm
       v-model="purchaseOrderStore.showCreateDialog"
       @success="handleFormSuccess"
       @close="handleFormClose"
-    />
 
-    <PurchaseOrderDetail
-      v-model="showDetailDialog"
-      :purchase-order-id="selectedPurchaseOrderId"
-      @status-updated="handleStatusUpdated"
     />
+   </div>
+
+
   </BasePage>
 </template>
 
@@ -185,7 +193,9 @@ const handlePageChange = (page) => {
 }
 
 // View purchase order detail
-const viewPurchaseOrderDetail = (id) => {
+const viewPurchaseOrderDetail = (item) => {
+  const id = item.id
+  purchaseOrderStore.purchaseOrder = item
   selectedPurchaseOrderId.value = id
   showDetailDialog.value = true
 }
@@ -231,10 +241,10 @@ const editPurchaseOrder = async (item) => {
     purchaseOrderStore.showCreateDialog = true;
 
     // Log untuk debugging
-    console.log('Edit mode activated for PO ID:', item.id);
-    console.log('Supplier ID:', purchaseOrderStore.form.supplier_id);
-    console.log('Available suppliers:', purchaseOrderStore.suppliers);
-    console.log('Selected supplier:', item.supplier);
+    // console.log('Edit mode activated for PO ID:', item.id);
+    // console.log('Supplier ID:', purchaseOrderStore.form.supplier_id);
+    // console.log('Available suppliers:', purchaseOrderStore.suppliers);
+    // console.log('Selected supplier:', item.supplier);
   } catch (error) {
     console.error('Error preparing purchase order for edit:', error);
   }

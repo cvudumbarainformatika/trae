@@ -12,9 +12,25 @@ const props = defineProps({
   },
   maxWidth: {
     type: String,
-    default: 'md'
+    default: '2xl'
   },
   fullscreen: {
+    type: Boolean,
+    default: false
+  },
+  persistent: {
+    type: Boolean,
+    default: false
+  },
+  transition: {
+    type: String,
+    default: 'zoom'
+  },
+  customClass: {
+    type: String,
+    default: ''
+  },
+  isEditDialog: {
     type: Boolean,
     default: false
   }
@@ -94,7 +110,9 @@ const transitionClasses = computed(() => ({
         v-if="show"
         :class="[
           'fixed inset-0 z-50 flex items-center justify-center transition-all',
-          fullscreen ? 'p-0' : 'p-4'
+          fullscreen ? 'p-0' : 'p-4',
+          customClass, // Tambahkan prop customClass
+          isEditDialog ? 'z-60' : '' // Tambahkan z-index lebih tinggi untuk dialog edit
         ]"
         @click.self="handleClose"
       >

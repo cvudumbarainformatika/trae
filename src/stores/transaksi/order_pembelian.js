@@ -8,6 +8,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   const loading = ref(false)
   const suppliers = ref([])
   const products = ref([])
+  const purchaseOrder = ref(null)
 
   // Form state
   const form = ref({
@@ -155,6 +156,8 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
         response = await api.post('/api/v1/purchase-orders', form.value);
         console.log('API response (create):', response);
       }
+
+      purchaseOrder.value = response?.data || null;
 
       await fetchPurchaseOrders();
       showCreateDialog.value = false;
@@ -305,6 +308,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     loading,
     suppliers,
     products,
+    purchaseOrder,
     form,
     headers,
     items,
