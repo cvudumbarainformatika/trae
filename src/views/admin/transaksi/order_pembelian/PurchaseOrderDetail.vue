@@ -73,6 +73,19 @@
             </template>
             <div class="ml-2">Batalkan</div>
           </BaseButton>
+
+          <!-- Tombol untuk mengubah status PO kembali ke draft -->
+          <BaseButton
+            v-if="purchaseOrder?.status === 'ordered'"
+            @click="updateStatus('draft')"
+            variant="warning"
+            size="sm"
+          >
+            <template #icon-left>
+              <Icon name="Edit" class="w-4 h-4" />
+            </template>
+            <div class="ml-2">Kembalikan ke Draft</div>
+          </BaseButton>
         </div>
       </div>
 
@@ -467,7 +480,7 @@ const updateStatus = async (newStatus) => {
   const currentStatus = purchaseOrder.value.status
   const allowedTransitions = {
     'draft': ['ordered', 'cancelled'],
-    'ordered': ['received', 'cancelled'],
+    'ordered': ['received', 'cancelled', 'draft'], // Tambahkan 'draft' di sini
     'received': [], // Tidak ada transisi yang diperbolehkan dari status received
     'cancelled': [] // Tidak ada transisi yang diperbolehkan dari status cancelled
   }
@@ -627,7 +640,7 @@ const createPurchase = () => {
   if (!purchaseOrder.value?.id) return
 
   // Redirect ke halaman pembelian baru dengan ID PO dan parameter from
-  router.push(`/transaksi/pembelian/create?purchaseOrderId=${purchaseOrder.value.id}&from=po-detail`)
+  router.push(`/admin/transaksi/pembelian/create?purchaseOrderId=${purchaseOrder.value.id}&from=po-detail`)
 }
 
 // Watch for changes in purchaseOrderId

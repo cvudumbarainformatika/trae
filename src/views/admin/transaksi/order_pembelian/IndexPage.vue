@@ -131,6 +131,7 @@
     <PurchaseOrderForm
       v-model="purchaseOrderStore.showCreateDialog"
       @success="purchaseOrderStore.fetchPurchaseOrders"
+      @close="purchaseOrderStore.showCreateDialog = false"
     />
 
     <PurchaseOrderDetail

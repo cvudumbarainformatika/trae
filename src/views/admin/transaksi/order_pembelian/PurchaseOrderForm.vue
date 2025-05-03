@@ -98,7 +98,7 @@ import SupplierSelection from '@/components/admin/transaksi/order_pembelian/Supp
 import ProductList from '@/components/admin/transaksi/order_pembelian/ProductList.vue'
 
 // Props & emits
-const emit = defineEmits(['update:modelValue', 'success'])
+const emit = defineEmits(['update:modelValue', 'success', 'close'])
 
 // Store
 const store = usePurchaseOrderStore()
@@ -180,7 +180,7 @@ const handleCloseWithoutSettingDialog = async () => {
 }
 
 const handleClose = () => {
-  showDialog.value = false
+  emit('close')
 }
 
 const closeDialog = handleClose
