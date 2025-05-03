@@ -1,7 +1,7 @@
 <template>
   <BaseDialog
     v-model="showDialog"
-    :title="`Detail Order Pembelian #${purchaseOrder?.order_number || ''}`"
+    :title="`Detail Order Pembelian #${purchaseOrder?.unique_code || ''}`"
     max-width="4xl"
     @close="closeDialog"
   >
@@ -9,12 +9,7 @@
       <!-- Header with Actions -->
       <div class="flex justify-between items-center p-4 bg-white dark:bg-secondary-800 rounded-xl shadow-sm">
         <div>
-          <h2 class="text-xl font-bold text-primary-600 dark:text-primary-400">
-            Order #{{ purchaseOrder?.unique_code || purchaseOrder?.id }}
-          </h2>
-          <p class="text-secondary-500 dark:text-secondary-400 text-sm">
-            {{ new Date(purchaseOrder?.date).toLocaleDateString() }}
-          </p>
+          .
         </div>
         <div class="flex items-center gap-3">
           <BaseButton
