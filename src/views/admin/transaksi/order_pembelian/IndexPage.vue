@@ -113,7 +113,7 @@
                 <div class="flex items-center gap-3">
                   <button
                     v-if="item.status === 'draft'"
-                    @click.stop="editPurchaseOrder(item.id)"
+                    @click.stop="editPurchaseOrder(item)"
                     class="p-1 text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
                     title="Edit"
                   >
@@ -191,31 +191,52 @@ const viewPurchaseOrderDetail = (id) => {
 }
 
 // Add edit function
-const editPurchaseOrder = async (id) => {
+const editPurchaseOrder = async (item) => {
+  console.log('Edit button clicked for PO:', item);
+
   try {
     // Reset form terlebih dahulu
-    purchaseOrderStore.resetForm()
+    console.log('Resetting form...');
+    purchaseOrderStore.resetForm();
 
-    // Muat semua supplier terlebih dahulu
-    if (typeof purchaseOrderStore.fetchSuppliers === 'function') {
-      await purchaseOrderStore.fetchSuppliers()
+    // Langsung gunakan data item yang sudah ada
+    console.log('Setting form data from item...');
+    purchaseOrderStore.form = {
+      supplier_id: item.supplier_id,
+      date: item.date,
+      due_date: item.due_date || '',
+      status: item.status,
+      items: item.items?.map(orderItem => ({
+        product_id: orderItem.product_id,
+        product: orderItem.product,
+        quantity: orderItem.quantity,
+        price: orderItem.price,
+        total: orderItem.price * orderItem.quantity
+      })) || [],
+      notes: item.notes || ''
+    };
+
+    // Pastikan supplier ada di daftar suppliers
+    if (item.supplier && !purchaseOrderStore.suppliers.some(s => s.id === item.supplier.id)) {
+      console.log('Adding supplier to suppliers list:', item.supplier);
+      purchaseOrderStore.suppliers.push(item.supplier);
     }
 
-    // Ambil data PO
-    await purchaseOrderStore.fetchPurchaseOrderById(id)
-
     // Set mode edit
-    purchaseOrderStore.setEditMode(id)
+    // console.log('Setting edit mode...');
+    purchaseOrderStore.setEditMode(item.id);
 
     // Tampilkan dialog
-    purchaseOrderStore.showCreateDialog = true
+    // console.log('Showing create dialog...');
+    purchaseOrderStore.showCreateDialog = true;
 
     // Log untuk debugging
-    console.log('Edit mode activated for PO ID:', id)
-    console.log('Supplier ID:', purchaseOrderStore.form.supplier_id)
-    console.log('Available suppliers:', purchaseOrderStore.suppliers)
+    console.log('Edit mode activated for PO ID:', item.id);
+    console.log('Supplier ID:', purchaseOrderStore.form.supplier_id);
+    console.log('Available suppliers:', purchaseOrderStore.suppliers);
+    console.log('Selected supplier:', item.supplier);
   } catch (error) {
-    console.error('Error preparing purchase order for edit:', error)
+    console.error('Error preparing purchase order for edit:', error);
   }
 }
 
