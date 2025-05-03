@@ -690,11 +690,27 @@ const createPurchase = () => {
 }
 
 // Fungsi untuk mengedit PO
-const editPurchaseOrder = () => {
+const editPurchaseOrder = async () => {
   if (!purchaseOrder.value?.id || purchaseOrder.value.status !== 'draft') return
 
-  // Redirect ke halaman form dengan mode edit
-  router.push(`/admin/transaksi/po/edit/${purchaseOrder.value.id}`)
+  try {
+    // Reset form terlebih dahulu
+    purchaseOrderStore.resetForm()
+
+    // Ambil data PO
+    await purchaseOrderStore.fetchPurchaseOrderById(purchaseOrder.value.id)
+
+    // Set mode edit
+    purchaseOrderStore.setEditMode(purchaseOrder.value.id)
+
+    // Tampilkan dialog
+    purchaseOrderStore.showCreateDialog = true
+
+    // Tutup dialog detail
+    showDialog.value = false
+  } catch (error) {
+    console.error('Error preparing purchase order for edit:', error)
+  }
 }
 
 // Gabungkan kedua watcher

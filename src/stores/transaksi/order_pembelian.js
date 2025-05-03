@@ -18,7 +18,11 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     items: []
   })
 
-  // Reset form
+  // Tambahkan state untuk mode edit
+  const editMode = ref(false)
+  const editId = ref(null)
+
+  // Reset form dengan tambahan reset mode edit
   const resetForm = () => {
     form.value = {
       supplier_id: '',
@@ -27,6 +31,14 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
       status: 'draft',
       items: []
     }
+    editMode.value = false
+    editId.value = null
+  }
+
+  // Fungsi untuk mengatur mode edit
+  const setEditMode = (id) => {
+    editMode.value = true
+    editId.value = id
   }
 
   // Existing state
@@ -132,10 +144,17 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     try {
       console.log('Submitting form to API:', form.value);
 
-      // Pastikan endpoint API benar
-      const response = await api.post('/api/v1/purchase-orders', form.value);
+      let response;
 
-      console.log('API response:', response);
+      if (editMode.value && editId.value) {
+        // Update existing PO
+        response = await api.put(`/api/v1/purchase-orders/${editId.value}`, form.value);
+        console.log('API response (update):', response);
+      } else {
+        // Create new PO
+        response = await api.post('/api/v1/purchase-orders', form.value);
+        console.log('API response (create):', response);
+      }
 
       await fetchPurchaseOrders();
       showCreateDialog.value = false;
@@ -143,7 +162,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
 
       return response;
     } catch (error) {
-      console.error('Error creating purchase order:', error);
+      console.error('Error saving purchase order:', error);
       throw error;
     } finally {
       loading.value = false;
@@ -206,7 +225,9 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   const fetchPurchaseOrderById = async (id) => {
     loading.value = true
     try {
+      console.log('Fetching purchase order by ID:', id)
       const { data } = await api.get(`/api/v1/purchase-orders/${id}`)
+      console.log('Purchase order data received:', data)
 
       // Update form dengan data yang diambil
       form.value = {
@@ -224,12 +245,57 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
         notes: data.notes || ''
       }
 
+      // Pastikan supplier dimuat
+      if (data.supplier) {
+        // Jika supplier ada dalam response, tambahkan ke array suppliers
+        const supplierExists = suppliers.value.some(s => s.id === data.supplier.id)
+        if (!supplierExists) {
+          suppliers.value.push(data.supplier)
+        }
+      } else {
+        // Jika tidak ada dalam response, muat supplier berdasarkan ID
+        await fetchSupplierById(data.supplier_id)
+      }
+
       return data
     } catch (error) {
       console.error('Error fetching purchase order:', error)
       throw error
     } finally {
       loading.value = false
+    }
+  }
+
+  // Tambahkan fungsi untuk memuat supplier berdasarkan ID
+  const fetchSupplierById = async (supplierId) => {
+    if (!supplierId) return
+
+    try {
+      console.log('Fetching supplier by ID:', supplierId)
+      const { data } = await api.get(`/api/v1/suppliers/${supplierId}`)
+
+      // Periksa apakah supplier sudah ada di array
+      const supplierExists = suppliers.value.some(s => s.id === data.id)
+      if (!supplierExists) {
+        suppliers.value.push(data)
+      }
+
+      return data
+    } catch (error) {
+      console.error('Error fetching supplier:', error)
+    }
+  }
+
+  // Tambahkan fungsi untuk memuat semua supplier
+  const fetchSuppliers = async () => {
+    try {
+      console.log('Fetching all suppliers')
+      const { data } = await api.get('/api/v1/suppliers')
+      suppliers.value = data.data || []
+      return suppliers.value
+    } catch (error) {
+      console.error('Error fetching suppliers:', error)
+      return []
     }
   }
 
@@ -244,6 +310,8 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     items,
     searchQuery,
     pagination,
+    editMode,
+    editId,
 
     // Actions
     resetForm,
@@ -253,6 +321,9 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     submitForm,
     updateForm,
     fetchPurchaseOrders,
-    fetchPurchaseOrderById
+    fetchPurchaseOrderById,
+    setEditMode,
+    fetchSupplierById,
+    fetchSuppliers
   }
 })

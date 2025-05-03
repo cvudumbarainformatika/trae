@@ -110,7 +110,15 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="flex items-center gap-3">
+                  <button
+                    v-if="item.status === 'draft'"
+                    @click.stop="editPurchaseOrder(item.id)"
+                    class="p-1 text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
+                    title="Edit"
+                  >
+                    <Icon name="Edit" class="w-3.5 h-3.5" />
+                  </button>
                   <button @click="viewPurchaseOrderDetail(item.id)" class="p-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:hover:bg-indigo-800/50 dark:text-indigo-400 transition-colors">
                     <Icon name="Eye" class="w-3.5 h-3.5" />
                   </button>
@@ -130,13 +138,14 @@
 
     <PurchaseOrderForm
       v-model="purchaseOrderStore.showCreateDialog"
-      @success="purchaseOrderStore.fetchPurchaseOrders"
-      @close="purchaseOrderStore.showCreateDialog = false"
+      @success="handleFormSuccess"
+      @close="handleFormClose"
     />
 
     <PurchaseOrderDetail
       v-model="showDetailDialog"
       :purchase-order-id="selectedPurchaseOrderId"
+      @status-updated="handleStatusUpdated"
     />
   </BasePage>
 </template>
@@ -179,6 +188,50 @@ const handlePageChange = (page) => {
 const viewPurchaseOrderDetail = (id) => {
   selectedPurchaseOrderId.value = id
   showDetailDialog.value = true
+}
+
+// Add edit function
+const editPurchaseOrder = async (id) => {
+  try {
+    // Reset form terlebih dahulu
+    purchaseOrderStore.resetForm()
+
+    // Muat semua supplier terlebih dahulu
+    if (typeof purchaseOrderStore.fetchSuppliers === 'function') {
+      await purchaseOrderStore.fetchSuppliers()
+    }
+
+    // Ambil data PO
+    await purchaseOrderStore.fetchPurchaseOrderById(id)
+
+    // Set mode edit
+    purchaseOrderStore.setEditMode(id)
+
+    // Tampilkan dialog
+    purchaseOrderStore.showCreateDialog = true
+
+    // Log untuk debugging
+    console.log('Edit mode activated for PO ID:', id)
+    console.log('Supplier ID:', purchaseOrderStore.form.supplier_id)
+    console.log('Available suppliers:', purchaseOrderStore.suppliers)
+  } catch (error) {
+    console.error('Error preparing purchase order for edit:', error)
+  }
+}
+
+// Handle form success
+const handleFormSuccess = () => {
+  purchaseOrderStore.fetchPurchaseOrders()
+}
+
+// Handle form close
+const handleFormClose = () => {
+  purchaseOrderStore.showCreateDialog = false
+}
+
+// Handle status updated
+const handleStatusUpdated = () => {
+  purchaseOrderStore.fetchPurchaseOrders()
 }
 </script>
 

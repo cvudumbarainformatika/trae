@@ -55,31 +55,6 @@
     </div>
 
     <!-- Ganti Dates Card dengan Supplier Info Card saat draft -->
-    <div v-if="supplierId && status === 'draft'"
-         class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm p-4 transition-all duration-300 hover:shadow-md">
-      <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4 flex items-center">
-        <Icon name="User" class="mr-2 text-primary-500" /> Detail Supplier
-      </h3>
-
-      <div class="space-y-3">
-        <div class="flex flex-col">
-          <span class="text-sm text-secondary-500 dark:text-secondary-400">Perusahaan</span>
-          <span class="font-medium text-secondary-900 dark:text-white">{{ selectedSupplierDetails?.name }}</span>
-        </div>
-
-        <div class="flex flex-col">
-          <span class="text-sm text-secondary-500 dark:text-secondary-400">Kontak</span>
-          <span class="font-medium text-secondary-900 dark:text-white">{{ selectedSupplierDetails?.phone || 'Tidak ada telepon' }}</span>
-        </div>
-
-        <div class="flex flex-col">
-          <span class="text-sm text-secondary-500 dark:text-secondary-400">Email</span>
-          <span class="font-medium text-secondary-900 dark:text-white">{{ selectedSupplierDetails?.email || 'Tidak ada email' }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tampilkan placeholder card jika belum ada supplier -->
     <div v-if="!supplierId && status === 'draft'"
          class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm p-4 transition-all duration-300 hover:shadow-md">
       <div class="flex flex-col items-center justify-center py-6 text-center">
@@ -88,6 +63,51 @@
         <p class="text-secondary-500 dark:text-secondary-400 text-sm max-w-md">
           Silakan cari dan pilih supplier di atas untuk melanjutkan order pembelian Anda
         </p>
+      </div>
+    </div>
+
+    <!-- Tampilkan supplier yang dipilih -->
+    <div v-else-if="supplierId"
+         class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm p-4 transition-all duration-300 hover:shadow-md">
+      <div v-if="selectedSupplier" class="space-y-4">
+        <!-- Supplier details -->
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="text-lg font-medium text-secondary-900 dark:text-white flex items-center">
+              <Icon name="User" class="w-4 h-4 mr-2 text-primary-500" />
+              {{ selectedSupplier?.name || 'Nama tidak ada' }}
+            </h3>
+            <p class="text-sm text-secondary-500 dark:text-secondary-400 flex items-center mt-1">
+              <Icon name="Mail" class="w-4 h-4 mr-2 text-primary-500" />
+              {{ selectedSupplier?.email || 'Email tidak ada' }}
+            </p>
+            <p class="text-sm text-secondary-500 dark:text-secondary-400 flex items-center mt-1">
+              <Icon name="Phone" class="w-4 h-4 mr-2 text-primary-500" />
+              {{ selectedSupplier?.phone || 'Telepon tidak ada' }}
+            </p>
+          </div>
+          <div v-if="status === 'draft'" class="flex items-center">
+            <button @click="$emit('update:supplierId', null)" class="text-secondary-400 hover:text-secondary-600 dark:hover:text-secondary-300">
+              <Icon name="X" class="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+        <!-- Other supplier details -->
+      </div>
+      <div v-else class="flex items-center justify-center py-4">
+        <div class="flex flex-col items-center text-center">
+          <Icon name="AlertCircle" class="w-8 h-8 text-amber-500 mb-2" />
+          <p class="text-secondary-600 dark:text-secondary-400">
+            Supplier dengan ID {{ supplierId }} tidak ditemukan.
+          </p>
+          <button
+            v-if="status === 'draft'"
+            @click="$emit('update:supplierId', null)"
+            class="mt-2 text-sm text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
+          >
+            Pilih supplier lain
+          </button>
+        </div>
       </div>
     </div>
 
@@ -117,10 +137,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import SearchDropdown from '@/components/ui/SearchDropdown.vue'
+import BaseInput from '@/components/ui/BaseInput.vue'
+import { api } from '@/services/api'
 
 const props = defineProps({
   supplierId: {
@@ -141,7 +163,7 @@ const props = defineProps({
   },
   date: {
     type: String,
-    default: ''
+    default: () => new Date().toISOString().split('T')[0]
   },
   dueDate: {
     type: String,
@@ -149,12 +171,16 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:supplierId', 'update:supplierSearch', 'update:date', 'update:dueDate', 'add-supplier', 'suppliers-loaded'])
+const emit = defineEmits([
+  'update:supplierId',
+  'update:supplierSearch',
+  'update:date',
+  'update:dueDate',
+  'add-supplier',
+  'suppliers-loaded'
+])
 
-// State untuk menyimpan detail supplier yang dipilih
-const selectedSupplierDetails = ref(null)
-
-// Computed properties for v-model binding
+// Computed
 const supplierSearchModel = computed({
   get: () => props.supplierSearch,
   set: (value) => emit('update:supplierSearch', value)
@@ -170,18 +196,14 @@ const dueDateModel = computed({
   set: (value) => emit('update:dueDate', value)
 })
 
-
+const selectedSupplier = computed(() => {
+  return props.suppliers.find(s => s.id === props.supplierId) || null
+})
 
 // Methods
 const selectSupplier = (supplier) => {
-  // Simpan supplier lengkap ke state lokal agar tidak perlu query lagi
-  selectedSupplierDetails.value = supplier
   emit('update:supplierId', supplier.id)
   emit('update:supplierSearch', '')
-}
-
-const clearSelectedSupplier = () => {
-  emit('update:supplierId', null)
 }
 
 const openAddSupplierDialog = () => {
@@ -191,6 +213,41 @@ const openAddSupplierDialog = () => {
 const onSuppliersLoaded = (suppliers) => {
   emit('suppliers-loaded', suppliers)
 }
+
+// Tambahkan fungsi untuk memuat supplier berdasarkan ID jika tidak ditemukan
+const loadSupplierById = async () => {
+  if (!props.supplierId) return
+
+  // Periksa apakah supplier sudah ada di props.suppliers
+  if (props.suppliers.some(s => s.id === props.supplierId)) return
+
+  try {
+    console.log('Loading supplier by ID:', props.supplierId)
+    const { data } = await api.get(`/api/v1/suppliers/${props.supplierId}`)
+
+    if (data) {
+      // Emit event dengan supplier yang dimuat
+      emit('suppliers-loaded', [...props.suppliers, data])
+    }
+  } catch (error) {
+    console.error('Error loading supplier by ID:', error)
+  }
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  // Jika ada supplierId tapi tidak ada selectedSupplier, coba muat supplier
+  if (props.supplierId && !selectedSupplier.value) {
+    loadSupplierById()
+  }
+})
+
+// Watch untuk perubahan supplierId
+watch(() => props.supplierId, (newVal) => {
+  if (newVal && !selectedSupplier.value) {
+    loadSupplierById()
+  }
+})
 </script>
 
 <style scoped>
