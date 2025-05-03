@@ -12,7 +12,9 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     sort_by: 'created_at',
     sort_direction: 'desc',
     q: '',
-    status: 'semua'
+    status: 'semua',
+    start_date: null,
+    end_date: null
   })
   const searchQuery = ref('')
   const pagination = ref({
@@ -331,6 +333,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     pagination,
     editMode,
     editId,
+    params,
 
     // Actions
     resetForm,

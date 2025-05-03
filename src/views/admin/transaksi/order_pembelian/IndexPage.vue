@@ -1,31 +1,43 @@
 <template>
   <BasePage title="Order Pembelian" subtitle="Manage Order Pemebelian dari Supplier">
     <template #actions>
-      <BaseButton
-        @click="purchaseOrderStore.showCreateDialog = true"
-        variant="primary"
-        size="md"
-        class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:scale-105 hover:translate-y-[-2px]"
-      >
-        <template #icon-left>
-          <Icon name="Plus" class="w-4 h-4" />
-        </template>
-        Tambah Order
-      </BaseButton>
+      <div class="flex items-center gap-2">
+        <BaseButton
+          @click="purchaseOrderStore.showCreateDialog = true"
+          variant="primary"
+          size="md"
+          class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:scale-105 hover:translate-y-[-2px]"
+        >
+          <template #icon-left>
+            <Icon name="Plus" class="w-4 h-4" />
+          </template>
+          Tambah Order
+        </BaseButton>
+      </div>
     </template>
 
     <template #search>
-      <div class="relative rounded-full shadow-lg">
-        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-          <Icon name="Search" class="w-5 h-5 text-indigo-400" />
+      <div class="flex items-center justify-between gap-2 w-full">
+        <!-- Search Input (dengan lebar yang cukup) -->
+        <div class="relative rounded-full shadow-lg w-3/4">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+            <Icon name="Search" class="w-5 h-5 text-indigo-400" />
+          </div>
+          <BaseInput
+            v-model="purchaseOrderStore.searchQuery"
+            placeholder="Cari order pembelian..."
+            type="text"
+            clearable
+            :debounce="500"
+            @update:model-value="purchaseOrderStore.fetchPurchaseOrders"
+          />
         </div>
-        <BaseInput
-          v-model="purchaseOrderStore.searchQuery"
-          placeholder="Cari order pembelian..."
-          type="text"
-          clearable
-          :debounce="500"
-          @update:model-value="purchaseOrderStore.fetchPurchaseOrders"
+
+        <!-- Filter Periode -->
+        <BaseDateRangeFilter
+          v-model="dateRange"
+          @change="handleDateRangeChange"
+          default-period="month"
         />
       </div>
     </template>
@@ -95,6 +107,8 @@
         <span class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-rose-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
     </div>
+
+    <!-- HAPUS Date Range Filter yang ada di sini -->
 
     <!-- Futuristic Order List Section -->
     <BaseList
@@ -243,7 +257,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
 import PurchaseOrderForm from './PurchaseOrderForm.vue'
 import PurchaseOrderDetail from './PurchaseOrderDetail.vue'
@@ -253,10 +267,40 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseList from '@/components/ui/BaseList.vue'
 import Icon from '@/components/ui/Icon.vue'
 import BasePagination from '../../../../components/ui/BasePagination.vue'
+import BaseDateRangeFilter from '@/components/ui/BaseDateRangeFilter.vue'
+import IconButton from '@/components/ui/IconButton.vue'
 
 const purchaseOrderStore = usePurchaseOrderStore()
 const showDetailDialog = ref(false)
 const selectedPurchaseOrderId = ref(null)
+
+// State untuk date range
+const dateRange = ref({
+  start_date: null,
+  end_date: null
+})
+
+// Watch perubahan date range dan update params di store
+watch(dateRange, (newRange) => {
+  // Pastikan params ada sebelum mengakses propertinya
+  if (!purchaseOrderStore.params) {
+    purchaseOrderStore.params = {}
+  }
+
+  // Sekarang aman untuk mengatur properti
+  purchaseOrderStore.params.start_date = newRange.start_date
+  purchaseOrderStore.params.end_date = newRange.end_date
+
+  // Hapus baris ini untuk mencegah fetch ganda
+  // if (purchaseOrderStore.items.length > 0) {
+  //   purchaseOrderStore.fetchPurchaseOrders()
+  // }
+}, { deep: true })
+
+// Handle perubahan date range
+const handleDateRangeChange = () => {
+  purchaseOrderStore.fetchPurchaseOrders()
+}
 
 // Fetch initial data
 onMounted(() => {
@@ -349,11 +393,51 @@ const handleFormClose = () => {
 const handleStatusUpdated = () => {
   purchaseOrderStore.fetchPurchaseOrders()
 }
+
+// Tambahkan fungsi copyPurchaseOrder
+const copyPurchaseOrder = async (item) => {
+  try {
+    // Reset form terlebih dahulu
+    purchaseOrderStore.resetForm();
+
+    // Salin data dari item yang dipilih, tapi tanpa id
+    purchaseOrderStore.form = {
+      supplier_id: item.supplier_id,
+      supplier: item.supplier,
+      date: new Date().toISOString().split('T')[0], // Gunakan tanggal hari ini
+      due_date: item.due_date || '',
+      status: 'draft', // Selalu set sebagai draft untuk order baru
+      items: item.items?.map(orderItem => ({
+        product_id: orderItem.product_id,
+        product: orderItem.product,
+        quantity: orderItem.quantity,
+        price: orderItem.price,
+        total: orderItem.price * orderItem.quantity
+      })) || [],
+      notes: item.notes || ''
+    };
+
+    // Pastikan supplier ada di daftar suppliers
+    if (item.supplier && !purchaseOrderStore.suppliers.some(s => s.id === item.supplier.id)) {
+      purchaseOrderStore.suppliers.push(item.supplier);
+    }
+
+    // Tampilkan dialog
+    purchaseOrderStore.showCreateDialog = true;
+  } catch (error) {
+    console.error('Error copying purchase order:', error);
+  }
+}
 </script>
 
 <style scoped>
 /* Tambahkan animasi hover untuk card */
 .group:hover {
   transform: translateY(-2px);
+}
+
+/* Override untuk slot search di BasePage */
+:deep(.max-w-md) {
+  max-width: 100% !important;
 }
 </style>
