@@ -91,6 +91,16 @@ const routes = [
         name: 'purchase-detail',
         component: PurchaseDetail,
         meta: { requiresAuth: true }
+      },
+      // Tambahkan route untuk edit PO
+      {
+        path: 'transaksi/po/edit/:id',
+        name: 'EditPurchaseOrder',
+        component: () => import('@/views/admin/transaksi/order_pembelian/EditPurchaseOrder.vue'),
+        meta: {
+          requiresAuth: true,
+          title: 'Edit Purchase Order'
+        }
       }
     ]
   }

@@ -154,6 +154,7 @@ const props = defineProps({
   }
 })
 
+
 const emit = defineEmits([
   'update:productSearch',
   'add-product',

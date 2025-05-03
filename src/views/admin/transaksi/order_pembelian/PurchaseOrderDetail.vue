@@ -16,7 +16,18 @@
             {{ new Date(purchaseOrder?.date).toLocaleDateString() }}
           </p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-3">
+          <BaseButton
+            v-if="purchaseOrder?.status === 'draft'"
+            @click="editPurchaseOrder"
+            variant="primary"
+            size="sm"
+          >
+            <template #icon-left>
+              <Icon name="Edit" class="w-4 h-4" />
+            </template>
+            <div class="ml-2">Edit Order</div>
+          </BaseButton>
           <BaseButton @click="printPurchaseOrder" variant="secondary" size="sm">
             <template #icon-left>
               <Icon name="Printer" class="w-4 h-4" />
@@ -438,13 +449,19 @@ const closeDialog = () => {
   showDialog.value = false
 }
 
+// Flag untuk mencegah fetch ganda
+const hasFetched = ref(false)
+
+// Fungsi fetch yang dimodifikasi
 const fetchPurchaseOrderDetail = async () => {
-  if (!props.purchaseOrderId) return
+  if (!props.purchaseOrderId || hasFetched.value) return
 
   loading.value = true
   try {
     const { data } = await api.get(`/api/v1/purchase-orders/${props.purchaseOrderId}`)
+    console.log('data purchase order detail', data)
     purchaseOrder.value = data
+    hasFetched.value = true
   } catch (error) {
     console.error('Error fetching purchase order details:', error)
   } finally {
@@ -461,15 +478,44 @@ const calculateTotal = () => {
 }
 
 const printPurchaseOrder = () => {
-  const printContent = printTemplate.value.innerHTML
-  const originalContent = document.body.innerHTML
+  // Buat iframe tersembunyi
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
 
-  document.body.innerHTML = printContent
-  window.print()
-  document.body.innerHTML = originalContent
+  // Tulis konten ke iframe
+  iframe.contentDocument.write(`
+    <html>
+      <head>
+        <title>Print Purchase Order</title>
+        <style>
+          body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+          .print-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+          .print-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+          .print-items { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+          .print-items th, .print-items td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          .print-signatures { display: flex; justify-content: space-between; margin-top: 50px; }
+          .signature-line { border-bottom: 1px solid #333; margin-bottom: 10px; height: 40px; }
+        </style>
+      </head>
+      <body>
+        ${printTemplate.value.innerHTML}
+      </body>
+    </html>
+  `);
 
-  // Re-initialize Vue components after printing
-  location.reload()
+  iframe.contentDocument.close();
+
+  // Tunggu iframe selesai load
+  iframe.onload = function() {
+    // Cetak iframe
+    iframe.contentWindow.print();
+
+    // Hapus iframe setelah print dialog ditutup
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 100);
+  };
 }
 
 // Fungsi untuk mengubah status PO
@@ -643,19 +689,27 @@ const createPurchase = () => {
   router.push(`/admin/transaksi/pembelian/create?purchaseOrderId=${purchaseOrder.value.id}&from=po-detail`)
 }
 
-// Watch for changes in purchaseOrderId
-watch(() => props.purchaseOrderId, (newVal) => {
-  if (newVal) {
+// Fungsi untuk mengedit PO
+const editPurchaseOrder = () => {
+  if (!purchaseOrder.value?.id || purchaseOrder.value.status !== 'draft') return
+
+  // Redirect ke halaman form dengan mode edit
+  router.push(`/admin/transaksi/po/edit/${purchaseOrder.value.id}`)
+}
+
+// Gabungkan kedua watcher
+watch([() => props.purchaseOrderId, () => showDialog.value], ([newId, isOpen]) => {
+  // Reset flag ketika dialog ditutup
+  if (!isOpen) {
+    hasFetched.value = false
+    return
+  }
+
+  // Fetch hanya jika dialog terbuka dan ada ID
+  if (isOpen && newId) {
     fetchPurchaseOrderDetail()
   }
 }, { immediate: true })
-
-// Watch for dialog open/close
-watch(() => showDialog.value, (newVal) => {
-  if (newVal && props.purchaseOrderId) {
-    fetchPurchaseOrderDetail()
-  }
-})
 </script>
 
 <style scoped>

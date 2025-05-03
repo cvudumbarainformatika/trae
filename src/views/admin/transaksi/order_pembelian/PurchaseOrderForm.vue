@@ -2,16 +2,25 @@
   <div>
     <BaseDialog
       v-model="showDialog"
-      title="Order Pembelian Baru"
+      :title="props.editMode ? 'Edit Order Pembelian' : 'Order Pembelian Baru'"
       max-width="6xl"
       @close="closeDialog"
     >
+      <!-- Hapus kode debugging di bawah ini -->
+      <!-- <div v-if="props.editMode">
+        <pre>{{ JSON.stringify(store.form, null, 2) }}</pre>
+      </div> -->
+
       <div class="h-full flex flex-col gap-6 p-4 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900 dark:to-secondary-800">
         <!-- Header Section -->
         <div class="flex flex-col md:flex-row justify-between gap-4 p-4 bg-white dark:bg-secondary-800 rounded-xl shadow-sm">
           <div class="space-y-2">
-            <h2 class="text-xl font-bold text-primary-600 dark:text-primary-400">Order Pembelian Baru</h2>
-            <p class="text-secondary-500 dark:text-secondary-400 text-sm">Buat order pembelian baru untuk inventaris Anda</p>
+            <h2 class="text-xl font-bold text-primary-600 dark:text-primary-400">
+              {{ props.editMode ? 'Edit Order Pembelian' : 'Order Pembelian Baru' }}
+            </h2>
+            <p class="text-secondary-500 dark:text-secondary-400 text-sm">
+              {{ props.editMode ? 'Edit order pembelian untuk inventaris Anda' : 'Buat order pembelian baru untuk inventaris Anda' }}
+            </p>
           </div>
           <div class="flex items-center gap-3">
             <div class="flex flex-col">
@@ -96,13 +105,15 @@ import { useSupplierStore } from '@/stores/admin/supplier'
 import { useRouter } from 'vue-router'
 import SupplierSelection from '@/components/admin/transaksi/order_pembelian/SupplierSelection.vue'
 import ProductList from '@/components/admin/transaksi/order_pembelian/ProductList.vue'
+import { api } from '@/services/api'
 
 // Props & emits
-const emit = defineEmits(['update:modelValue', 'success', 'close'])
+const emit = defineEmits(['update:modelValue', 'success', 'close', 'loading'])
 
 // Store
 const store = usePurchaseOrderStore()
 const supplierStore = useSupplierStore()
+const router = useRouter()
 
 // State
 const supplierSearch = ref('')
@@ -124,15 +135,23 @@ const showSupplierForm = computed({
 })
 
 const showDialog = computed({
-  get: () => store.showCreateDialog,
+  get: () => {
+    // Dalam mode edit, selalu tampilkan dialog
+    if (props.editMode) return true;
+    return store.showCreateDialog;
+  },
   set: (value) => {
     // Prevent recursion if value hasn't changed
-    if (value === store.showCreateDialog) return
+    if (value === store.showCreateDialog && !props.editMode) return;
 
     if (!value) {
-      // handleCloseWithoutSettingDialog()
+      if (!props.editMode) {
+        // handleCloseWithoutSettingDialog()
+      } else {
+        emit('close');
+      }
     } else {
-      store.showCreateDialog = value
+      store.showCreateDialog = value;
     }
   }
 })
@@ -252,36 +271,41 @@ const formatNumber = (value) =>
   new Intl.NumberFormat('id-ID').format(value)
 
 const submitForm = () => {
-  // Tambahkan log untuk debugging
-  console.log('Submit form triggered', store.form);
-
-  // Tambahkan validasi sebelum submit
   if (!isFormValid.value) {
-    // Tampilkan pesan error jika perlu
     if (!store.form.supplier_id) {
-      alert('Silakan pilih supplier terlebih dahulu');
-      return;
+      alert('Silakan pilih supplier terlebih dahulu')
+      return
     }
     if (store.form.items.length === 0) {
-      alert('Silakan tambahkan minimal satu item');
-      return;
+      alert('Silakan tambahkan minimal satu item')
+      return
     }
-
-    return;
+    return
   }
 
-  // Set status to 'ordered' when submitting
-  // store.form.status = 'ordered';
-
-  store.submitForm()
-    .then(() => {
-      console.log('Form submitted successfully');
-      emit('success');
-    })
-    .catch(error => {
-      console.error('Error submitting form:', error);
-      alert('Terjadi kesalahan saat menyimpan order. Silakan coba lagi.');
-    });
+  if (props.editMode) {
+    // Update existing PO
+    store.updateForm(props.purchaseOrderId)
+      .then(() => {
+        console.log('Form updated successfully')
+        emit('success')
+      })
+      .catch(error => {
+        console.error('Error updating form:', error)
+        alert('Terjadi kesalahan saat menyimpan order. Silakan coba lagi.')
+      })
+  } else {
+    // Create new PO
+    store.submitForm()
+      .then(() => {
+        console.log('Form submitted successfully')
+        emit('success')
+      })
+      .catch(error => {
+        console.error('Error submitting form:', error)
+        alert('Terjadi kesalahan saat menyimpan order. Silakan coba lagi.')
+      })
+  }
 }
 
 // Watchers
@@ -305,6 +329,71 @@ onMounted(() => {
 onUnmounted(() => {
   if (autosaveTimer) clearTimeout(autosaveTimer)
   document.removeEventListener('click', () => {})
+})
+
+// Pastikan props didefinisikan dengan benar
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false
+  },
+  purchaseOrderId: {
+    type: [Number, String],
+    default: null
+  },
+  editMode: {
+    type: Boolean,
+    default: false
+  }
+})
+
+// Tambahkan console.log untuk debugging
+console.log('PurchaseOrderForm mounted with props:', {
+  purchaseOrderId: props.purchaseOrderId,
+  editMode: props.editMode
+})
+
+// Tambahkan fungsi loadPurchaseOrderData
+const loadPurchaseOrderData = async () => {
+  if (!props.purchaseOrderId) return
+
+  try {
+    emit('loading', true)
+    console.log('Loading purchase order data for ID:', props.purchaseOrderId)
+
+    const { data } = await api.get(`/api/v1/purchase-orders/${props.purchaseOrderId}`)
+    console.log('Purchase order data loaded:', data)
+
+    // Isi form dengan data yang ada
+    store.form = {
+      supplier_id: data.supplier_id,
+      date: data.date,
+      due_date: data.due_date,
+      status: data.status,
+      items: data.items.map(item => ({
+        product_id: item.product_id,
+        product: item.product,
+        quantity: item.quantity,
+        price: item.price,
+        total: item.price * item.quantity
+      })),
+      notes: data.notes || ''
+    }
+  } catch (error) {
+    console.error('Error loading purchase order data:', error)
+  } finally {
+    emit('loading', false)
+  }
+}
+
+// Pastikan loadPurchaseOrderData dipanggil saat komponen dimuat dalam mode edit
+onMounted(() => {
+  console.log('PurchaseOrderForm onMounted, editMode:', props.editMode, 'purchaseOrderId:', props.purchaseOrderId)
+
+  if (props.editMode && props.purchaseOrderId) {
+    console.log('Loading purchase order data for edit mode')
+    loadPurchaseOrderData()
+  }
 })
 </script>
 

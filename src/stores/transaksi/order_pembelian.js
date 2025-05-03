@@ -150,6 +150,29 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     }
   }
 
+  const updateForm = async (id) => {
+    loading.value = true
+    try {
+      console.log('Updating form to API:', form.value);
+
+      // Pastikan endpoint API benar
+      const response = await api.put(`/api/v1/purchase-orders/${id}`, form.value);
+
+      console.log('API response:', response);
+
+      await fetchPurchaseOrders();
+      showCreateDialog.value = false;
+      resetForm();
+
+      return response;
+    } catch (error) {
+      console.error('Error updating purchase order:', error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   // Data fetching
 
 
@@ -180,6 +203,36 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     }
   }
 
+  const fetchPurchaseOrderById = async (id) => {
+    loading.value = true
+    try {
+      const { data } = await api.get(`/api/v1/purchase-orders/${id}`)
+
+      // Update form dengan data yang diambil
+      form.value = {
+        supplier_id: data.supplier_id,
+        date: data.date,
+        due_date: data.due_date,
+        status: data.status,
+        items: data.items.map(item => ({
+          product_id: item.product_id,
+          product: item.product,
+          quantity: item.quantity,
+          price: item.price,
+          total: item.price * item.quantity
+        })),
+        notes: data.notes || ''
+      }
+
+      return data
+    } catch (error) {
+      console.error('Error fetching purchase order:', error)
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     // State
     showCreateDialog,
@@ -198,6 +251,8 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     removeItem,
     updateItemQuantity,
     submitForm,
-    fetchPurchaseOrders
+    updateForm,
+    fetchPurchaseOrders,
+    fetchPurchaseOrderById
   }
 })
