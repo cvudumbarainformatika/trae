@@ -697,8 +697,26 @@ const editPurchaseOrder = async () => {
     // Reset form terlebih dahulu
     purchaseOrderStore.resetForm()
 
-    // Ambil data PO
-    await purchaseOrderStore.fetchPurchaseOrderById(purchaseOrder.value.id)
+    // Langsung gunakan data purchaseOrder yang sudah ada
+    purchaseOrderStore.form = {
+      supplier_id: purchaseOrder.value.supplier_id,
+      date: purchaseOrder.value.date,
+      due_date: purchaseOrder.value.due_date || '',
+      status: purchaseOrder.value.status,
+      items: purchaseOrder.value.items.map(item => ({
+        product_id: item.product_id,
+        product: item.product,
+        quantity: item.quantity,
+        price: item.price,
+        total: item.price * item.quantity
+      })) || [],
+      notes: purchaseOrder.value.notes || ''
+    }
+
+    // Pastikan supplier ada di daftar suppliers
+    if (purchaseOrder.value.supplier && !purchaseOrderStore.suppliers.some(s => s.id === purchaseOrder.value.supplier.id)) {
+      purchaseOrderStore.suppliers.push(purchaseOrder.value.supplier)
+    }
 
     // Set mode edit
     purchaseOrderStore.setEditMode(purchaseOrder.value.id)
