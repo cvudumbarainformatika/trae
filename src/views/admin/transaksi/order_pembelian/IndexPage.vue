@@ -257,7 +257,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
 import PurchaseOrderForm from './PurchaseOrderForm.vue'
 import PurchaseOrderDetail from './PurchaseOrderDetail.vue'
@@ -274,11 +274,23 @@ const purchaseOrderStore = usePurchaseOrderStore()
 const showDetailDialog = ref(false)
 const selectedPurchaseOrderId = ref(null)
 
-// State untuk date range
+// State untuk date range dengan nilai default bulan ini
 const dateRange = ref({
-  start_date: null,
-  end_date: null
+  start_date: getMonthStartDate(),
+  end_date: getMonthEndDate()
 })
+
+// Fungsi untuk mendapatkan tanggal awal bulan ini
+function getMonthStartDate() {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+}
+
+// Fungsi untuk mendapatkan tanggal akhir bulan ini
+function getMonthEndDate() {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+}
 
 // Watch perubahan date range dan update params di store
 watch(dateRange, (newRange) => {
@@ -290,11 +302,6 @@ watch(dateRange, (newRange) => {
   // Sekarang aman untuk mengatur properti
   purchaseOrderStore.params.start_date = newRange.start_date
   purchaseOrderStore.params.end_date = newRange.end_date
-
-  // Hapus baris ini untuk mencegah fetch ganda
-  // if (purchaseOrderStore.items.length > 0) {
-  //   purchaseOrderStore.fetchPurchaseOrders()
-  // }
 }, { deep: true })
 
 // Handle perubahan date range
@@ -302,8 +309,13 @@ const handleDateRangeChange = () => {
   purchaseOrderStore.fetchPurchaseOrders()
 }
 
-// Fetch initial data
+// Fetch initial data dengan nilai default
 onMounted(() => {
+  // Set nilai default ke params store
+  purchaseOrderStore.params.start_date = dateRange.value.start_date
+  purchaseOrderStore.params.end_date = dateRange.value.end_date
+
+  // Fetch data
   purchaseOrderStore.fetchPurchaseOrders()
 })
 
