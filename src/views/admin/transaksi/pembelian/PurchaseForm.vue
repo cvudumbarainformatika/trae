@@ -1,9 +1,12 @@
 <template>
-  <BasePage title="Buat Pembelian" subtitle="Buat transaksi pembelian baru">
+  <BasePage
+    :title="pageTitle"
+    :subtitle="pageSubtitle"
+  >
     <template #actions>
       <div class="flex space-x-2">
         <BaseButton
-          @click="goBack"
+          @click="store.goBack(router)"
           variant="secondary"
           size="md"
         >
@@ -13,7 +16,7 @@
           Kembali
         </BaseButton>
         <BaseButton
-          @click="submitForm"
+          @click="handleSubmit"
           variant="primary"
           size="md"
           :loading="loading"
@@ -27,113 +30,114 @@
       </div>
     </template>
 
+    <!-- Form content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Form Section -->
+      <!-- Main Form Section -->
       <div class="lg:col-span-2 space-y-6">
-        <!-- Basic Info Card -->
+        <!-- Supplier and Date Section -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Informasi Dasar</h3>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Supplier Field -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Supplier Selection -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
-              <div v-if="purchaseOrderId">
-                <div class="p-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
-                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ form.supplier?.name || 'N/A' }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Dari Purchase Order</p>
-                </div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Supplier <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <SearchDropdown
+                  v-model="supplierSearch"
+                  placeholder="Cari supplier..."
+                  :loading="supplierLoading"
+                  :items="store.filteredSuppliers"
+                  item-text="name"
+                  @select="store.selectSupplier"
+                  @search="store.searchSuppliers"
+                />
               </div>
-              <div v-else>
-                <div class="relative">
-                  <BaseInput
-                    v-model="supplierSearch"
-                    placeholder="Cari supplier..."
-                    @focus="showSupplierResults = true"
-                  />
-                  <div v-if="showSupplierResults && supplierSearch" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto">
-                    <SearchDropdown
-                      v-model="supplierSearch"
-                      api-url="/api/v1/suppliers"
-                      :loading="supplierLoading"
-                      @select="selectSupplier"
-                      @items-loaded="onSuppliersLoaded"
-                    />
-                  </div>
-                </div>
+              <div v-if="form.supplier" class="mt-2 p-2 bg-gray-50 dark:bg-gray-700 rounded-md">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ form.supplier.name }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{ form.supplier.phone }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{ form.supplier.address }}</div>
               </div>
             </div>
 
-            <!-- Date Field -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tanggal</label>
-              <BaseInput
-                v-model="form.date"
-                type="date"
-              />
-            </div>
-
-            <!-- Invoice Number Field -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nomor Invoice</label>
-              <BaseInput
-                v-model="form.invoice_number"
-                placeholder="Nomor invoice"
-              />
-            </div>
-
-            <!-- Purchase Order Field -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purchase Order</label>
-              <div v-if="purchaseOrderId">
-                <div class="p-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
-                  <p class="text-sm font-medium text-gray-900 dark:text-white">{{ purchaseOrderData?.order_number || purchaseOrderId }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">PO terkait</p>
-                </div>
-              </div>
-              <div v-else>
+            <!-- Date and Invoice Number -->
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Tanggal <span class="text-red-500">*</span>
+                </label>
                 <BaseInput
-                  placeholder="Tidak ada PO terkait"
-                  disabled
+                  v-model="form.date"
+                  type="date"
+                  class="w-full"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Nomor Faktur
+                </label>
+                <BaseInput
+                  v-model="form.invoice_number"
+                  placeholder="Masukkan nomor faktur..."
+                  class="w-full"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Items Card -->
+        <!-- Products Section -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Item Pembelian</h3>
-            <div v-if="!purchaseOrderId" class="flex space-x-2">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Produk</h3>
+            <div class="flex space-x-2" v-if="!purchaseOrderId">
               <BaseButton
-                @click="openBarcodeScanner"
+                @click="showScanner = true"
                 variant="secondary"
                 size="sm"
               >
                 <template #icon-left>
-                  <Icon name="Barcode" class="w-4 h-4" />
+                  <Icon name="Scan" class="w-4 h-4" />
                 </template>
                 Scan Barcode
               </BaseButton>
-              <div class="relative">
-                <BaseInput
-                  v-model="productSearch"
-                  placeholder="Cari produk..."
-                  @focus="showProductResults = true"
-                  ref="productSearchRef"
-                />
-                <div v-if="showProductResults && productSearch" class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto">
-                  <SearchDropdown
-                    v-model="productSearch"
-                    api-url="/api/v1/products"
-                    :loading="productLoading"
-                    @select="addProductToOrder"
-                    @items-loaded="onProductsLoaded"
-                  />
-                </div>
-              </div>
+              <BaseButton
+                @click="productSearchRef.focus"
+                variant="primary"
+                size="sm"
+              >
+                <template #icon-left>
+                  <Icon name="Plus" class="w-4 h-4" />
+                </template>
+                Tambah Produk
+              </BaseButton>
             </div>
+          </div>
+
+          <!-- Product Search -->
+          <div v-if="!purchaseOrderId" class="mb-4">
+            <SearchDropdown
+              ref="productSearchRef"
+              v-model="productSearch"
+              placeholder="Cari produk berdasarkan nama atau barcode..."
+              :loading="productLoading"
+              :items="store.filteredProducts"
+              item-text="name"
+              @select="store.selectProduct"
+              @search="store.searchProducts"
+            >
+              <template #item="{ item }">
+                <div class="flex justify-between items-center w-full">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.name }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.barcode }}</div>
+                  </div>
+                  <div class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.hargabeli) }}
+                  </div>
+                </div>
+              </template>
+            </SearchDropdown>
           </div>
 
           <!-- Items Table -->
@@ -141,50 +145,63 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Produk</th>
-                  <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Harga</th>
-                  <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Qty</th>
-                  <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subtotal</th>
-                  <th v-if="!purchaseOrderId" scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aksi</th>
+                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[35%]">
+                    Produk
+                  </th>
+                  <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[25%]">
+                    Harga
+                  </th>
+                  <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[15%]">
+                    Qty
+                  </th>
+                  <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[25%]">
+                    Subtotal
+                  </th>
+                  <th v-if="!purchaseOrderId" scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[5%]">
+                    <span class="sr-only">Actions</span>
+                  </th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 <tr v-if="form.items.length === 0">
-                  <td colspan="5" class="px-4 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                    <div class="flex flex-col items-center py-6">
-                      <Icon name="Package" class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-2" />
-                      <p>Belum ada item. {{ purchaseOrderId ? 'Memuat item dari PO...' : 'Tambahkan item terlebih dahulu.' }}</p>
-                    </div>
+                  <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                    Belum ada produk yang ditambahkan
                   </td>
                 </tr>
                 <tr v-for="(item, index) in form.items" :key="index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td class="px-4 py-3 whitespace-nowrap">
+                  <td class="px-4 py-3 whitespace-nowrap w-[35%]">
                     <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.product?.name }}</div>
                     <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.product?.barcode }}</div>
                   </td>
-                  <td class="px-4 py-3 text-right whitespace-nowrap">
+                  <td class="px-4 py-3 text-right whitespace-nowrap w-[25%]">
                     <BaseInput
                       v-model.number="item.price"
                       type="number"
-                      class="w-24 text-right"
+                      class="w-full text-right"
                       min="0"
-                      @input="updateSubtotal(item)"
+                      @input="store.updateSubtotal(item)"
+                      style="text-align: right;"
                     />
                   </td>
-                  <td class="px-4 py-3 text-right whitespace-nowrap">
+                  <td class="px-4 py-3 text-right whitespace-nowrap w-[15%]">
                     <BaseInput
                       v-model.number="item.quantity"
                       type="number"
-                      class="w-20 text-right"
+                      class="w-full text-right"
                       min="1"
-                      @input="updateSubtotal(item)"
+                      @input="store.updateSubtotal(item)"
+                      style="text-align: right;"
                     />
                   </td>
-                  <td class="px-4 py-3 text-right whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  <td class="px-4 py-3 text-right whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-[25%]">
                     {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.subtotal) }}
                   </td>
-                  <td v-if="!purchaseOrderId" class="px-4 py-3 text-right whitespace-nowrap">
-                    <button @click="removeItem(index)" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                  <td v-if="!purchaseOrderId" class="px-4 py-3 text-right whitespace-nowrap w-[5%]">
+                    <button
+                      @click="store.removeItem(index)"
+                      class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                      aria-label="Hapus item"
+                    >
                       <Icon name="Trash" class="w-4 h-4" />
                     </button>
                   </td>
@@ -194,7 +211,7 @@
                 <tr>
                   <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">Total</td>
                   <td class="px-4 py-3 text-right text-sm font-bold text-gray-900 dark:text-white">
-                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateTotal()) }}
+                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(store.calculateTotal()) }}
                   </td>
                   <td v-if="!purchaseOrderId"></td>
                 </tr>
@@ -217,14 +234,14 @@
 
             <div class="flex justify-between items-center">
               <span class="text-sm text-gray-500 dark:text-gray-400">Total Qty</span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ calculateTotalQuantity() }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ store.calculateTotalQuantity() }}</span>
             </div>
 
             <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
 
             <div class="flex justify-between items-center">
               <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Subtotal</span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateTotal()) }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(store.calculateTotal()) }}</span>
             </div>
 
             <div class="flex justify-between items-center">
@@ -235,6 +252,7 @@
                   type="number"
                   class="w-20 text-right"
                   min="0"
+                  aria-label="Jumlah diskon"
                 />
               </div>
             </div>
@@ -247,6 +265,7 @@
                   type="number"
                   class="w-20 text-right"
                   min="0"
+                  aria-label="Persentase pajak"
                 />
                 <span class="ml-1 text-sm text-gray-500 dark:text-gray-400">%</span>
               </div>
@@ -256,7 +275,7 @@
 
             <div class="flex justify-between items-center">
               <span class="text-base font-medium text-gray-900 dark:text-white">Total</span>
-              <span class="text-base font-bold text-gray-900 dark:text-white">{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateGrandTotal()) }}</span>
+              <span class="text-base font-bold text-gray-900 dark:text-white">{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(store.calculateGrandTotal()) }}</span>
             </div>
 
             <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
@@ -283,8 +302,8 @@
       </template>
       <template #body>
         <BarcodeScanner
-          @scan-success="handleBarcodeScan"
-          @scan-error="(error) => console.error('Scan error:', error)"
+          @scan-success="store.handleBarcodeScan"
+          @scan-error="handleScanError"
           @close="showScanner = false"
         />
       </template>
@@ -295,6 +314,12 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { usePurchaseFormStore } from '@/stores/transaksi/pembelian/form'
+import { useNotification } from '@/composables/useNotification'
+import { PURCHASE_STATUS } from '@/constants/transaction'
+
+// UI Components
 import BasePage from '@/components/ui/BasePage.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
@@ -303,208 +328,83 @@ import BaseDialog from '@/components/ui/BaseDialog.vue'
 import Icon from '@/components/ui/Icon.vue'
 import BarcodeScanner from '@/components/admin/BarcodeScanner.vue'
 import SearchDropdown from '@/components/ui/SearchDropdown.vue'
-import { api } from '@/services/api'
+
+/**
+ * Purchase Form Component
+ *
+ * Handles creation and editing of purchase transactions.
+ * Supports creating from scratch or from purchase order.
+ */
 
 const router = useRouter()
 const route = useRoute()
+const productSearchRef = ref(null)
+const { notify } = useNotification()
+
+// Route params
 const purchaseOrderId = ref(route.query.purchaseOrderId || null)
 const fromPage = ref(route.query.from || null)
-const purchaseOrderData = ref(null)
 
-// Form state
-const form = ref({
-  supplier_id: null,
-  supplier: null,
-  date: new Date().toISOString().split('T')[0],
-  invoice_number: '',
-  purchase_order_id: purchaseOrderId.value,
-  items: [],
-  discount: 0,
-  tax: 0,
-  notes: '',
-  status: 'pending'
-})
+// Initialize store
+const store = usePurchaseFormStore()
+const {
+  form,
+  loading,
+  isFormValid,
+  showScanner,
+  supplierSearch,
+  productSearch,
+  showSupplierResults,
+  showProductResults,
+  supplierLoading,
+  productLoading,
+  purchaseOrderData
+} = storeToRefs(store)
 
-// UI state
-const loading = ref(false)
-const supplierSearch = ref('')
-const productSearch = ref('')
-const productSearchRef = ref(null)
-const showSupplierResults = ref(false)
-const showProductResults = ref(false)
-const filteredSuppliers = ref([])
-const filteredProducts = ref([])
-const showScanner = ref(false)
-const supplierLoading = ref(false)
-const productLoading = ref(false)
+// Computed properties
+const pageTitle = computed(() =>
+  purchaseOrderId.value ? 'Buat Pembelian dari PO' : 'Buat Pembelian'
+)
 
-// Computed
-const isFormValid = computed(() => {
-  return form.value.supplier_id && form.value.items.length > 0
-})
+const pageSubtitle = computed(() =>
+  purchaseOrderId.value
+    ? `Membuat transaksi pembelian dari PO #${purchaseOrderId.value}`
+    : 'Buat transaksi pembelian baru'
+)
 
 // Methods
-const calculateTotal = () => {
-  return form.value.items.reduce((total, item) => total + (item.subtotal || 0), 0)
-}
-
-const calculateTotalQuantity = () => {
-  return form.value.items.reduce((total, item) => total + (item.quantity || 0), 0)
-}
-
-const calculateGrandTotal = () => {
-  const subtotal = calculateTotal()
-  const discountAmount = form.value.discount || 0
-  const taxAmount = subtotal * (form.value.tax / 100) || 0
-
-  return subtotal - discountAmount + taxAmount
-}
-
-const updateSubtotal = (item) => {
-  item.subtotal = (item.price || 0) * (item.quantity || 0)
-}
-
-const selectSupplier = (supplier) => {
-  form.value.supplier_id = supplier.id
-  form.value.supplier = supplier
-  showSupplierResults.value = false
-}
-
-const addProductToOrder = (product) => {
-  // Check if product already exists in items
-  const existingItemIndex = form.value.items.findIndex(item => item.product_id === product.id)
-
-  if (existingItemIndex !== -1) {
-    // Increment quantity if product already exists
-    form.value.items[existingItemIndex].quantity += 1
-    updateSubtotal(form.value.items[existingItemIndex])
-  } else {
-    // Add new item if product doesn't exist
-    const newItem = {
-      product_id: product.id,
-      product: product,
-      price: product.purchase_price || 0,
-      quantity: 1,
-      subtotal: product.purchase_price || 0
-    }
-
-    form.value.items.push(newItem)
-  }
-
-  // Clear search
-  productSearch.value = ''
-  showProductResults.value = false
-}
-
-const removeItem = (index) => {
-  form.value.items.splice(index, 1)
-}
-
-const submitForm = async () => {
-  if (!isFormValid.value) {
-    alert('Silakan lengkapi form terlebih dahulu')
-    return
-  }
-
-  loading.value = true
-
+const handleSubmit = async () => {
   try {
-    // Prepare data for API
-    const formData = {
-      supplier_id: form.value.supplier_id,
-      date: form.value.date,
-      invoice_number: form.value.invoice_number,
-      purchase_order_id: form.value.purchase_order_id,
-      items: form.value.items.map(item => ({
-        product_id: item.product_id,
-        price: item.price,
-        quantity: item.quantity
-      })),
-      discount: form.value.discount,
-      tax: form.value.tax,
-      notes: form.value.notes,
-      status: form.value.status
-    }
-
-    // Send data to API
-    const { data } = await api.post('/api/v1/purchases', formData)
-
-    // Redirect to purchase list
+    await store.submitForm()
+    notify({
+      title: 'Berhasil',
+      message: 'Transaksi pembelian berhasil disimpan',
+      type: 'success'
+    })
     router.push('/transaksi/pembelian')
   } catch (error) {
-    console.error('Error submitting form:', error)
-    alert('Terjadi kesalahan saat menyimpan data. Silakan coba lagi.')
-  } finally {
-    loading.value = false
+    notify({
+      title: 'Gagal',
+      message: error.message || 'Terjadi kesalahan saat menyimpan transaksi',
+      type: 'error'
+    })
   }
 }
 
-// Fetch purchase order data if ID is provided
-const fetchPurchaseOrderData = async () => {
-  if (!purchaseOrderId.value) return
-
-  loading.value = true
-
-  try {
-    const { data } = await api.get(`/api/v1/purchase-orders/${purchaseOrderId.value}`)
-    purchaseOrderData.value = data
-
-    // Set supplier from purchase order
-    form.value.supplier_id = data.supplier_id
-    form.value.supplier = data.supplier
-
-    // Set items from purchase order
-    form.value.items = data.items.map(item => ({
-      product_id: item.product_id,
-      product: item.product,
-      price: item.price,
-      quantity: item.received_quantity || item.quantity,
-      subtotal: (item.price * (item.received_quantity || item.quantity))
-    }))
-  } catch (error) {
-    console.error('Error fetching purchase order:', error)
-    alert('Terjadi kesalahan saat memuat data purchase order. Silakan coba lagi.')
-  } finally {
-    loading.value = false
-  }
-}
-
-// Barcode scanner
-const openBarcodeScanner = () => {
-  showScanner.value = true
-}
-
-const handleBarcodeScan = (barcode) => {
-  showScanner.value = false
-  productSearch.value = barcode
-
-  // Fetch product by barcode
-  api.get('/api/v1/products', {
-    params: { barcode }
-  }).then(({ data }) => {
-    if (data.data && data.data.length > 0) {
-      addProductToOrder(data.data[0])
-    } else {
-      alert(`Produk dengan barcode ${barcode} tidak ditemukan`)
-    }
-  }).catch(error => {
-    console.error('Error fetching product by barcode:', error)
+const handleScanError = (error) => {
+  notify({
+    title: 'Scan Gagal',
+    message: error.message || 'Gagal memindai barcode',
+    type: 'error'
   })
-}
-
-// Event handlers
-const onSuppliersLoaded = (suppliers) => {
-  filteredSuppliers.value = suppliers
-}
-
-const onProductsLoaded = (products) => {
-  filteredProducts.value = products
 }
 
 // Lifecycle hooks
 onMounted(() => {
+  store.setFromPage(fromPage.value)
+
   if (purchaseOrderId.value) {
-    fetchPurchaseOrderData()
+    store.setPurchaseOrderId(purchaseOrderId.value)
   }
 })
 
@@ -512,22 +412,32 @@ onMounted(() => {
 watch(() => route.query.purchaseOrderId, (newVal) => {
   if (newVal) {
     purchaseOrderId.value = newVal
-    fetchPurchaseOrderData()
+    store.setPurchaseOrderId(newVal)
   }
 }, { immediate: true })
+</script>
 
-// Fungsi untuk kembali ke halaman sebelumnya
-const goBack = () => {
-  // Jika ada parameter from, gunakan itu untuk navigasi kembali
-  if (fromPage.value === 'po-detail' && purchaseOrderId.value) {
-    router.push(`/admin/transaksi/po`)
+<!-- Responsive styling for mobile -->
+<style scoped>
+@media (max-width: 768px) {
+  table th, table td {
+    width: auto !important;
   }
-  else if (fromPage.value === 'po-list') {
-    router.push('/admin/transaksi/po')
+
+  table th:nth-child(1), table td:nth-child(1) {
+    width: 40% !important;
   }
-  // Default kembali ke daftar pembelian
-  else {
-    router.push('/admin/transaksi/pembelian')
+
+  table th:nth-child(2), table td:nth-child(2) {
+    width: 25% !important;
+  }
+
+  table th:nth-child(3), table td:nth-child(3) {
+    width: 15% !important;
+  }
+
+  table th:nth-child(4), table td:nth-child(4) {
+    width: 20% !important;
   }
 }
-</script>
+</style>

@@ -2,7 +2,7 @@
   <BasePage title="Pembelian" subtitle="Kelola transaksi pembelian dari supplier">
     <template #actions>
       <BaseButton
-        @click="router.push('/transaksi/pembelian/create')"
+        @click="router.push('/admin/transaksi/pembelian/create')"
         variant="primary"
         size="md"
         class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:scale-105 hover:translate-y-[-2px]"

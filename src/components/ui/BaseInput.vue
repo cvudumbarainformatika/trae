@@ -70,7 +70,7 @@ let debounceTimeout
 
 const handleInput = (e) => {
   const value = e.target.value
-  
+
   if (props.debounce > 0) {
     clearTimeout(debounceTimeout)
     debounceTimeout = setTimeout(() => {
@@ -83,7 +83,7 @@ const handleInput = (e) => {
 
 const formattedRupiah = computed(() => {
   if (!props.modelValue) return 'Rp 0'
-  
+
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -101,7 +101,7 @@ const formattedRupiah = computed(() => {
       {{ label }}
       <span v-if="required" class="text-red-500 ml-0.5">*</span>
     </label>
-    
+
     <div class="relative">
       <input
         ref="inputRef"
@@ -113,7 +113,7 @@ const formattedRupiah = computed(() => {
         :required="required"
         :class="[inputClasses, clearable && 'pr-10']"
       >
-      
+
       <div v-if="clearable && modelValue" class="absolute inset-y-0 right-0 flex items-center pr-3">
         <button
           type="button"
@@ -136,14 +136,14 @@ const formattedRupiah = computed(() => {
     >
       {{ error }}
     </p>
-    
+
     <p
       v-else-if="showRupiahHint && modelValue"
       class="text-sm text-gray-500 dark:text-gray-400 font-medium"
     >
       {{ formattedRupiah }}
     </p>
-    
+
     <p
       v-else-if="hint"
       class="text-sm text-gray-500 dark:text-gray-400"
@@ -152,3 +152,16 @@ const formattedRupiah = computed(() => {
     </p>
   </div>
 </template>
+
+<style>
+/* Menghilangkan tombol default increment/decrement pada input number */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+</style>

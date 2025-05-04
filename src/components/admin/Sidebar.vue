@@ -18,7 +18,7 @@ const submenus = {
   ],
   'transaction': [
     { name: 'PO', label:'Order Pembelian', path: '/admin/transaksi/po' },
-    { name: 'Purchases', label:'Pembelian', path: '/admin/transaction/purchases' },
+    { name: 'Purchases', label:'Pembelian', path: '/admin/transaksi/pembelian' },
     { name: 'Sales', label:'Penjualan', path: '/admin/transaction/sales' },
     { name: 'Returns', label: 'Retur', path: '/admin/transaction/returns' }
   ],
