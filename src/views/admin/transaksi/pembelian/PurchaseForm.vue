@@ -709,6 +709,9 @@ const formatCurrency = (value) => {
   }
 }
 
+// Tambahkan variabel purchaseId
+const purchaseId = ref(null);
+
 /**
  * Handles form submission
  * Validates form, submits to API, and shows appropriate notifications
@@ -776,11 +779,12 @@ const handleSubmit = async () => {
 
     // Redirect ke halaman detail pembelian yang baru dibuat
     if (response && response.id) {
+      // Simpan ID untuk digunakan setelah dialog cetak ditutup
+      purchaseId.value = response.id;
+
       // Tanyakan apakah ingin mencetak faktur sebelum redirect
       if (!editMode.value) {
-        showPrintDialog.value = true
-        // Simpan ID untuk digunakan setelah dialog cetak ditutup
-        purchaseId.value = response.id
+        showPrintDialog.value = true;
       } else {
         // Langsung redirect jika edit mode
         router.push(`/admin/transaksi/pembelian/${response.id}`)
@@ -1105,26 +1109,28 @@ const clearPurchaseOrderRelation = () => {
  * @param {Boolean} shouldPrint - Whether to print the invoice
  */
 const handlePrintDialogClose = async (shouldPrint) => {
-  showPrintDialog.value = false
+  showPrintDialog.value = false;
 
   if (shouldPrint && purchaseId.value) {
     try {
-      await store.generateInvoice()
+      // Simpan ID pembelian ke store terlebih dahulu
+      store.form.id = purchaseId.value;
+      await store.generateInvoice();
     } catch (error) {
       notify({
         title: 'Gagal',
         message: 'Gagal mencetak faktur',
         type: 'error'
-      })
+      });
     }
   }
 
   // Redirect ke halaman detail pembelian setelah dialog ditutup
   if (purchaseId.value) {
-    router.push(`/admin/transaksi/pembelian/${purchaseId.value}`)
+    router.push(`/admin/transaksi/pembelian/${purchaseId.value}`);
   } else {
     // Fallback jika tidak ada ID
-    router.push('/admin/transaksi/pembelian')
+    router.push('/admin/transaksi/pembelian');
   }
 }
 </script>

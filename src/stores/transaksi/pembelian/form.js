@@ -563,6 +563,23 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
         price: Number(item.price) || 0,
         subtotal: Number(item.price * item.quantity) || 0
       }))
+    },
+
+    // Method untuk mengupdate subtotal item
+    updateItemSubtotal(index) {
+      if (index < 0 || index >= this.form.items.length) return;
+
+      const item = this.form.items[index];
+
+      // Pastikan quantity dan price adalah angka
+      const quantity = Number(item.quantity) || 0;
+      const price = Number(item.price) || 0;
+
+      // Hitung subtotal
+      item.subtotal = quantity * price;
+
+      // Set flag isDirty
+      this.isDirty = true;
     }
   }
 })

@@ -153,9 +153,13 @@
                       <Icon name="ShoppingCart" class="w-3.5 h-3.5 mr-1" />
                       <span>{{ item.items?.length || 0 }} items</span>
                     </div>
+                    <!-- Indikator Pembelian -->
+                    <div v-if="item.purchases && item.purchases.length > 0"
+                         class="flex items-center text-green-600 dark:text-green-400">
+                      <Icon name="CheckCircle" class="w-3.5 h-3.5 mr-1" />
+                      <span>Sudah dibeli</span>
+                    </div>
                   </div>
-
-
                 </div>
 
                 <!-- Right: Amount - Larger -->
@@ -169,7 +173,7 @@
               <!-- Action Buttons and Status - Inline with justify-between -->
               <div class="flex justify-between items-center mt-2">
                 <!-- Status Badge -->
-                <div class="flex gap-x-4 items-center  text-gray-500 dark:text-gray-400">
+                <div class="flex gap-x-4 items-center text-gray-500 dark:text-gray-400">
                   <div class="flex space-x-1 items-center">
                     <Icon name="Receipt" class="w-4 h-4" />
                     <div class="text-base">{{ item?.unique_code }}</div>
@@ -181,10 +185,15 @@
                         'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.status === 'received',
                         'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': item.status === 'cancelled'
                       }">
-                  {{ item.status === 'draft' ? 'Draft' :
-                     item.status === 'ordered' ? 'Ordered' :
-                     item.status === 'received' ? 'Received' : 'Cancelled' }}
-                </span>
+                    {{ item.status === 'draft' ? 'Draft' :
+                       item.status === 'ordered' ? 'Ordered' :
+                       item.status === 'received' ? 'Received' : 'Cancelled' }}
+                  </span>
+                  <!-- Badge Pembelian -->
+                  <span v-if="item.purchases && item.purchases.length > 0"
+                        class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                    Pembelian #{{ item.purchases[0].id }}
+                  </span>
                 </div>
 
                 <!-- Action Buttons -->
@@ -218,6 +227,18 @@
                   >
                     <template #icon>
                       <Icon name="Copy"  />
+                    </template>
+                  </IconButton>
+                  <!-- Tombol Lihat Pembelian -->
+                  <IconButton
+                    v-if="item.purchases && item.purchases.length > 0"
+                    @click="viewPurchase(item.purchases[0].id)"
+                    variant="success"
+                    size="sm"
+                    title="Lihat Pembelian"
+                  >
+                    <template #icon>
+                      <Icon name="ShoppingBag"  />
                     </template>
                   </IconButton>
                 </div>
