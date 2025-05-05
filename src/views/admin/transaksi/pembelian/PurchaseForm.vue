@@ -54,9 +54,15 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Main Form Section -->
       <div class="lg:col-span-2 space-y-6">
-        <!-- Supplier and Date Section -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Info Cards Section - Grid untuk desktop -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Supplier Section -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+              <Icon name="User" class="w-5 h-5 mr-2 text-primary-500" />
+              Informasi Supplier
+            </h3>
+
             <!-- Supplier Selection -->
             <div>
               <label for="supplier-search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -91,7 +97,7 @@
               </div>
             </div>
 
-            <!-- Selected Supplier Info (dipindahkan dari ringkasan) -->
+            <!-- Selected Supplier Info -->
             <div v-if="form.supplier" class="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-4 border-primary-500 animate-fadeIn">
               <div class="flex justify-between items-start">
                 <div>
@@ -110,33 +116,62 @@
               </div>
             </div>
 
-            <!-- Date Selection -->
-            <div>
-              <label for="purchase-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Tanggal <span class="text-red-500">*</span>
-              </label>
-              <BaseInput
-                id="purchase-date"
-                v-model="form.date"
-                type="date"
-                class="w-full"
-                aria-required="true"
-              />
+            <!-- Tampilkan pesan jika supplier dengan ID tidak ditemukan -->
+            <div v-else-if="form.supplier_id && !form.supplier" class="mt-4 p-3 bg-amber-50 dark:bg-amber-900/30 rounded-lg border-l-4 border-amber-500 animate-fadeIn">
+              <div class="flex items-center">
+                <Icon name="AlertCircle" class="w-5 h-5 text-amber-500 mr-2" />
+                <div>
+                  <h4 class="text-sm font-medium text-amber-800 dark:text-amber-200">Supplier Tidak Ditemukan</h4>
+                  <p class="text-xs text-amber-700 dark:text-amber-300">
+                    Supplier dengan ID {{ form.supplier_id }} tidak ditemukan.
+                  </p>
+                  <button
+                    @click="clearSelectedSupplier"
+                    class="mt-1 text-xs text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
+                  >
+                    Pilih supplier lain
+                  </button>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <!-- Invoice Number -->
-            <div>
-              <label for="invoice-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Nomor Faktur <span class="text-red-500">*</span>
-              </label>
-              <BaseInput
-                id="invoice-number"
-                v-model="form.invoice_number"
-                placeholder="Masukkan nomor faktur..."
-                class="w-full"
-                aria-label="Nomor faktur pembelian"
-                aria-required="true"
-              />
+          <!-- Date and Invoice Section -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+              <Icon name="Calendar" class="w-5 h-5 mr-2 text-primary-500" />
+              Informasi Transaksi
+            </h3>
+
+            <div class="space-y-6">
+              <!-- Date Selection -->
+              <div>
+                <label for="purchase-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Tanggal <span class="text-red-500">*</span>
+                </label>
+                <BaseInput
+                  id="purchase-date"
+                  v-model="form.date"
+                  type="date"
+                  class="w-full"
+                  aria-required="true"
+                />
+              </div>
+
+              <!-- Invoice Number -->
+              <div>
+                <label for="invoice-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Nomor Faktur <span class="text-red-500">*</span>
+                </label>
+                <BaseInput
+                  id="invoice-number"
+                  v-model="form.invoice_number"
+                  placeholder="Masukkan nomor faktur..."
+                  class="w-full"
+                  aria-label="Nomor faktur pembelian"
+                  aria-required="true"
+                />
+              </div>
             </div>
           </div>
         </div>
