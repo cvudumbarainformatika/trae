@@ -19,6 +19,10 @@ const props = defineProps({
   hideClose: {
     type: Boolean,
     default: false
+  },
+  closable: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -27,12 +31,14 @@ const emit = defineEmits(['update:modelValue', 'close'])
 const modalRef = ref(null)
 
 const close = () => {
-  emit('update:modelValue', false)
-  emit('close')
+  if (props.closable) {
+    emit('update:modelValue', false)
+    emit('close')
+  }
 }
 
 const handleBackdropClick = (event) => {
-  if (event.target === modalRef.value) {
+  if (event.target === modalRef.value && props.closable) {
     close()
   }
 }
@@ -76,6 +82,8 @@ watch(() => props.modelValue, (isOpen) => {
             v-if="!hideClose"
             @click="close"
             class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none"
+            :disabled="!closable"
+            :class="{ 'opacity-50 cursor-not-allowed': !closable }"
           >
             <XIcon class="w-5 h-5" />
           </button>

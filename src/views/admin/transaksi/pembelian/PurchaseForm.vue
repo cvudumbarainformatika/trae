@@ -67,12 +67,46 @@
                   id="supplier-search"
                   v-model="supplierSearch"
                   placeholder="Cari supplier..."
-                  :loading="supplierLoading"
-                  :items="store.filteredSuppliers"
-                  item-text="name"
-                  @select="store.selectSupplier"
-                  @search="store.searchSuppliers"
-                />
+                  :debounce="300"
+                  :min-search-length="3"
+                  item-key="id"
+                  item-label="name"
+                  not-found-text="Supplier tidak ditemukan"
+                  not-found-subtext="Coba kata kunci lain atau tambahkan supplier baru"
+                  add-button-text="Tambah Supplier Baru"
+                  api-url="/api/v1/suppliers"
+                  api-response-path="data.data"
+                  :use-api="true"
+                  @select="handleSupplierSelect"
+                  @add-new="openAddSupplierDialog"
+                  @items-loaded="onSuppliersLoaded"
+                >
+                  <template #item="{ item }">
+                    <div class="font-medium text-secondary-900 dark:text-white">{{ item.name }}</div>
+                    <div class="text-sm text-secondary-500 dark:text-secondary-400 flex items-center gap-2">
+                      <span>{{ item.phone || 'Tidak ada telepon' }}</span>
+                    </div>
+                  </template>
+                </SearchDropdown>
+              </div>
+            </div>
+
+            <!-- Selected Supplier Info (dipindahkan dari ringkasan) -->
+            <div v-if="form.supplier" class="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-4 border-primary-500 animate-fadeIn">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Informasi Supplier</h4>
+                  <div class="text-sm text-gray-900 dark:text-white font-medium">{{ form.supplier.name }}</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ form.supplier.phone }}</div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">{{ form.supplier.address }}</div>
+                </div>
+                <button
+                  @click="clearSelectedSupplier"
+                  class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  aria-label="Hapus supplier"
+                >
+                  <Icon name="X" class="w-4 h-4" />
+                </button>
               </div>
             </div>
 
@@ -114,7 +148,15 @@
             Daftar Produk
           </h3>
 
-          <!-- Product Search -->
+          <!-- Info banner jika dari PO -->
+          <div v-if="form.purchase_order_id" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p class="text-sm text-blue-700 dark:text-blue-300 flex items-center">
+              <Icon name="InformationCircle" class="w-4 h-4 mr-2" />
+              Pembelian ini dibuat dari Purchase Order. Item dari PO tidak dapat dihapus. Item tambahan akan ditandai sebagai "Non-PO Item".
+            </p>
+          </div>
+
+          <!-- Product Search - tetap aktif meskipun dari PO -->
           <div class="mb-4 flex space-x-2">
             <div class="flex-1 relative">
               <SearchDropdown
@@ -172,7 +214,15 @@
                 </tr>
                 <tr v-for="(item, index) in form.items" :key="index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td class="px-3 py-4 whitespace-nowrap w-[35%]">
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.product?.name }}</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                      {{ item.product?.name }}
+                      <span
+                        v-if="form.purchase_order_id && item.is_additional"
+                        class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300"
+                      >
+                        Non-PO
+                      </span>
+                    </div>
                     <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.product?.barcode }}</div>
                   </td>
                   <td class="px-3 py-4 whitespace-nowrap text-right w-[25%]">
@@ -198,12 +248,20 @@
                   </td>
                   <td class="px-3 py-4 whitespace-nowrap text-right text-sm w-[5%]">
                     <button
+                      v-if="!form.purchase_order_id || item.is_additional"
                       @click="store.removeItem(index)"
                       class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                       aria-label="Hapus item"
                     >
                       <Icon name="Trash" class="w-4 h-4" />
                     </button>
+                    <span
+                      v-else
+                      class="inline-flex items-center justify-center p-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                      title="Item dari Purchase Order tidak dapat dihapus"
+                    >
+                      <Icon name="Lock" class="w-4 h-4" />
+                    </span>
                   </td>
                 </tr>
               </tbody>
@@ -219,19 +277,36 @@
                 v-for="(item, index) in form.items"
                 :key="index"
                 class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700"
+                :class="{ 'border-l-4 border-l-amber-500': form.purchase_order_id && item.is_additional }"
               >
                 <div class="flex justify-between items-start mb-3">
                   <div>
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.product?.name }}</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white flex items-center">
+                      {{ item.product?.name }}
+                      <span
+                        v-if="form.purchase_order_id && item.is_additional"
+                        class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300"
+                      >
+                        Non-PO
+                      </span>
+                    </div>
                     <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.product?.barcode }}</div>
                   </div>
                   <button
+                    v-if="!form.purchase_order_id || item.is_additional"
                     @click="store.removeItem(index)"
                     class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                     aria-label="Hapus item"
                   >
                     <Icon name="Trash" class="w-4 h-4" />
                   </button>
+                  <span
+                    v-else
+                    class="inline-flex items-center justify-center p-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                    title="Item dari Purchase Order tidak dapat dihapus"
+                  >
+                    <Icon name="Lock" class="w-4 h-4" />
+                  </span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -276,13 +351,7 @@
           </h3>
 
           <div class="space-y-4">
-            <!-- Supplier Info -->
-            <div v-if="form.supplier" class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Informasi Supplier</h4>
-              <div class="text-sm text-gray-900 dark:text-white font-medium">{{ form.supplier.name }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ form.supplier.phone }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ form.supplier.address }}</div>
-            </div>
+            <!-- Supplier Info telah dipindahkan ke atas -->
 
             <!-- Summary Items -->
             <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
@@ -488,19 +557,32 @@
         </BaseButton>
       </div>
     </BaseDialog>
+
+    <!-- Supplier Form Modal -->
+    <SupplierForm
+      v-if="showSupplierForm"
+      v-model="showSupplierForm"
+      :supplier="null"
+      :is-edit="false"
+      @close="handleSupplierFormClose"
+      @submit="handleSupplierSubmit"
+    />
   </BasePage>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { usePurchaseFormStore } from '@/stores/transaksi/pembelian/form'
 import { useNotification } from '@/composables/useNotification'
 import { PURCHASE_STATUS } from '@/constants/transaction'
+import { api } from '@/services/api'
 
 // Admin Components (not registered globally)
 import BarcodeScanner from '@/components/admin/BarcodeScanner.vue'
+import SupplierForm from '@/components/admin/suppliers/SupplierForm.vue'
+import { useSupplierStore } from '@/stores/admin/supplier'
 
 // Inisialisasi router dan route
 const router = useRouter()
@@ -510,6 +592,9 @@ const { notify } = useNotification()
 const showPrintDialog = ref(false)
 // Pastikan showScanner diinisialisasi di sini jika tidak ada di store
 const localShowScanner = ref(false)
+// Tambahkan state untuk dialog tambah supplier
+const showSupplierForm = ref(false)
+const supplierStore = useSupplierStore()
 
 // Route params
 const purchaseOrderId = ref(route.query.purchaseOrderId || null)
@@ -644,6 +729,98 @@ const focusProductSearch = () => {
   }
 }
 
+// Fungsi untuk menangani pemilihan supplier
+const handleSupplierSelect = (supplier) => {
+  // Simpan supplier ke form
+  form.value.supplier = supplier;
+  form.value.supplier_id = supplier.id;
+
+  // Kosongkan input pencarian
+  supplierSearch.value = '';
+
+  // Fokus ke input berikutnya (misalnya tanggal atau nomor faktur)
+  nextTick(() => {
+    const nextInput = document.getElementById('purchase-date') ||
+                      document.getElementById('invoice-number');
+    if (nextInput) nextInput.focus();
+  });
+
+  // Tampilkan notifikasi jika diperlukan
+  if (typeof notify === 'function') {
+    notify({
+      title: 'Supplier Dipilih',
+      message: `${supplier.name} telah dipilih sebagai supplier`,
+      type: 'success'
+    });
+  }
+}
+
+// Fungsi untuk menghapus supplier yang dipilih
+const clearSelectedSupplier = () => {
+  // Konfirmasi jika ada item yang sudah ditambahkan
+  if (form.value.items && form.value.items.length > 0) {
+    if (!confirm('Menghapus supplier akan menghapus semua item. Lanjutkan?')) {
+      return;
+    }
+    // Kosongkan daftar item jika konfirmasi diterima
+    form.value.items = [];
+  }
+
+  // Hapus supplier dari form
+  form.value.supplier = null;
+  form.value.supplier_id = null;
+
+  // Fokus kembali ke pencarian supplier
+  nextTick(() => {
+    const supplierSearch = document.getElementById('supplier-search');
+    if (supplierSearch) supplierSearch.focus();
+  });
+}
+
+// Fungsi untuk menangani data supplier yang dimuat
+const onSuppliersLoaded = (suppliers) => {
+  // Simpan daftar supplier jika diperlukan
+  if (suppliers && suppliers.length > 0) {
+    // Misalnya, simpan ke state lokal atau store
+    store.suppliers = suppliers;
+  }
+}
+
+// Fungsi untuk membuka dialog tambah supplier
+const openAddSupplierDialog = () => {
+  showSupplierForm.value = true
+}
+
+// Fungsi untuk menangani submit form supplier
+const handleSupplierSubmit = async (formData) => {
+  try {
+    const newSupplier = await supplierStore.addSupplier(formData)
+    showSupplierForm.value = false
+
+    // Otomatis pilih supplier yang baru ditambahkan
+    if (newSupplier?.id) {
+      handleSupplierSelect(newSupplier)
+    }
+
+    notify({
+      title: 'Berhasil',
+      message: 'Supplier baru berhasil ditambahkan',
+      type: 'success'
+    })
+  } catch (error) {
+    notify({
+      title: 'Gagal',
+      message: error.message || 'Gagal menambahkan supplier',
+      type: 'error'
+    })
+  }
+}
+
+// Fungsi untuk menangani close form supplier
+const handleSupplierFormClose = () => {
+  showSupplierForm.value = false
+}
+
 // Lifecycle hooks
 onMounted(async () => {
   // Set initial state based on route
@@ -678,3 +855,22 @@ onBeforeUnmount(() => {
   }
 })
 </script>
+
+<style scoped>
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+
+

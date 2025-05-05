@@ -33,6 +33,10 @@ const props = defineProps({
   isEditDialog: {
     type: Boolean,
     default: false
+  },
+  closable: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -44,6 +48,9 @@ const show = computed({
 })
 
 const handleClose = () => {
+  if (props.persistent) return;
+  if (!props.closable) return;
+
   show.value = false
   emit('close')
 }
@@ -123,6 +130,7 @@ const transitionClasses = computed(() => ({
               {{ title }}
             </h3>
             <button
+              v-if="closable"
               type="button"
               class="text-secondary-400 hover:text-secondary-500 dark:text-secondary-400 dark:hover:text-secondary-300 focus:outline-none"
               @click="handleClose"

@@ -72,11 +72,48 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       }
     },
 
+    // Method untuk menambahkan produk
+    addProduct(product) {
+      if (!product || !product.id) return;
+
+      const newItem = {
+        product_id: product.id,
+        product: product,
+        quantity: 1,
+        price: product.hargabeli || 0,
+        subtotal: product.hargabeli || 0,
+        is_additional: this.form.purchase_order_id ? true : false // Tandai sebagai item tambahan jika dari PO
+      };
+
+      // Cek apakah produk sudah ada di daftar
+      const existingIndex = this.form.items.findIndex(item => item.product_id === product.id);
+
+      if (existingIndex >= 0) {
+        // Update quantity jika sudah ada
+        this.form.items[existingIndex].quantity += 1;
+        this.updateItemSubtotal(existingIndex);
+      } else {
+        // Tambahkan item baru
+        this.form.items.push(newItem);
+      }
+
+      this.isDirty = true;
+    },
+
     // Method untuk menghapus item
     removeItem(index) {
-      if (index >= 0 && index < this.form.items.length) {
-        this.form.items.splice(index, 1)
+      if (index < 0 || index >= this.form.items.length) return;
+
+      const item = this.form.items[index];
+
+      // Jika dari PO dan bukan item tambahan, cegah penghapusan
+      if (this.form.purchase_order_id && !item.is_additional) {
+        console.warn('Tidak dapat menghapus item yang berasal dari PO');
+        return;
       }
+
+      this.form.items.splice(index, 1);
+      this.isDirty = true;
     },
 
     // Method yang sudah ada
@@ -332,6 +369,38 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       // Default kembali ke daftar pembelian
       else {
         router.push('/admin/transaksi/pembelian')
+      }
+    },
+
+    // Method untuk memuat data dari PO
+    async loadFromPurchaseOrder(poId) {
+      try {
+        this.loading = true;
+        const response = await api.get(`/api/v1/purchase-orders/${poId}`);
+        const po = response.data;
+
+        // Set data supplier dan PO
+        this.form.purchase_order_id = po.id;
+        this.form.supplier_id = po.supplier_id;
+        this.form.supplier = po.supplier;
+
+        // Set items dari PO dengan flag is_additional = false
+        this.form.items = po.items.map(item => ({
+          product_id: item.product_id,
+          product: item.product,
+          quantity: item.quantity,
+          price: item.price,
+          subtotal: item.price * item.quantity,
+          is_additional: false // Tandai sebagai item dari PO
+        }));
+
+        this.isDirty = false;
+        return true;
+      } catch (error) {
+        console.error('Error loading PO data:', error);
+        return false;
+      } finally {
+        this.loading = false;
       }
     }
   }
