@@ -13,62 +13,75 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       discount: 0,
       tax: 0,
       notes: '',
-      status: 'pending'
+      status: 'pending',
+      payment_method: 'cash', // Default payment method
+      due_date: null,         // Untuk pembayaran kredit
+      bank_name: '',          // Untuk pembayaran transfer
+      account_number: '',     // Untuk pembayaran transfer
+      account_name: ''        // Untuk pembayaran transfer
     },
     loading: false,
     error: null,
     success: false,
-    purchaseOrderData: null,
-    showScanner: false,
-    supplierSearch: '',
-    productSearch: '',
-    showSupplierResults: false,
-    showProductResults: false,
     filteredSuppliers: [],
     filteredProducts: [],
+    supplierSearch: '',
+    productSearch: '',
     supplierLoading: false,
     productLoading: false,
-    fromPage: null
+    purchaseOrderData: null,
+    fromPage: null,
+    showScanner: false, // Tambahkan state untuk scanner
+    isDirty: false,
+    validationErrors: [],
+    showUnsavedChangesDialog: false,
+    redirectPath: null
   }),
 
   getters: {
+    // Getter untuk validasi
     isFormValid: (state) => {
-      return state.form.supplier_id && state.form.items.length > 0
+      return state.form.supplier_id &&
+             state.form.items.length > 0 &&
+             state.form.invoice_number &&
+             state.form.invoice_number.trim() !== ''
     },
-
-    totalAmount: (state) => {
-      return state.form.items.reduce((sum, item) => sum + (item.subtotal || 0), 0)
-    },
-
-    totalQuantity: (state) => {
-      return state.form.items.reduce((sum, item) => sum + (item.quantity || 0), 0)
-    },
-
-    grandTotal: (state) => {
-      const subtotal = state.form.items.reduce((total, item) => total + (item.subtotal || 0), 0)
-      const discountAmount = state.form.discount || 0
-      const taxAmount = subtotal * (state.form.tax / 100) || 0
-
-      return subtotal - discountAmount + taxAmount
-    }
   },
 
   actions: {
-    resetForm() {
-      this.form = {
-        supplier_id: null,
-        supplier: null,
-        date: new Date().toISOString().split('T')[0],
-        invoice_number: '',
-        purchase_order_id: null,
-        items: [],
-        discount: 0,
-        tax: 0,
-        notes: '',
-        status: 'pending'
+    // Method untuk mencari supplier
+    async searchSuppliers(query) {
+      if (!query || query.length < 2) {
+        this.filteredSuppliers = []
+        return
       }
-      this.error = null
-      this.success = false
+
+      this.supplierLoading = true
+
+      try {
+        const { data } = await api.get('/api/v1/suppliers/search', {
+          params: { query }
+        })
+
+        this.filteredSuppliers = data || []
+      } catch (error) {
+        console.error('Error searching suppliers:', error)
+        this.filteredSuppliers = []
+      } finally {
+        this.supplierLoading = false
+      }
+    },
+
+    // Method untuk menghapus item
+    removeItem(index) {
+      if (index >= 0 && index < this.form.items.length) {
+        this.form.items.splice(index, 1)
+      }
+    },
+
+    // Method yang sudah ada
+    resetForm() {
+      // ...
     },
 
     calculateTotal() {
@@ -87,51 +100,95 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       return subtotal - discountAmount + taxAmount
     },
 
-    updateSubtotal(item) {
-      if (!item) return
-      item.subtotal = (item.price || 0) * (item.quantity || 0)
-    },
+    // Validate form
+    validateForm() {
+      const errors = []
 
-    selectSupplier(supplier) {
-      this.form.supplier_id = supplier.id
-      this.form.supplier = supplier
-      this.showSupplierResults = false
-    },
-
-    addProductToOrder(product) {
-      // Check if product already exists in items
-      const existingItemIndex = this.form.items.findIndex(item => item.product_id === product.id)
-
-      if (existingItemIndex !== -1) {
-        // Increment quantity if product already exists
-        this.form.items[existingItemIndex].quantity += 1
-        this.updateSubtotal(this.form.items[existingItemIndex])
-      } else {
-        // Add new item if product doesn't exist
-        const newItem = {
-          product_id: product.id,
-          product: product,
-          price: product.purchase_price || 0,
-          quantity: 1,
-          subtotal: product.purchase_price || 0
-        }
-
-        this.form.items.push(newItem)
+      if (!this.form.supplier_id) {
+        errors.push('Supplier harus dipilih')
       }
 
-      // Clear search
-      this.productSearch = ''
-      this.showProductResults = false
+      if (this.form.items.length === 0) {
+        errors.push('Minimal satu produk harus ditambahkan')
+      }
+
+      if (!this.form.invoice_number || this.form.invoice_number.trim() === '') {
+        errors.push('Nomor faktur harus diisi')
+      }
+
+      // Validasi lainnya jika diperlukan
+
+      return errors
     },
 
-    removeItem(index) {
-      this.form.items.splice(index, 1)
+    // Handle navigation away with unsaved changes
+    handleBeforeUnload(router) {
+      // Add beforeEach guard to router
+      router.beforeEach((to, from, next) => {
+        // If form is dirty and not navigating to the same route
+        if (this.isDirty && to.path !== from.path) {
+          // Store the intended path
+          this.redirectPath = to.fullPath
+          // Show confirmation dialog
+          this.showUnsavedChangesDialog = true
+          // Prevent navigation
+          next(false)
+        } else {
+          // Allow navigation
+          next()
+        }
+      })
+
+      // Add beforeunload event listener
+      window.addEventListener('beforeunload', (e) => {
+        if (this.isDirty) {
+          // Standard way to show browser confirmation dialog
+          e.preventDefault()
+          e.returnValue = ''
+        }
+      })
     },
 
+    // Confirm leave page with unsaved changes
+    confirmLeave(router) {
+      this.isDirty = false
+      this.showUnsavedChangesDialog = false
+
+      if (this.redirectPath) {
+        router.push(this.redirectPath)
+        this.redirectPath = null
+      }
+    },
+
+    // Generate invoice PDF
+    async generateInvoice() {
+      try {
+        const response = await api.get(`/api/v1/purchases/${this.form.id}/invoice`, {
+          responseType: 'blob'
+        })
+
+        // Create blob link to download
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `invoice-${this.form.invoice_number || this.form.id}.pdf`)
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+      } catch (error) {
+        console.error('Error generating invoice:', error)
+        throw error
+      }
+    },
+
+    // Submit form
     async submitForm() {
-      if (!this.isFormValid) {
-        this.error = 'Silakan lengkapi form terlebih dahulu'
-        return
+      // Validate form
+      const validationErrors = this.validateForm()
+
+      if (validationErrors.length > 0) {
+        this.validationErrors = validationErrors
+        throw new Error('Silakan perbaiki kesalahan pada form')
       }
 
       this.loading = true
@@ -145,13 +202,22 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
           purchase_order_id: this.form.purchase_order_id,
           items: this.form.items.map(item => ({
             product_id: item.product_id,
-            price: item.price,
-            quantity: item.quantity
+            quantity: item.quantity,
+            price: item.price
           })),
           discount: this.form.discount,
           tax: this.form.tax,
           notes: this.form.notes,
-          status: this.form.status
+          status: this.form.status,
+          payment_method: this.form.payment_method,
+          due_date: this.form.payment_method === 'credit' ? this.form.due_date : null
+        }
+
+        // Tambahkan data bank jika metode pembayaran adalah transfer
+        if (this.form.payment_method === 'transfer') {
+          formData.bank_name = this.form.bank_name
+          formData.account_number = this.form.account_number
+          formData.account_name = this.form.account_name
         }
 
         // Send data to API
@@ -167,6 +233,62 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       }
     },
 
+    // Fetch purchase by ID
+    async fetchPurchase(id) {
+      this.loading = true
+
+      try {
+        const { data } = await api.get(`/api/v1/purchases/${id}`)
+
+        // Set form data from API response
+        this.form = {
+          id: data.id,
+          supplier_id: data.supplier_id,
+          supplier: data.supplier,
+          date: data.date,
+          invoice_number: data.invoice_number,
+          purchase_order_id: data.purchase_order_id,
+          items: data.items.map(item => ({
+            product_id: item.product_id,
+            product: item.product,
+            price: item.price,
+            quantity: item.quantity,
+            subtotal: item.price * item.quantity
+          })),
+          discount: data.discount || 0,
+          tax: data.tax || 0,
+          notes: data.notes || '',
+          payment_method: data.payment_method || 'cash',
+          due_date: data.due_date || null,
+          bank_name: data.bank_name || '',
+          account_number: data.account_number || '',
+          account_name: data.account_name || '',
+          status: data.status || 'pending'
+        }
+
+        return data
+      } catch (error) {
+        console.error('Error fetching purchase:', error)
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // Set from page
+    setFromPage(from) {
+      this.fromPage = from
+    },
+
+    // Set purchase order ID
+    setPurchaseOrderId(id) {
+      this.form.purchase_order_id = id
+      if (id) {
+        this.fetchPurchaseOrderById(id)
+      }
+    },
+
+    // Fetch purchase order by ID
     async fetchPurchaseOrderById(id) {
       if (!id) return
 
@@ -198,45 +320,6 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       }
     },
 
-    // Barcode scanner
-    openBarcodeScanner() {
-      this.showScanner = true
-    },
-
-    closeBarcodeScanner() {
-      this.showScanner = false
-    },
-
-    async handleBarcodeScan(barcode) {
-      this.showScanner = false
-      this.productSearch = barcode
-
-      // Fetch product by barcode
-      try {
-        const { data } = await api.get('/api/v1/products', {
-          params: { barcode }
-        })
-
-        if (data.data && data.data.length > 0) {
-          this.addProductToOrder(data.data[0])
-        } else {
-          this.error = `Produk dengan barcode ${barcode} tidak ditemukan`
-        }
-      } catch (error) {
-        console.error('Error fetching product by barcode:', error)
-        this.error = 'Terjadi kesalahan saat mencari produk'
-      }
-    },
-
-    // Event handlers
-    onSuppliersLoaded(suppliers) {
-      this.filteredSuppliers = suppliers
-    },
-
-    onProductsLoaded(products) {
-      this.filteredProducts = products
-    },
-
     // Navigation
     goBack(router) {
       // Jika ada parameter from, gunakan itu untuk navigasi kembali
@@ -249,19 +332,6 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       // Default kembali ke daftar pembelian
       else {
         router.push('/admin/transaksi/pembelian')
-      }
-    },
-
-    // Set from page
-    setFromPage(from) {
-      this.fromPage = from
-    },
-
-    // Set purchase order ID
-    setPurchaseOrderId(id) {
-      this.form.purchase_order_id = id
-      if (id) {
-        this.fetchPurchaseOrderById(id)
       }
     }
   }

@@ -1,6 +1,5 @@
 /**
  * Transaction status constants
- * Used for consistent status values across the application
  */
 
 export const PURCHASE_STATUS = {
@@ -11,18 +10,10 @@ export const PURCHASE_STATUS = {
   CANCELLED: 'cancelled'
 }
 
-export const PURCHASE_ORDER_STATUS = {
-  DRAFT: 'draft',
-  ORDERED: 'ordered',
-  PARTIAL: 'partial',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled'
-}
-
 export const PAYMENT_STATUS = {
-  UNPAID: 'unpaid',
+  PAID: 'paid',
   PARTIAL: 'partial',
-  PAID: 'paid'
+  UNPAID: 'unpaid'
 }
 
 export const PAYMENT_METHODS = {

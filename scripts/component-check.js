@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
 
 // Get staged .vue files
 const stagedFiles = execSync('git diff --cached --name-only --diff-filter=ACM "*.vue"')
@@ -16,7 +16,7 @@ if (stagedFiles.length === 0) {
 }
 
 // Load component reference
-const componentRefPath = path.join(__dirname, '../docs/component-reference.md');
+const componentRefPath = path.join(process.cwd(), 'docs/component-reference.md');
 let componentRefContent = '';
 try {
   componentRefContent = fs.readFileSync(componentRefPath, 'utf8');
@@ -44,12 +44,12 @@ for (const file of stagedFiles) {
   }
 
   const content = fs.readFileSync(file, 'utf8');
-  
+
   // Check if file contains any base component
-  const usesBaseComponents = baseComponents.some(comp => 
+  const usesBaseComponents = baseComponents.some(comp =>
     content.includes(`<${comp}`) || content.includes(`import ${comp}`)
   );
-  
+
   // If not using any base components, show a warning
   if (!usesBaseComponents && content.includes('<template>')) {
     console.warn(`\x1b[33mWarning: ${file} might not be using any base components.\x1b[0m`);
