@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
-    <BaseInput 
-      v-model="searchQuery" 
+    <BaseInput
+      v-model="searchQuery"
       :placeholder="placeholder"
       class="pr-10"
       :debounce="debounce"
@@ -13,7 +13,7 @@
         <i :class="[isLoading ? 'ri-loader-4-line animate-spin' : 'ri-search-line', 'text-secondary-400']"></i>
       </template>
     </BaseInput>
-    
+
     <!-- Results Dropdown -->
     <transition
       enter-active-class="transition ease-out duration-200"
@@ -23,7 +23,7 @@
       leave-from-class="opacity-100 translate-y-0"
       leave-to-class="opacity-0 translate-y-1"
     >
-      <div v-if="showResults" 
+      <div v-if="showResults"
            class="absolute z-10 mt-1 w-full bg-white dark:bg-dark-700 rounded-md shadow-lg max-h-60 overflow-auto border border-secondary-200 dark:border-secondary-700">
         <div v-if="isLoading" class="p-4 text-center text-secondary-500 dark:text-secondary-400">
           <div class="flex justify-center items-center space-x-2">
@@ -32,7 +32,7 @@
           </div>
         </div>
         <div v-else-if="displayItems.length > 0">
-          <div v-for="(item, index) in displayItems" :key="getItemKey(item, index)" 
+          <div v-for="(item, index) in displayItems" :key="getItemKey(item, index)"
                @click="onItemSelect(item)"
                @mouseover="selectedIndex = index"
                class="search-dropdown-item p-3 hover:bg-secondary-100 dark:hover:bg-secondary-700 cursor-pointer transition-colors duration-150 border-b border-secondary-100 dark:border-secondary-700 last:border-0"
@@ -47,7 +47,7 @@
           <p>{{ notFoundText }}</p>
           <div v-if="showAddButton" class="mt-3 flex flex-col gap-2">
             <p class="text-xs">{{ notFoundSubtext }}</p>
-            <button 
+            <button
               @click="onAddNew"
               class="mt-1 text-sm px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-white rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5 mx-auto"
             >
@@ -179,31 +179,31 @@ watch(() => props.items, () => {
 // Fungsi untuk fetch data dari API
 const fetchFromApi = async (query) => {
   if (!props.apiUrl || query.length < props.minSearchLength) return
-  
+
   internalLoading.value = true
-  
+
   try {
-    const params = { 
+    const params = {
       ...props.apiParams,
-      q: query 
+      q: query
     }
-    
+
     const response = await api.get(props.apiUrl, { params })
-    
+
     // Ekstrak data dari respons berdasarkan apiResponsePath
     let data = response
     // console.log('response', response);
-    
+
     const pathSegments = props.apiResponsePath.split('.')
     // console.log('pathSegments', pathSegments);
-    
+
     for (const segment of pathSegments) {
       // console.log('segment', segment);
       data = data[segment]
       // console.log('data', data);
       if (!data) break
     }
-    
+
     internalItems.value = Array.isArray(data) ? data : []
     // console.log('internalItems', internalItems);
     emit('items-loaded', internalItems.value)
@@ -246,8 +246,21 @@ const getItemLabel = (item) => {
   return item[props.itemLabel] || 'Unnamed'
 }
 
+// Fungsi untuk memfokuskan input
 const focus = () => {
-  inputRef.value?.focus()
+  if (inputRef.value && inputRef.value.$el) {
+    // Jika inputRef adalah komponen (BaseInput), coba akses elemen input di dalamnya
+    const inputElement = inputRef.value.$el.querySelector('input')
+    if (inputElement) {
+      inputElement.focus()
+      return
+    }
+  }
+
+  // Fallback: coba fokus langsung jika inputRef adalah elemen DOM
+  if (inputRef.value && typeof inputRef.value.focus === 'function') {
+    inputRef.value.focus()
+  }
 }
 
 const closeDropdown = () => {

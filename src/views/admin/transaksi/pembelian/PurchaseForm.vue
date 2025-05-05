@@ -196,26 +196,41 @@
             <div class="flex-1 relative">
               <SearchDropdown
                 ref="productSearchRef"
+                id="product-search"
                 v-model="productSearch"
                 placeholder="Cari produk untuk ditambahkan..."
-                :loading="productLoading"
-                :items="store.filteredProducts"
-                item-text="name"
-                @select="store.addProduct"
-                @search="store.searchProducts"
-              />
+                :debounce="300"
+                :min-search-length="3"
+                item-key="id"
+                item-label="name"
+                not-found-text="Produk tidak ditemukan"
+                not-found-subtext="Coba kata kunci lain atau tambahkan produk baru"
+                add-button-text="Tambah Produk Baru"
+                api-url="/api/v1/products/search"
+                api-response-path="data.data"
+                :api-params="{ per_page: 10 }"
+                :use-api="true"
+                @select="handleProductSelect"
+                @items-loaded="onProductsLoaded"
+              >
+                <template #item="{ item }">
+                  <div class="font-medium text-secondary-900 dark:text-white">{{ item.name }}</div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-secondary-500 dark:text-secondary-400">{{ item.barcode || 'Tidak ada barcode' }}</span>
+                    <span class="font-medium text-primary-600 dark:text-primary-400">Rp {{ formatCurrency(item.hargabeli) }}</span>
+                  </div>
+                </template>
+              </SearchDropdown>
             </div>
-            <BaseButton
+
+            <!-- Barcode Scanner Button -->
+            <button
               @click="showScanner = true"
-              variant="secondary"
-              size="md"
-              aria-label="Scan barcode"
+              class="px-3 py-2 bg-secondary-100 dark:bg-secondary-700 text-secondary-700 dark:text-secondary-300 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-600 transition-colors duration-200"
+              title="Scan Barcode"
             >
-              <template #icon-left>
-                <Icon name="Barcode" class="w-4 h-4" />
-              </template>
-              Scan
-            </BaseButton>
+              <Icon name="Scan" class="w-5 h-5" />
+            </button>
           </div>
 
           <!-- Product Table -->
@@ -854,6 +869,54 @@ const handleSupplierSubmit = async (formData) => {
 // Fungsi untuk menangani close form supplier
 const handleSupplierFormClose = () => {
   showSupplierForm.value = false
+}
+
+// Fungsi untuk menangani hasil scan barcode
+const handleBarcodeScan = (barcode) => {
+  showScanner.value = false
+  productSearch.value = barcode
+
+  // Gunakan ref untuk memanggil metode fetchFromApi pada komponen SearchDropdown
+  if (productSearchRef.value) {
+    productSearchRef.value.fetchFromApi(barcode)
+  }
+}
+
+// Handler untuk event items-loaded
+const onProductsLoaded = (products) => {
+  // Jika hanya ada satu produk dan itu hasil dari scan barcode, tambahkan langsung
+  if (products && products.length === 1 && productSearch.value.length > 5) {
+    store.addProduct(products[0])
+    productSearch.value = ''
+  }
+}
+
+// Fungsi untuk menangani pemilihan produk
+const handleProductSelect = (product) => {
+  // Tambahkan produk ke daftar
+  store.addProduct(product)
+
+  // Kosongkan text pencarian
+  productSearch.value = ''
+
+  // Fokus kembali ke input pencarian
+  // Gunakan nextTick untuk memastikan DOM telah diperbarui
+  nextTick(() => {
+    try {
+      // Coba gunakan metode focus yang diexpose oleh komponen
+      if (productSearchRef.value) {
+        productSearchRef.value.focus()
+      }
+    } catch (error) {
+      console.warn('Could not focus search input:', error)
+
+      // Fallback: cari input langsung
+      const searchInput = document.querySelector('#product-search input')
+      if (searchInput) {
+        searchInput.focus()
+      }
+    }
+  })
 }
 
 // Lifecycle hooks
