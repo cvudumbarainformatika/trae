@@ -1,46 +1,71 @@
 import axios from 'axios'
 
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+// Create axios instance
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   }
 })
 
-// Request interceptor
+// Add request interceptor to include auth token
 api.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token')
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers['Authorization'] = `Bearer ${token}`
     }
     return config
   },
-  error => Promise.reject(error)
-)
-
-// Response interceptor
-api.interceptors.response.use(
-  response => response,
   error => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage.removeItem('token')
-      window.location.href = '/login'
-    }
     return Promise.reject(error)
   }
 )
 
-export const authService = {
-  login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register', userData),
-  logout: () => api.post('/auth/logout')
-}
+// Add response interceptor to handle common errors
+api.interceptors.response.use(
+  response => {
+    return response
+  },
+  error => {
+    // Improve error handling
+    if (error.response) {
+      // Extract more detailed error message if available
+      const responseData = error.response.data
 
-export const userService = {
-  getProfile: () => api.get('/user/profile'),
-  updateProfile: (data) => api.put('/user/profile', data)
-}
+      if (responseData.message && responseData.error) {
+        // Combine message and error details
+        error.message = `${responseData.message} ${responseData.error}`
+      } else if (responseData.message) {
+        error.message = responseData.message
+      } else if (responseData.error) {
+        error.message = responseData.error
+      }
 
-export default api
+      // Handle validation errors
+      if (responseData.errors) {
+        // Convert validation errors object to array of error messages
+        const validationErrors = Object.values(responseData.errors).flat()
+        if (validationErrors.length > 0) {
+          error.validationErrors = validationErrors
+          error.message = validationErrors.join(', ')
+        }
+      }
+
+      // Handle authentication errors
+      if (error.response.status === 401) {
+        // Clear token and redirect to login
+        localStorage.removeItem('token')
+        window.location.href = '/login'
+      }
+    } else if (error.request) {
+      // The request was made but no response was received
+      error.message = 'Tidak ada respons dari server. Periksa koneksi internet Anda.'
+    }
+
+    return Promise.reject(error)
+  }
+)
+
+export { api }

@@ -1,17 +1,15 @@
 <template>
-  <BasePage
-    :title="pageTitle"
-    :subtitle="pageSubtitle"
-    :loading="loading"
-  >
+  <BasePage :title="pageTitle" :subtitle="pageSubtitle">
+
+
     <template #actions>
       <div class="flex items-center space-x-2">
         <!-- Back Button -->
         <BaseButton
-          @click="router.push('/admin/transaksi/pembelian')"
+          @click="handleGoBack"
           variant="secondary"
           size="md"
-          aria-label="Kembali ke daftar pembelian"
+          aria-label="Kembali"
         >
           <template #icon-left>
             <Icon name="ArrowLeft" class="w-4 h-4" />
@@ -39,7 +37,6 @@
           variant="primary"
           size="md"
           :loading="loading"
-          :disabled="!isFormValid || loading"
           aria-label="Simpan transaksi pembelian"
         >
           <template #icon-left>
@@ -192,46 +189,13 @@
           </div>
 
           <!-- Product Search - tetap aktif meskipun dari PO -->
-          <div class="mb-4 flex space-x-2">
-            <div class="flex-1 relative">
-              <SearchDropdown
-                ref="productSearchRef"
-                id="product-search"
-                v-model="productSearch"
-                placeholder="Cari produk untuk ditambahkan..."
-                :debounce="300"
-                :min-search-length="3"
-                item-key="id"
-                item-label="name"
-                not-found-text="Produk tidak ditemukan"
-                not-found-subtext="Coba kata kunci lain atau tambahkan produk baru"
-                add-button-text="Tambah Produk Baru"
-                api-url="/api/v1/products/search"
-                api-response-path="data.data"
-                :api-params="{ per_page: 10 }"
-                :use-api="true"
-                @select="handleProductSelect"
-                @items-loaded="onProductsLoaded"
-              >
-                <template #item="{ item }">
-                  <div class="font-medium text-secondary-900 dark:text-white">{{ item.name }}</div>
-                  <div class="flex justify-between text-sm">
-                    <span class="text-secondary-500 dark:text-secondary-400">{{ item.barcode || 'Tidak ada barcode' }}</span>
-                    <span class="font-medium text-primary-600 dark:text-primary-400">Rp {{ formatCurrency(item.hargabeli) }}</span>
-                  </div>
-                </template>
-              </SearchDropdown>
-            </div>
-
-            <!-- Barcode Scanner Button -->
-            <button
-              @click="showScanner = true"
-              class="px-3 py-2 bg-secondary-100 dark:bg-secondary-700 text-secondary-700 dark:text-secondary-300 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-600 transition-colors duration-200"
-              title="Scan Barcode"
-            >
-              <Icon name="Scan" class="w-5 h-5" />
-            </button>
-          </div>
+          <ProductSearch
+            ref="productSearchRef"
+            v-model="productSearch"
+            @add-product="store.addProduct"
+            @open-scanner="showScanner = true"
+            @products-loaded="onProductsLoaded"
+          />
 
           <!-- Product Table -->
           <div class="overflow-x-auto">
@@ -448,84 +412,126 @@
               </div>
             </div>
 
-            <!-- Payment Method -->
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <!-- Payment Method Section -->
+            <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm p-4 mb-4">
+              <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4">
                 Metode Pembayaran
-              </label>
-              <div class="flex flex-wrap gap-4">
-                <label class="inline-flex items-center">
-                  <input
-                    type="radio"
-                    v-model="form.payment_method"
-                    value="cash"
-                    class="form-radio text-primary-600"
+              </h3>
+
+              <div class="space-y-4">
+                <!-- Payment Method Selection -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Pilih Metode Pembayaran <span class="text-red-500">*</span>
+                  </label>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button
+                      @click="form.payment_method = 'cash'"
+                      :class="[
+                        'flex items-center justify-center px-4 py-2 rounded-lg border',
+                        form.payment_method === 'cash'
+                          ? 'bg-primary-50 border-primary-500 text-primary-700 dark:bg-primary-900 dark:border-primary-400 dark:text-primary-300'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 dark:bg-secondary-700 dark:border-secondary-600 dark:text-gray-300 dark:hover:bg-secondary-600'
+                      ]"
+                    >
+                      <i class="ri-money-dollar-box-line mr-2"></i>
+                      Tunai
+                    </button>
+                    <button
+                      @click="form.payment_method = 'transfer'"
+                      :class="[
+                        'flex items-center justify-center px-4 py-2 rounded-lg border',
+                        form.payment_method === 'transfer'
+                          ? 'bg-primary-50 border-primary-500 text-primary-700 dark:bg-primary-900 dark:border-primary-400 dark:text-primary-300'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 dark:bg-secondary-700 dark:border-secondary-600 dark:text-gray-300 dark:hover:bg-secondary-600'
+                      ]"
+                    >
+                      <i class="ri-bank-card-line mr-2"></i>
+                      Transfer
+                    </button>
+                    <button
+                      @click="form.payment_method = 'credit'"
+                      :class="[
+                        'flex items-center justify-center px-4 py-2 rounded-lg border',
+                        form.payment_method === 'credit'
+                          ? 'bg-primary-50 border-primary-500 text-primary-700 dark:bg-primary-900 dark:border-primary-400 dark:text-primary-300'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 dark:bg-secondary-700 dark:border-secondary-600 dark:text-gray-300 dark:hover:bg-secondary-600'
+                      ]"
+                    >
+                      <i class="ri-calendar-line mr-2"></i>
+                      Kredit
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Jumlah yang dibayarkan (untuk semua metode pembayaran) -->
+                <div>
+                  <label for="paid-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Jumlah Dibayarkan
+                  </label>
+                  <BaseInput
+                    id="paid-amount"
+                    v-model.number="form.paid"
+                    type="number"
+                    min="0"
+                    :max="store.calculateGrandTotal()"
+                    :disabled="form.payment_method === 'cash' || form.payment_method === 'transfer'"
+                    class="w-full"
                   />
-                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Tunai</span>
-                </label>
-                <label class="inline-flex items-center">
-                  <input
-                    type="radio"
-                    v-model="form.payment_method"
-                    value="transfer"
-                    class="form-radio text-primary-600"
+                  <p class="text-xs text-gray-500 mt-1">
+                    <span v-if="form.payment_method === 'cash' || form.payment_method === 'transfer'">
+                      Pembayaran penuh otomatis
+                    </span>
+                    <span v-else-if="form.payment_method === 'credit'">
+                      Masukkan jumlah yang sudah dibayarkan (uang muka)
+                    </span>
+                  </p>
+                </div>
+
+                <!-- Bank Details (for transfer payment) -->
+                <div v-if="form.payment_method === 'transfer'" class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <label for="bank-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Bank
+                  </label>
+                  <BaseInput
+                    id="bank-name"
+                    v-model="form.bank_name"
+                    placeholder="Nama Bank"
+                    class="w-full mb-2"
                   />
-                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Transfer Bank</span>
-                </label>
-                <label class="inline-flex items-center">
-                  <input
-                    type="radio"
-                    v-model="form.payment_method"
-                    value="credit"
-                    class="form-radio text-primary-600"
+                  <label for="account-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Nomor Rekening
+                  </label>
+                  <BaseInput
+                    id="account-number"
+                    v-model="form.account_number"
+                    placeholder="Nomor Rekening"
+                    class="w-full mb-2"
                   />
-                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Kredit</span>
-                </label>
+                  <label for="account-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Nama Pemilik Rekening
+                  </label>
+                  <BaseInput
+                    id="account-name"
+                    v-model="form.account_name"
+                    placeholder="Nama Pemilik Rekening"
+                    class="w-full"
+                  />
+                </div>
+
+                <!-- Due Date (for credit payment) -->
+                <div v-if="form.payment_method === 'credit'" class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <label for="due-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Tanggal Jatuh Tempo
+                  </label>
+                  <BaseInput
+                    id="due-date"
+                    v-model="form.due_date"
+                    type="date"
+                    class="w-full"
+                  />
+                </div>
               </div>
-            </div>
-
-            <!-- Bank Details (for transfer payment) -->
-            <div v-if="form.payment_method === 'transfer'" class="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <label for="bank-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Bank
-              </label>
-              <BaseInput
-                id="bank-name"
-                v-model="form.bank_name"
-                placeholder="Nama Bank"
-                class="w-full mb-2"
-              />
-              <label for="account-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Nomor Rekening
-              </label>
-              <BaseInput
-                id="account-number"
-                v-model="form.account_number"
-                placeholder="Nomor Rekening"
-                class="w-full mb-2"
-              />
-              <label for="account-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Nama Pemilik Rekening
-              </label>
-              <BaseInput
-                id="account-name"
-                v-model="form.account_name"
-                placeholder="Nama Pemilik Rekening"
-                class="w-full"
-              />
-            </div>
-
-            <!-- Due Date (for credit payment) -->
-            <div v-if="form.payment_method === 'credit'" class="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <label for="due-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Tanggal Jatuh Tempo
-              </label>
-              <BaseInput
-                id="due-date"
-                v-model="form.due_date"
-                type="date"
-                class="w-full"
-              />
             </div>
 
             <!-- Notes -->
@@ -586,20 +592,21 @@
       v-model="showPrintDialog"
       title="Cetak Faktur"
       :closable="true"
+      @close="handlePrintDialogClose"
     >
       <p class="mb-4 text-gray-600 dark:text-gray-300">
         Transaksi berhasil disimpan. Apakah Anda ingin mencetak faktur sekarang?
       </p>
       <div class="flex justify-end space-x-2">
         <BaseButton
-          @click="showPrintDialog = false"
+          @click="handlePrintDialogClose(false)"
           variant="secondary"
           size="md"
         >
           Nanti
         </BaseButton>
         <BaseButton
-          @click="printInvoice"
+          @click="handlePrintDialogClose(true)"
           variant="primary"
           size="md"
         >
@@ -633,6 +640,7 @@ import { api } from '@/services/api'
 import BarcodeScanner from '@/components/admin/BarcodeScanner.vue'
 import SupplierForm from '@/components/admin/suppliers/SupplierForm.vue'
 import { useSupplierStore } from '@/stores/admin/supplier'
+import ProductSearch from '@/components/admin/transaksi/pembelian/ProductSearch.vue'
 
 // Inisialisasi router dan route
 const router = useRouter()
@@ -707,20 +715,57 @@ const formatCurrency = (value) => {
  */
 const handleSubmit = async () => {
   try {
-    // Validasi form terlebih dahulu
-    const errors = store.validateForm ? store.validateForm() : []
+    // Reset validation errors
+    validationErrors.value = []
 
+    // Log form data untuk debugging
+    console.log('Form data before submit:', {
+      supplier_id: form.value.supplier_id,
+      purchase_order_id: form.value.purchase_order_id,
+      items_count: form.value.items.length,
+      payment_method: form.value.payment_method,
+      from_page: store.fromPage
+    })
+
+    // Validasi manual terlebih dahulu
+    const errors = []
+
+    // Validasi supplier
+    if (!form.value.supplier_id) {
+      errors.push('Supplier harus dipilih')
+    }
+
+    // Validasi items
+    if (!form.value.items || form.value.items.length === 0) {
+      errors.push('Minimal satu produk harus ditambahkan')
+    }
+
+    // Validasi invoice number
+    if (!form.value.invoice_number || form.value.invoice_number.trim() === '') {
+      errors.push('Nomor faktur harus diisi')
+    }
+
+    // Validasi metode pembayaran
+    if (!form.value.payment_method) {
+      errors.push('Metode pembayaran harus dipilih')
+    }
+
+    // Tampilkan error jika ada validasi yang gagal
     if (errors.length > 0) {
       validationErrors.value = errors
+
       notify({
         title: 'Validasi Gagal',
-        message: 'Silakan perbaiki kesalahan pada form',
+        message: errors.join(', '),
         type: 'error'
       })
       return
     }
 
-    await store.submitForm()
+    // Jika validasi berhasil, submit form
+    console.log('Form valid, submitting...')
+    const response = await store.submitForm()
+
     notify({
       title: 'Berhasil',
       message: editMode.value
@@ -728,8 +773,30 @@ const handleSubmit = async () => {
         : 'Transaksi pembelian berhasil disimpan',
       type: 'success'
     })
-    router.push('/transaksi/pembelian')
+
+    // Redirect ke halaman detail pembelian yang baru dibuat
+    if (response && response.id) {
+      // Tanyakan apakah ingin mencetak faktur sebelum redirect
+      if (!editMode.value) {
+        showPrintDialog.value = true
+        // Simpan ID untuk digunakan setelah dialog cetak ditutup
+        purchaseId.value = response.id
+      } else {
+        // Langsung redirect jika edit mode
+        router.push(`/admin/transaksi/pembelian/${response.id}`)
+      }
+    } else {
+      // Fallback jika tidak ada ID
+      router.push('/admin/transaksi/pembelian')
+    }
   } catch (error) {
+    console.error('Error submitting form:', error)
+
+    // Gunakan validationErrors dari store jika ada
+    if (store.validationErrors && store.validationErrors.length > 0) {
+      validationErrors.value = store.validationErrors
+    }
+
     notify({
       title: 'Gagal',
       message: error.message || 'Terjadi kesalahan saat menyimpan transaksi',
@@ -876,7 +943,7 @@ const handleBarcodeScan = (barcode) => {
   showScanner.value = false
   productSearch.value = barcode
 
-  // Gunakan ref untuk memanggil metode fetchFromApi pada komponen SearchDropdown
+  // Gunakan ref untuk memanggil metode fetchFromApi pada komponen ProductSearch
   if (productSearchRef.value) {
     productSearchRef.value.fetchFromApi(barcode)
   }
@@ -921,26 +988,33 @@ const handleProductSelect = (product) => {
 
 // Lifecycle hooks
 onMounted(async () => {
-  // Set initial state based on route
-  if (store.setFromPage) {
-    store.setFromPage(fromPage.value)
+  // Cek apakah ada parameter purchaseOrderId di URL
+  const purchaseOrderId = route.query.purchaseOrderId
+  const fromPage = route.query.from
+
+  if (purchaseOrderId) {
+    console.log('Setting purchase order ID:', purchaseOrderId)
+    // Set purchase order ID
+    store.setPurchaseOrderId(purchaseOrderId)
+
+    // Set from page untuk navigasi kembali
+    if (fromPage) {
+      store.setFromPage(fromPage)
+    }
   }
 
-  if (purchaseOrderId.value) {
-    store.setPurchaseOrderId(purchaseOrderId.value)
-  }
-
-  // If editing, fetch purchase data
-  if (editMode.value && route.params.id) {
+  // Jika mode edit, fetch data pembelian
+  if (route.params.id) {
     try {
       await store.fetchPurchase(route.params.id)
+      editMode.value = true
     } catch (error) {
+      console.error('Error fetching purchase:', error)
       notify({
-        title: 'Gagal',
+        title: 'Error',
         message: 'Gagal memuat data pembelian',
         type: 'error'
       })
-      router.push('/admin/transaksi/pembelian')
     }
   }
 })
@@ -952,6 +1026,107 @@ onBeforeUnmount(() => {
     showScanner.value = false
   }
 })
+
+/**
+ * Handle back button click
+ * Uses store's goBack method to navigate based on fromPage
+ */
+const handleGoBack = () => {
+  // Jika ada perubahan yang belum disimpan, tampilkan konfirmasi
+  if (store.isDirty) {
+    if (confirm('Ada perubahan yang belum disimpan. Apakah Anda yakin ingin kembali?')) {
+      store.goBack(router)
+    }
+  } else {
+    store.goBack(router)
+  }
+}
+
+// Watch payment method changes to set paid status
+watch(() => form.value.payment_method, (newMethod) => {
+  // Jika metode pembayaran adalah cash atau transfer, maka paid = total invoice
+  // Jika metode pembayaran adalah credit, maka paid = 0
+  form.value.paid = newMethod === 'cash' || newMethod === 'transfer'
+    ? store.calculateGrandTotal()
+    : 0
+
+  // Reset field yang tidak diperlukan berdasarkan metode pembayaran
+  if (newMethod !== 'credit') {
+    form.value.due_date = null
+  }
+
+  if (newMethod !== 'transfer') {
+    form.value.bank_name = ''
+    form.value.account_number = ''
+    form.value.account_name = ''
+  }
+})
+
+// Watch untuk items, discount, dan tax untuk update paid jika cash/transfer
+watch([
+  () => form.value.items,
+  () => form.value.discount,
+  () => form.value.tax
+], () => {
+  // Jika metode pembayaran adalah cash atau transfer, update paid
+  if (form.value.payment_method === 'cash' || form.value.payment_method === 'transfer') {
+    form.value.paid = store.calculateGrandTotal()
+  }
+}, { deep: true })
+
+// Method untuk menghapus relasi dengan PO
+const clearPurchaseOrderRelation = () => {
+  // Konfirmasi penghapusan
+  if (confirm('Apakah Anda yakin ingin menghapus relasi dengan Purchase Order? Item dari PO akan tetap ada tetapi tidak akan terkait dengan PO.')) {
+    // Hapus purchase_order_id
+    store.clearPurchaseOrderId()
+
+    // Ubah semua item menjadi item biasa (bukan dari PO)
+    form.value.items = form.value.items.map(item => {
+      const newItem = { ...item, is_additional: false }
+      // Hapus purchase_order_item_id
+      delete newItem.purchase_order_item_id
+      return newItem
+    })
+
+    // Set fromPage ke null
+    store.setFromPage(null)
+
+    notify({
+      title: 'Berhasil',
+      message: 'Relasi dengan Purchase Order berhasil dihapus',
+      type: 'success'
+    })
+  }
+}
+
+/**
+ * Handles print dialog close
+ * @param {Boolean} shouldPrint - Whether to print the invoice
+ */
+const handlePrintDialogClose = async (shouldPrint) => {
+  showPrintDialog.value = false
+
+  if (shouldPrint && purchaseId.value) {
+    try {
+      await store.generateInvoice()
+    } catch (error) {
+      notify({
+        title: 'Gagal',
+        message: 'Gagal mencetak faktur',
+        type: 'error'
+      })
+    }
+  }
+
+  // Redirect ke halaman detail pembelian setelah dialog ditutup
+  if (purchaseId.value) {
+    router.push(`/admin/transaksi/pembelian/${purchaseId.value}`)
+  } else {
+    // Fallback jika tidak ada ID
+    router.push('/admin/transaksi/pembelian')
+  }
+}
 </script>
 
 <style scoped>

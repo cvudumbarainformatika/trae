@@ -33,9 +33,9 @@
 
 
 
-          <!-- Tombol untuk membuat pembelian aktual (hanya muncul jika status received) -->
+          <!-- Tombol untuk membuat pembelian aktual (hanya muncul jika status received dan belum ada pembelian) -->
           <BaseButton
-            v-if="purchaseOrder?.status === 'received'"
+            v-if="purchaseOrder?.status === 'received' && (!purchaseOrder?.purchases?.length || purchaseOrder?.purchases?.length === 0)"
             @click="createPurchase"
             variant="primary"
             size="sm"
@@ -45,6 +45,27 @@
             </template>
             <div class="ml-2">Buat Pembelian</div>
           </BaseButton>
+
+          <!-- Informasi jika sudah ada pembelian -->
+          <div
+            v-if="purchaseOrder?.status === 'received' && purchaseOrder?.purchases && purchaseOrder?.purchases.length > 0"
+            class="flex items-center gap-2"
+          >
+            <span class="text-sm text-green-600 dark:text-green-400 flex items-center">
+              <Icon name="CheckCircle" class="w-4 h-4 mr-1" />
+              Sudah dibuat pembelian
+            </span>
+            <BaseButton
+              @click="viewPurchase(purchaseOrder?.purchases[0].id)"
+              variant="secondary"
+              size="sm"
+            >
+              <template #icon-left>
+                <Icon name="Eye" class="w-4 h-4" />
+              </template>
+              <div class="ml-2">Lihat Pembelian</div>
+            </BaseButton>
+          </div>
 
           <!-- Tombol untuk mengubah status PO -->
           <BaseButton
@@ -737,6 +758,14 @@ const editPurchaseOrder = async () => {
   } catch (error) {
     console.error('Error preparing purchase order for edit:', error)
   }
+}
+
+// Fungsi untuk melihat detail pembelian
+const viewPurchase = (purchaseId) => {
+  if (!purchaseId) return
+
+  // Redirect ke halaman detail pembelian
+  router.push(`/admin/transaksi/pembelian/${purchaseId}`)
 }
 
 // Gabungkan kedua watcher

@@ -1,13 +1,14 @@
 import { ref } from 'vue'
 
+// Buat state global untuk notifikasi
+const notifications = ref([])
+
 /**
  * Composable for handling notifications
  *
  * @returns {Object} Notification methods and state
  */
 export function useNotification() {
-  const notifications = ref([])
-
   /**
    * Add a new notification
    *

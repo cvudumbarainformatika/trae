@@ -34,15 +34,68 @@ const toPascalCase = (str) => {
     .join('')
 }
 
+// Mapping untuk nama ikon yang sering salah
+const iconNameMapping = {
+  'InformationCircle': 'Info',
+  'Information': 'Info',
+  'InfoCircle': 'Info',
+  'Trash2': 'Trash',
+  'TrashCan': 'Trash',
+  'Delete': 'Trash',
+  'Save': 'Check',
+  'Close': 'X',
+  'Cancel': 'X',
+  'Add': 'Plus',
+  'New': 'Plus',
+  'Create': 'Plus',
+  'Update': 'Edit',
+  'Modify': 'Edit',
+  'Remove': 'Trash',
+  'Back': 'ArrowLeft',
+  'Next': 'ArrowRight',
+  'Forward': 'ArrowRight',
+  'Previous': 'ArrowLeft',
+  'Print': 'Printer',
+  'Download': 'DownloadCloud',
+  'Upload': 'UploadCloud',
+  'Settings': 'Settings',
+  'Config': 'Settings',
+  'Configuration': 'Settings',
+  'User': 'User',
+  'Profile': 'User',
+  'Account': 'User',
+  'Search': 'Search',
+  'Find': 'Search',
+  'Filter': 'Filter',
+  'Sort': 'ArrowUpDown',
+  'SortAsc': 'ArrowUp',
+  'SortDesc': 'ArrowDown',
+  'Calendar': 'Calendar',
+  'Date': 'Calendar',
+  'Time': 'Clock',
+  'Clock': 'Clock',
+  'Warning': 'AlertTriangle',
+  'Error': 'AlertCircle',
+  'Success': 'CheckCircle',
+  'Info': 'Info'
+}
+
 const icon = computed(() => {
-  const iconName = toPascalCase(props.name)
+  let iconName = toPascalCase(props.name)
+
+  // Cek apakah nama ikon perlu dipetakan ke nama yang benar
+  if (iconNameMapping[iconName]) {
+    iconName = iconNameMapping[iconName]
+  }
+
   // Check if the icon exists in LucideIcons
   if (LucideIcons[iconName]) {
     return LucideIcons[iconName]
   }
-  console.warn(`Icon '${iconName}' not found in Lucide icons`)
-  // Return null if icon not found to prevent rendering errors
-  return null
+
+  console.warn(`Icon '${iconName}' not found in Lucide icons. Using 'HelpCircle' as fallback.`)
+  // Return a fallback icon if the requested icon is not found
+  return LucideIcons.HelpCircle
 })
 </script>
 

@@ -3,7 +3,7 @@
     <template #actions>
       <div class="flex space-x-2">
         <BaseButton
-          @click="router.push('/transaksi/pembelian')"
+          @click="router.push('/admin/transaksi/pembelian')"
           variant="secondary"
           size="md"
         >

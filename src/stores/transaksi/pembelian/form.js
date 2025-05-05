@@ -14,11 +14,12 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       tax: 0,
       notes: '',
       status: 'pending',
-      payment_method: 'cash', // Default payment method
-      due_date: null,         // Untuk pembayaran kredit
-      bank_name: '',          // Untuk pembayaran transfer
-      account_number: '',     // Untuk pembayaran transfer
-      account_name: ''        // Untuk pembayaran transfer
+      payment_method: '',
+      due_date: null,
+      bank_name: '',
+      account_number: '',
+      account_name: '',
+      paid: 0  // Jumlah yang sudah dibayarkan (bukan status 0/1)
     },
     loading: false,
     error: null,
@@ -44,7 +45,8 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       return state.form.supplier_id &&
              state.form.items.length > 0 &&
              state.form.invoice_number &&
-             state.form.invoice_number.trim() !== ''
+             state.form.invoice_number.trim() !== '' &&
+             state.form.payment_method !== ''
     },
   },
 
@@ -118,7 +120,46 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
 
     // Method yang sudah ada
     resetForm() {
-      // ...
+      // Hanya pertahankan purchase_order_id jika fromPage adalah 'po-detail' atau 'po-list'
+      const shouldKeepPurchaseOrderId = this.fromPage === 'po-detail' || this.fromPage === 'po-list'
+      const oldPurchaseOrderId = shouldKeepPurchaseOrderId ? this.form.purchase_order_id : null
+
+      this.form = {
+        supplier_id: null,
+        supplier: null,
+        date: new Date().toISOString().split('T')[0],
+        invoice_number: '',
+        purchase_order_id: oldPurchaseOrderId,
+        items: [],
+        discount: 0,
+        tax: 0,
+        notes: '',
+        status: 'pending',
+        payment_method: '',
+        due_date: null,
+        bank_name: '',
+        account_number: '',
+        account_name: '',
+        paid: 0  // Jumlah yang sudah dibayarkan
+      }
+
+      this.loading = false
+      this.error = null
+      this.success = false
+      this.filteredSuppliers = []
+      this.filteredProducts = []
+      this.supplierSearch = ''
+      this.productSearch = ''
+      this.supplierLoading = false
+      this.productLoading = false
+      this.isDirty = false
+      this.validationErrors = []
+
+      if (shouldKeepPurchaseOrderId) {
+        console.log('Form reset, purchase_order_id preserved:', this.form.purchase_order_id)
+      } else {
+        console.log('Form reset, purchase_order_id cleared')
+      }
     },
 
     calculateTotal() {
@@ -153,7 +194,44 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
         errors.push('Nomor faktur harus diisi')
       }
 
-      // Validasi lainnya jika diperlukan
+      // Validasi metode pembayaran
+      if (!this.form.payment_method) {
+        errors.push('Metode pembayaran harus dipilih')
+      }
+
+      // Validasi tambahan untuk metode pembayaran kredit
+      if (this.form.payment_method === 'credit' && !this.form.due_date) {
+        errors.push('Tanggal jatuh tempo harus diisi untuk pembayaran kredit')
+      }
+
+      // Validasi tambahan untuk metode pembayaran transfer
+      if (this.form.payment_method === 'transfer') {
+        if (!this.form.bank_name) {
+          errors.push('Nama bank harus diisi untuk pembayaran transfer')
+        }
+        if (!this.form.account_number) {
+          errors.push('Nomor rekening harus diisi untuk pembayaran transfer')
+        }
+        if (!this.form.account_name) {
+          errors.push('Nama pemilik rekening harus diisi untuk pembayaran transfer')
+        }
+      }
+
+      // Validasi format data
+      if (typeof this.form.paid !== 'number') {
+        console.warn('Field paid bukan number, mengkonversi dari', typeof this.form.paid, 'ke number')
+        this.form.paid = this.form.paid ? 1 : 0
+      }
+
+      if (typeof this.form.discount !== 'number') {
+        console.warn('Field discount bukan number, mengkonversi dari', typeof this.form.discount)
+        this.form.discount = Number(this.form.discount) || 0
+      }
+
+      if (typeof this.form.tax !== 'number') {
+        console.warn('Field tax bukan number, mengkonversi dari', typeof this.form.tax)
+        this.form.tax = Number(this.form.tax) || 0
+      }
 
       return errors
     },
@@ -228,6 +306,9 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
         throw new Error('Silakan perbaiki kesalahan pada form')
       }
 
+      // Ensure correct data types
+      this.ensureCorrectDataTypes()
+
       this.loading = true
 
       try {
@@ -236,18 +317,35 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
           supplier_id: this.form.supplier_id,
           date: this.form.date,
           invoice_number: this.form.invoice_number,
-          purchase_order_id: this.form.purchase_order_id,
-          items: this.form.items.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            price: item.price
-          })),
+          items: this.form.items.map(item => {
+            const itemData = {
+              product_id: item.product_id,
+              qty: item.quantity, // Ubah dari quantity menjadi qty sesuai ekspektasi backend
+              price: item.price
+            }
+
+            // Tambahkan purchase_order_item_id jika ada dan item bukan tambahan
+            if (this.form.purchase_order_id && item.purchase_order_item_id && !item.is_additional) {
+              itemData.purchase_order_item_id = item.purchase_order_item_id
+            }
+
+            return itemData
+          }),
           discount: this.form.discount,
           tax: this.form.tax,
           notes: this.form.notes,
           status: this.form.status,
           payment_method: this.form.payment_method,
-          due_date: this.form.payment_method === 'credit' ? this.form.due_date : null
+          due_date: this.form.payment_method === 'credit' ? this.form.due_date : null,
+          // Untuk cash/transfer, paid = total invoice. Untuk credit, paid = 0
+          paid: (this.form.payment_method === 'cash' || this.form.payment_method === 'transfer')
+            ? this.calculateGrandTotal()
+            : 0
+        }
+
+        // Hanya tambahkan purchase_order_id jika ada nilainya
+        if (this.form.purchase_order_id) {
+          formData.purchase_order_id = this.form.purchase_order_id
         }
 
         // Tambahkan data bank jika metode pembayaran adalah transfer
@@ -257,14 +355,45 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
           formData.account_name = this.form.account_name
         }
 
+        console.log('Sending data to API:', formData)
+
         // Send data to API
         const { data } = await api.post('/api/v1/purchases', formData)
         this.success = true
-        return data
+        return data // Pastikan mengembalikan data respons API
       } catch (error) {
-        this.error = error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
+        // Improved error handling
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          const responseData = error.response.data
+
+          // Log full error response for debugging
+          console.error('Full API error response:', responseData)
+
+          if (responseData.message) {
+            this.error = responseData.message
+          } else if (responseData.error) {
+            this.error = responseData.error
+          } else {
+            this.error = `Error ${error.response.status}: ${error.response.statusText}`
+          }
+
+          // If there are validation errors, extract them
+          if (responseData.errors) {
+            this.validationErrors = Object.values(responseData.errors).flat()
+            console.error('Validation errors:', this.validationErrors)
+          }
+        } else if (error.request) {
+          // The request was made but no response was received
+          this.error = 'Tidak ada respons dari server. Periksa koneksi internet Anda.'
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          this.error = error.message || 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
+        }
+
         console.error('Error submitting form:', error)
-        throw error
+        throw new Error(this.error)
       } finally {
         this.loading = false
       }
@@ -295,12 +424,13 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
           discount: data.discount || 0,
           tax: data.tax || 0,
           notes: data.notes || '',
-          payment_method: data.payment_method || 'cash',
+          payment_method: data.payment_method || '',
           due_date: data.due_date || null,
           bank_name: data.bank_name || '',
           account_number: data.account_number || '',
           account_name: data.account_name || '',
-          status: data.status || 'pending'
+          status: data.status || 'pending',
+          paid: Number(data.paid) || 0  // Jumlah yang sudah dibayarkan
         }
 
         return data
@@ -339,13 +469,18 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
         this.form.supplier_id = data.supplier_id
         this.form.supplier = data.supplier
 
+        // Set purchase_order_id explicitly
+        this.form.purchase_order_id = id
+
         // Set items from purchase order
         this.form.items = data.items.map(item => ({
           product_id: item.product_id,
           product: item.product,
           price: item.price,
           quantity: item.received_quantity || item.quantity,
-          subtotal: (item.price * (item.received_quantity || item.quantity))
+          subtotal: (item.price * (item.received_quantity || item.quantity)),
+          purchase_order_item_id: item.id, // Tambahkan purchase_order_item_id
+          is_additional: false // Item dari PO bukan item tambahan
         }))
 
         return data
@@ -391,8 +526,11 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
           quantity: item.quantity,
           price: item.price,
           subtotal: item.price * item.quantity,
+          purchase_order_item_id: item.id, // Tambahkan purchase_order_item_id
           is_additional: false // Tandai sebagai item dari PO
         }));
+
+        console.log('Loaded PO data, purchase_order_id set to:', this.form.purchase_order_id);
 
         this.isDirty = false;
         return true;
@@ -402,6 +540,29 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       } finally {
         this.loading = false;
       }
+    },
+
+    // Clear purchase order ID
+    clearPurchaseOrderId() {
+      this.form.purchase_order_id = null
+      this.purchaseOrderData = null
+      console.log('purchase_order_id cleared')
+    },
+
+    // Ensure correct data types before submitting
+    ensureCorrectDataTypes() {
+      // Ensure numeric fields are numbers
+      this.form.paid = Number(this.form.paid) || 0
+      this.form.discount = Number(this.form.discount) || 0
+      this.form.tax = Number(this.form.tax) || 0
+
+      // Ensure items have correct data types
+      this.form.items = this.form.items.map(item => ({
+        ...item,
+        quantity: Number(item.quantity) || 0,
+        price: Number(item.price) || 0,
+        subtotal: Number(item.price * item.quantity) || 0
+      }))
     }
   }
 })
