@@ -1,9 +1,10 @@
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { api } from '@/services/api'
 
 export const usePurchaseStore = defineStore('purchase', {
   state: () => ({
     purchases: [],
+    meta:null,
     params: {
       page: 1,
       per_page: 10,
@@ -34,7 +35,7 @@ export const usePurchaseStore = defineStore('purchase', {
         itemsPerPage: state.pagination.itemsPerPage
       }
     },
-    
+
     filteredPurchases: (state) => {
       return state.purchases
     }
@@ -43,15 +44,15 @@ export const usePurchaseStore = defineStore('purchase', {
   actions: {
     async fetchPurchases() {
       this.loading = true
-      
+
       try {
-        const { data } = await api.get('/api/v1/purchases', { 
-          params: this.params 
+        const { data } = await api.get('/api/v1/purchases', {
+          params: this.params
         })
-        
+
         this.purchases = data?.data || []
         this.pagination.totalItems = parseInt(data?.meta?.total) || 0
-        
+        this.meta = data?.meta || null
         return this.purchases
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch purchases'
@@ -61,10 +62,10 @@ export const usePurchaseStore = defineStore('purchase', {
         this.loading = false
       }
     },
-    
+
     async fetchPurchaseById(id) {
       this.loading = true
-      
+
       try {
         const { data } = await api.get(`/api/v1/purchases/${id}`)
         this.selectedPurchase = data
@@ -77,10 +78,10 @@ export const usePurchaseStore = defineStore('purchase', {
         this.loading = false
       }
     },
-    
+
     async deletePurchase(id) {
       this.loading = true
-      
+
       try {
         await api.delete(`/api/v1/purchases/${id}`)
         // Remove from local array
@@ -94,19 +95,19 @@ export const usePurchaseStore = defineStore('purchase', {
         this.loading = false
       }
     },
-    
+
     async updatePurchaseStatus(id, status) {
       this.loading = true
-      
+
       try {
         const { data } = await api.put(`/api/v1/purchases/${id}/status`, { status })
-        
+
         // Update in local array
         const index = this.purchases.findIndex(purchase => purchase.id === id)
         if (index !== -1) {
           this.purchases[index].status = status
         }
-        
+
         return data
       } catch (error) {
         this.error = error.response?.data?.message || `Failed to update purchase status`
@@ -116,33 +117,52 @@ export const usePurchaseStore = defineStore('purchase', {
         this.loading = false
       }
     },
-    
+
     setPage(page) {
       this.pagination.page = page
       this.params.page = page
       this.fetchPurchases()
     },
-    
+
     setSearchQuery(query) {
       this.params.q = query
       this.params.page = 1
       this.pagination.page = 1
       this.fetchPurchases()
     },
-    
+
     setStatusFilter(status) {
       this.params.status = status
       this.params.page = 1
       this.pagination.page = 1
       this.fetchPurchases()
     },
-    
+
     setDateRange(startDate, endDate) {
       this.params.start_date = startDate
       this.params.end_date = endDate
       this.params.page = 1
       this.pagination.page = 1
       this.fetchPurchases()
+    },
+
+    handlePageChange (page) {
+      if (page < 1 || page > Math.ceil(this.pagination.totalItems / this.pagination.itemsPerPage)) {
+        return
+      }
+
+      this.pagination = {
+        ...this.pagination,
+        page
+      }
+
+      this.params.page = page
+
+      // this.fetchPurchases()
     }
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(usePurchaseStore, import.meta.hot))
+}

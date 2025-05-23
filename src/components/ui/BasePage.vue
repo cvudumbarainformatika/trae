@@ -15,7 +15,7 @@
     </div>
 
     <!-- Search Section -->
-    <div v-if="$slots.search" class="max-w-md">
+    <div v-if="$slots.search" class="max-w-full">
       <slot name="search"></slot>
     </div>
 
