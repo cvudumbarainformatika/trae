@@ -23,7 +23,8 @@ export const usePurchaseStore = defineStore('purchase', {
     loading: false,
     error: null,
     selectedPurchase: null,
-    showDetailDialog: false
+    showDetailDialog: false,
+    detail:null
   }),
 
   getters: {
@@ -118,6 +119,15 @@ export const usePurchaseStore = defineStore('purchase', {
       }
     },
 
+    showPurchaseDetail(item) {
+      this.selectedPurchase = item
+      this.showDetailDialog = true
+    },
+
+    closeDetailDialog() {
+      this.showDetailDialog = false
+    },
+
     setPage(page) {
       this.pagination.page = page
       this.params.page = page
@@ -159,7 +169,7 @@ export const usePurchaseStore = defineStore('purchase', {
       this.params.page = page
 
       // this.fetchPurchases()
-    }
+    },
   }
 })
 

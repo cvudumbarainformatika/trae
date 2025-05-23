@@ -14,71 +14,68 @@
       </BaseButton>
     </template>
 
-    <template #search>
-        <div class="flex items-center justify-between gap-2 w-full">
-          <!-- Search Input (dengan lebar yang cukup) -->
-          <div class="relative rounded-full shadow-lg w-3/4">
-            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-              <Icon name="Search" class="w-5 h-5 text-indigo-400" />
-            </div>
-            <BaseInput
-              v-model="params.q"
-              placeholder="Cari pembelian..."
-              type="text"
-              clearable
-              :debounce="500"
-              @update:model-value="fetchPurchases"
-            />
-          </div>
-          <!-- Filter Periode -->
-          <BaseDateRangeFilter
-            v-model="dateRange"
-            @change="handleDateRangeChange"
-            default-period="month"
-          />
+    <!-- Search dan Filter Periode di luar BaseList -->
+    <div class="flex items-center justify-between gap-2 w-full mb-4">
+      <!-- Search Input (dengan lebar yang cukup) -->
+      <div class="relative rounded-full shadow-lg w-3/4">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+          <Icon name="Search" class="w-5 h-5 text-indigo-400" />
         </div>
-      </template>
-
-
-       <!-- Status Filter Buttons -->
-       <div class="flex flex-wrap gap-2 mb-4 mt-2">
-        <BaseButton
-          variant="ghost"
-          size="sm"
-          class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300"
-          :class="{ 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700': params.status === 'all' }"
-          @click="params.status = 'semua'"
-        >
-          <span class="relative z-10">Semua</span>
-          <span class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
-        </BaseButton>
-        <BaseButton
-          @click="params.status = 'langsung'"
-          variant="ghost"
-          size="sm"
-          class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
-          :class="{ 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700': params.status === 'langsung' }"
-        >
-          <span class="relative z-10 flex items-center">
-            <span class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>
-            Pembelian Langsung
-          </span>
-          <span class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
-        </BaseButton>
-        <BaseButton
-          @click="params.status = 'order'"
-          variant="ghost"
-          size="sm"
-          class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
-          :class="{ 'bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700': params.status === 'completed' }"
-        >
-          <span class="relative z-10 flex items-center">
-            <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-            Dari Order
-          </span>
-          <span class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
-        </BaseButton>
+        <BaseInput
+          v-model="params.q"
+          placeholder="Cari pembelian..."
+          type="text"
+          clearable
+          :debounce="500"
+          @update:model-value="fetchPurchases"
+        />
       </div>
+      <!-- Filter Periode -->
+      <BaseDateRangeFilter
+        v-model="dateRange"
+        @change="handleDateRangeChange"
+        default-period="month"
+      />
+    </div>
+    <!-- Status Filter Buttons -->
+    <div class="flex flex-wrap gap-2 mb-4 mt-2">
+      <BaseButton
+        variant="ghost"
+        size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300"
+        :class="{ 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700': params.status === 'all' }"
+        @click="params.status = 'semua'"
+      >
+        <span class="relative z-10">Semua</span>
+        <span class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+      </BaseButton>
+      <BaseButton
+        @click="params.status = 'langsung'"
+        variant="ghost"
+        size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
+        :class="{ 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700': params.status === 'langsung' }"
+      >
+        <span class="relative z-10 flex items-center">
+          <span class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>
+          Pembelian Langsung
+        </span>
+        <span class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+      </BaseButton>
+      <BaseButton
+        @click="params.status = 'order'"
+        variant="ghost"
+        size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
+        :class="{ 'bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700': params.status === 'completed' }"
+      >
+        <span class="relative z-10 flex items-center">
+          <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+          Dari Order
+        </span>
+        <span class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+      </BaseButton>
+    </div>
 
     <!-- Futuristic Purchase List Section -->
     <BaseList
@@ -87,10 +84,7 @@
       empty-icon="PackageOpen"
       empty-title="Belum Ada Pembelian"
       empty-description="Belum ada transaksi pembelian yang tersedia. Klik tombol 'Tambah Pembelian' untuk membuat transaksi baru."
-      @page-change="handlePageChange"
     >
-
-
       <template #item="{ item }">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 group hover:border-indigo-200 dark:hover:border-indigo-800">
           <div class="flex flex-col md:flex-row">
@@ -130,7 +124,6 @@
                     <Icon name="Receipt" class="w-4 h-4" />
                     <div class="text-base">{{ item.invoice_number || `INV-${item.id}` }}</div>
                   </div>
-
                   <span class="text-xs px-2 py-0.5 rounded-full"
                       :class="{
                         'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.purchase_order !== null,
@@ -141,7 +134,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                   <IconButton
-                    @click="viewPurchaseDetail(item)"
+                    @click="showPurchaseDetail(item)"
                     variant="primary"
                     size="sm"
                     title="Lihat Detail"
@@ -179,17 +172,20 @@
         </div>
       </template>
     </BaseList>
-
     <BasePagination v-model:current-page="pagination.page"
       :total-items="pagination.totalItems"
       :items-per-page="pagination.itemsPerPage"
       @update:current-page="handlePageChange"
     />
+    <!-- Dialog Detail Pembelian -->
+    <BaseDialog :title="`Detail Pembelian # ${selectedPurchase?.unique_code}`" v-model="showDetailDialog" max-width="4xl" @close="closeDetailDialog">
+      <DialogPurchaseDetail v-if="selectedPurchase" :purchase="selectedPurchase" />
+    </BaseDialog>
   </BasePage>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, defineAsyncComponent } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import BasePage from '@/components/ui/BasePage.vue'
@@ -201,10 +197,12 @@ import {usePurchaseStore} from '@/stores/transaksi/pembelian'
 
 const router = useRouter()
 
+const DialogPurchaseDetail = defineAsyncComponent(() => import('./DialogPurchaseDetail.vue'))
+
 
 const store = usePurchaseStore()
-const { fetchPurchases } = store
-const { purchases, pagination, params, loading } = storeToRefs(store)
+const { fetchPurchases, showPurchaseDetail, handlePageChange, closeDetailDialog } = store
+const { purchases, pagination, params, loading, showDetailDialog, selectedPurchase } = storeToRefs(store)
 
 
 
@@ -240,12 +238,6 @@ function getMonthStartDate() {
 function getMonthEndDate() {
   const now = new Date()
   return new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
-}
-
-// View purchase detail
-const viewPurchaseDetail = (item) => {
-  // TODO: Implement detail dialog/modal
-  alert('Fitur detail pembelian belum tersedia.');
 }
 
 // Complete purchase
