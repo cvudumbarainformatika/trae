@@ -92,8 +92,31 @@ const routes = [
         component: PurchaseDetail,
         meta: { requiresAuth: true }
       },
-
-
+      // Tambahkan rute untuk penjualan
+      {
+        path: 'transaksi/penjualan',
+        component: () => import('../views/admin/transaksi/penjualan/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'sales-list',
+            component: () => import('../views/admin/transaksi/penjualan/SalesList.vue'),
+            meta: { requiresAuth: true }
+          },
+          {
+            path: 'tambah',
+            name: 'sales-form',
+            component: () => import('../views/admin/transaksi/penjualan/SalesForm.vue'),
+            meta: { requiresAuth: true }
+          },
+          {
+            path: 'kasir',
+            name: 'sales-quick-form',
+            component: () => import('../views/admin/transaksi/penjualan/SalesQuickForm.vue'),
+            meta: { requiresAuth: true }
+          }
+        ]
+      },
     ]
   }
 ]
