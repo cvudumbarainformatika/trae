@@ -1,13 +1,9 @@
 <template>
-
-  <!-- Product List Section -->
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
       <Icon name="ShoppingCart" class="w-5 h-5 mr-2 text-primary-500" />
       Daftar Produk
     </h3>
-
-    <!-- Product Search - tetap aktif meskipun dari PO -->
     <ProductSearch
       ref="productSearchRef"
       v-model="productSearch"
@@ -15,10 +11,7 @@
       @open-scanner="showScanner = true"
       @products-loaded="onProductsLoaded"
     />
-
-    <!-- Product Table -->
     <div class="overflow-x-auto">
-      <!-- Desktop Table (tampil pada layar md ke atas) -->
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 hidden md:table">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
@@ -39,135 +32,96 @@
             </th>
           </tr>
         </thead>
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <tr v-if="form?.items.length === 0">
-            <td colspan="5" class="px-3 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-              Belum ada produk yang ditambahkan
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 md:hidden">
+          <tr v-if="store.items.length === 0">
+            <td colspan="5" class="px-3 py-8">
+              <div class="flex flex-col items-center justify-center">
+                <Icon name="ShoppingCart" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+                <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Belum Ada Produk</h3>
+                <p class="text-gray-500 dark:text-gray-400">Belum ada produk yang ditambahkan ke daftar penjualan.</p>
+              </div>
             </td>
           </tr>
-          <tr v-for="(item, index) in form?.items" :key="index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <tr v-for="(item, index) in store.items" :key="index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
             <td class="px-3 py-4 whitespace-nowrap w-[35%]">
               <div class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ item.product?.name }}
-                <span
-                  v-if="form.purchase_order_id && item.is_additional"
-                  class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300"
-                >
-                  Non-PO
-                </span>
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.product?.barcode }}</div>
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right w-[25%]">
-              <BaseInput
-                v-model.number="item.price"
-                type="number"
-                min="0"
-                class="w-full text-right"
-                @input="updateItemSubtotal(index)"
-              />
+              <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency(getItemPrice(item)) }}</span>
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right w-[15%]">
-              <BaseInput
-                v-model.number="item.quantity"
-                type="number"
-                min="1"
-                class="w-full text-right"
-                @input="updateItemSubtotal(index)"
-              />
+              <div class="flex items-center justify-end gap-2">
+                <button @click="decreaseQty(index)" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                  <Icon name="Minus" class="w-4 h-4" />
+                </button>
+                <input type="number" min="1" v-model.number="item.qty" @input="updateItemSubtotal(index)" class="w-12 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" />
+                <button @click="increaseQty(index)" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                  <Icon name="Plus" class="w-4 h-4" />
+                </button>
+              </div>
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white w-[20%]">
               {{ formatCurrency(item.subtotal) }}
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right text-sm w-[5%]">
               <button
-                v-if="!form.purchase_order_id || item.is_additional"
                 @click="removeItem(index)"
                 class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                 aria-label="Hapus item"
               >
                 <Icon name="Trash" class="w-4 h-4" />
               </button>
-              <span
-                v-else
-                class="inline-flex items-center justify-center p-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                title="Item dari Purchase Order tidak dapat dihapus"
-              >
-                <Icon name="Lock" class="w-4 h-4" />
-              </span>
             </td>
           </tr>
         </tbody>
       </table>
-
-      <!-- Mobile Card View (tampil pada layar kecil) -->
-      <div class="md:hidden space-y-4">
-        <div v-if="form?.items.length === 0" class="text-center text-sm text-gray-500 dark:text-gray-400 py-4">
-          Belum ada produk yang ditambahkan
+      <div class="space-y-4">
+        <div v-if="!store.items.length" class="py-8">
+          <div class="flex flex-col items-center justify-center">
+            <Icon name="ShoppingCart" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Belum Ada Produk</h3>
+            <p class="text-gray-500 dark:text-gray-400">Belum ada produk yang ditambahkan ke daftar penjualan.</p>
+          </div>
         </div>
-
         <div
-          v-for="(item, index) in form?.items"
+          v-for="(item, index) in store.items"
           :key="index"
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700"
-          :class="{ 'border-l-4 border-l-amber-500': form.purchase_order_id && item.is_additional }"
+          class="rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700"
+          :class="['transition-all', store.existingItemHighlighted === item.product_id ? 'bg-blink animate-pulse' : 'bg-white dark:bg-gray-800 ']"
         >
-          <div class="flex justify-between items-start mb-3">
+          <div class="flex justify-between items-start mb-3 ">
             <div>
               <div class="text-sm font-medium text-gray-900 dark:text-white flex items-center">
-                {{ item.product?.name }}
-                <span
-                  v-if="form.purchase_order_id && item.is_additional"
-                  class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300"
-                >
-                  Non-PO
-                </span>
+                {{item?.product?.name}}
               </div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.product?.barcode }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{ item?.product?.barcode }}</div>
             </div>
             <button
-              v-if="!form.purchase_order_id || item.is_additional"
               @click="removeItem(index)"
               class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
               aria-label="Hapus item"
             >
               <Icon name="Trash" class="w-4 h-4" />
             </button>
-            <span
-              v-else
-              class="inline-flex items-center justify-center p-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-              title="Item dari Purchase Order tidak dapat dihapus"
-            >
-              <Icon name="Lock" class="w-4 h-4" />
-            </span>
           </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Harga</label>
-              <BaseInput
-                v-model.number="item.price"
-                type="number"
-                min="0"
-                class="w-full text-right"
-                @input="updateItemSubtotal(index)"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Jumlah</label>
-              <BaseInput
-                v-model.number="item.quantity"
-                type="number"
-                min="1"
-                class="w-full text-right"
-                @input="updateItemSubtotal(index)"
-              />
+          <div class="flex items-center justify-between gap-3 mt-2">
+            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency(item.price) }}</span>
+            <div class="flex items-center gap-2">
+              <button @click="decreaseQty(index)" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                <Icon name="Minus" class="w-4 h-4" />
+              </button>
+              <input type="number" min="1" v-model.number="item.qty" @input="updateItemSubtotal(index)" class="w-12 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" />
+              <button @click="increaseQty(index)" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                <Icon name="Plus" class="w-4 h-4" />
+              </button>
             </div>
           </div>
-
           <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
             <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Subtotal:</span>
-            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(item.subtotal) }}</span>
+            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(item?.subtotal) }}</span>
           </div>
         </div>
       </div>
@@ -176,48 +130,93 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, watch } from 'vue'
 import ProductSearch from '@/components/admin/transaksi/pembelian/ProductSearch.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import Icon from '@/components/ui/Icon.vue'
+import { useSalesFormStore } from '@/stores/transaksi/penjualan/form'
 
 const productSearchRef = ref(null)
 const productSearch = ref('')
+const store = useSalesFormStore()
 
-// Props
-const props = defineProps({
-  form: {
-    type: Object,
-    required: true
-  },
-  store: {
-    type: Object,
-    required: true
-  },
-  formatCurrency: {
-    type: Function,
-    required: true
-  }
-})
-
-// Emits
-const emit = defineEmits(['update:form'])
-
-// Methods
 function addProduct(product) {
-  props.store.addProduct(product)
-  emit('update:form', props.form)
+  // Normalisasi data sebelum masuk ke store.items
+  const item = {
+    product_id: product.id ?? product.product_id ?? null,
+    product: product,
+    qty: 1,
+    price: getItemPrice(product),
+    subtotal: getItemPrice(product) * 1,
+  }
+  store.addItem(item)
 }
 function removeItem(index) {
-  props.store.removeItem(index)
-  emit('update:form', props.form)
+  store.removeItem(index)
 }
 function updateItemSubtotal(index) {
-  props.store.updateItemSubtotal(index)
-  emit('update:form', props.form)
+  store.updateItemSubtotal(index)
 }
 function onProductsLoaded(products) {
   // Optional: handle after products loaded
 }
+function formatCurrency(value) {
+  // console.log(value);
+
+  const num = typeof value === 'string' ? parseFloat(value) : value
+  if (isNaN(num)) return '-'
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(num)
+}
 const showScanner = ref(false)
+
+
+function getItemPrice(item) {
+  // console.log('item',item);
+
+  if (store.category === 'umum') {
+    return StringToNumber(item.hargajual) ?? 0
+  } else if (store.category === 'pelanggan') {
+    return StringToNumber(item.hargajualcust) ?? 0
+  }
+  // return item.price
+}
+
+function StringToNumber(value) {
+  const num = typeof value === 'string' ? parseFloat(value) : value
+  return num
+}
+function increaseQty(index) {
+  const item = store.items[index]
+  if (!item) return
+  item.qty = (item.qty || 1) + 1
+  item.subtotal = (item.price || 0) * item.qty
+  store.updateItem(index, item)
+}
+function decreaseQty(index) {
+  const item = store.items[index]
+  if (!item) return
+  if (item.qty > 1) {
+    item.qty -= 1
+    item.subtotal = (item.price || 0) * item.qty
+    store.updateItem(index, item)
+  }
+}
+watch(store.items, (newItems) => {
+  console.log('Items changed:', newItems)
+})
 </script>
+
+<style scoped>
+@keyframes blink-bg {
+  0%, 100% {
+    background-color: #b1ae9b4b; /* blue-300 */
+  }
+  50% {
+    background-color: #000000f2; /* red-400 */
+  }
+}
+
+.bg-blink {
+  animation: blink-bg 1s infinite;
+}
+</style>
