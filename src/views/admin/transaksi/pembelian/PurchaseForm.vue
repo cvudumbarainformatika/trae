@@ -823,6 +823,10 @@ const handleProductSelect = (product) => {
 
 // Lifecycle hooks
 onMounted(async () => {
+
+  console.log('route', route.params.id);
+
+
   // Cek apakah ada parameter purchaseOrderId di URL
   const purchaseOrderId = route.query.purchaseOrderId
   const fromPage = route.query.from
@@ -851,6 +855,9 @@ onMounted(async () => {
         type: 'error'
       })
     }
+  } else {
+    // Jika mode tambah, reset form
+    store.resetForm()
   }
 })
 

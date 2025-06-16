@@ -178,24 +178,31 @@ export const useSalesFormWitTabsStore = defineStore('salesFormWitTabs', {
     },
 
     async handlePayment(data){
+
+      const dp = data.payment_method === 'credit' ? data.dp || 0 : 0
+      const tempo = data.payment_method === 'credit' ? data.tempo || 0 : 0
+
+      const paid = data.payment_method !== 'credit' ? data.pembayaran || 0 : data.dp || 0
+      const kembali = data.payment_method !== 'credit' ? data.kembali || 0 : 0
+
       const form ={
         customer_id: this.isiTab.customer_id,
         items: this.isiTab.items,
         total: data.total,
-        paid: data.pembayaran,
-        bayar: data.pembayaran,
-        kembali: data.kembali,
+        paid,
+        bayar: paid,
+        kembali,
         notes: data.notes,
         payment_method: data.payment_method,
-        discount: data.discount,
-        tax: data.tax,
+        discount: data.discount || 0,
+        tax: data.tax || 0,
         reference: this.isiTab.unique_code,
         unique_code: this.isiTab.unique_code,
         cashier_id: this.isiTab.cashier_id,
         date: null,
         category: this.isiTab.category,
-        dp: data.dp,
-        tempo: data.tempo
+        dp,
+        tempo
       }
       // Lakukan proses penyimpanan penjualan
       // Misalnya, kirim data penjualan ke server menggunakan API

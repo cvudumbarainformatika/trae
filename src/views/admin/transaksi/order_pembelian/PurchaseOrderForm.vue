@@ -1,27 +1,27 @@
 <template>
   <div>
-    <BaseDialog
-      v-model="showDialog"
+    <BaseDialog v-model="showDialog"
       :title="store.editMode ? `Edit Order Pembelian #${store.purchaseOrder?.unique_code}` : 'Order Pembelian Baru'"
-      max-width="6xl"
-      :is-edit-dialog="store.editMode"
-      @close="closeDialog"
-    >
-      <div class="h-full flex flex-col gap-6 p-4 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900 dark:to-secondary-800">
+      max-width="6xl" :is-edit-dialog="store.editMode" @close="closeDialog">
+      <div
+        class="h-full flex flex-col gap-6 p-4 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900 dark:to-secondary-800">
         <!-- Header Section -->
-        <div class="flex flex-col md:flex-row justify-between gap-4 p-4 bg-white dark:bg-secondary-800 rounded-xl shadow-sm">
+        <div
+          class="flex flex-col md:flex-row justify-between gap-4 p-4 bg-white dark:bg-secondary-800 rounded-xl shadow-sm">
           <div class="space-y-2">
             <h2 class="text-xl font-bold text-primary-600 dark:text-primary-400">
               {{ store.editMode ? 'Edit Order Pembelian' : 'Order Pembelian Baru' }}
             </h2>
             <p class="text-secondary-500 dark:text-secondary-400 text-sm">
-              {{ store.editMode ? 'Edit order pembelian untuk inventaris Anda' : 'Buat order pembelian baru untuk inventaris Anda' }}
+              {{ store.editMode ? 'Edit order pembelian untuk inventaris Anda'
+                : 'Buat order pembelian baru untuk inventaris Anda' }}
             </p>
           </div>
           <div class="flex items-center gap-3">
             <div v-if="store.editMode" class="flex flex-col">
               <span class="text-xs text-secondary-500 dark:text-secondary-400 mb-2">Status</span>
-              <span class="px-3 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100 text-xs font-medium rounded-full">
+              <span
+                class="px-3 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100 text-xs font-medium rounded-full">
                 {{ store.form.status || 'Draft' }}
               </span>
             </div>
@@ -32,31 +32,18 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Kolom Kiri - Supplier (1/3 lebar) -->
           <div class="md:col-span-1 space-y-4">
-            <SupplierSelection
-              v-model:supplierId="store.form.supplier_id"
-              v-model:supplierSearch="supplierSearch"
-              v-model:date="store.form.date"
-              v-model:dueDate="store.form.due_date"
-              :status="store.form.status"
-              :suppliers="store.suppliers"
-              @add-supplier="openAddSupplierDialog"
-              @suppliers-loaded="onSuppliersLoaded"
-            />
+            <SupplierSelection v-model:supplierId="store.form.supplier_id" v-model:supplierSearch="supplierSearch"
+              v-model:date="store.form.date" v-model:dueDate="store.form.due_date" :status="store.form.status"
+              :suppliers="store.suppliers" :supplier="store.form.supplier" @add-supplier="openAddSupplierDialog"
+              @suppliers-loaded="onSuppliersLoaded" />
           </div>
 
           <!-- Kolom Kanan - Items (2/3 lebar) -->
           <div class="md:col-span-2">
-            <ProductList
-              :items="store.form.items"
-              v-model:productSearch="productSearch"
-              @add-product="addProductToOrder"
-              @remove-item="removeItem"
-              @update-quantity="updateItemQuantity"
-              @update-price="updateItemPrice"
-              @products-loaded="onProductsLoaded"
-              @open-scanner="showScanner = true"
-              @barcode-scan="handleBarcodeScan"
-            />
+            <ProductList :items="store.form.items" v-model:productSearch="productSearch"
+              @add-product="addProductToOrder" @remove-item="removeItem" @update-quantity="updateItemQuantity"
+              @update-price="updateItemPrice" @products-loaded="onProductsLoaded" @open-scanner="showScanner = true"
+              @barcode-scan="handleBarcodeScan" />
           </div>
         </div>
 
@@ -65,29 +52,19 @@
           <BaseButton variant="secondary" @click="handleClose">
             Batal
           </BaseButton>
-          <BaseButton
-            variant="primary"
-            :disabled="!canSubmitForm"
-            @click="submitForm"
-          >
+          <BaseButton variant="primary" :disabled="!canSubmitForm" @click="submitForm">
             <Icon name="Save" class="w-4 h-4 mr-1" /> {{ store.editMode ? 'Simpan Perubahan' : 'Simpan Order' }}
           </BaseButton>
         </div>
       </div>
     </BaseDialog>
-    <SupplierForm
-      v-if="showSupplierForm"
-      v-model="showSupplierForm"
-      :supplier="null"
-      :is-edit="false"
-      @close="supplierStore.setShowSupplierForm(false)"
-      @submit="handleSupplierSubmit"
-    />
+    <SupplierForm v-if="showSupplierForm" v-model="showSupplierForm" :supplier="null" :is-edit="false"
+      @close="supplierStore.setShowSupplierForm(false)" @submit="handleSupplierSubmit" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick, defineAsyncComponent } from 'vue'
 import BaseDialog from '@/components/ui/BaseDialog.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -95,12 +72,17 @@ import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
 import SupplierForm from '@/components/admin/suppliers/SupplierForm.vue'
 import { useSupplierStore } from '@/stores/admin/supplier'
 import { useRouter } from 'vue-router'
-import SupplierSelection from '@/components/admin/transaksi/order_pembelian/SupplierSelection.vue'
-import ProductList from '@/components/admin/transaksi/order_pembelian/ProductList.vue'
+// import SupplierSelection from '@/components/admin/transaksi/order_pembelian/SupplierSelection.vue'
+// import ProductList from '@/components/admin/transaksi/order_pembelian/ProductList.vue'
 import { api } from '@/services/api'
+
+
+const SupplierSelection = defineAsyncComponent(() => import('@/components/admin/transaksi/order_pembelian/SupplierSelection.vue'))
+const ProductList = defineAsyncComponent(() => import('@/components/admin/transaksi/order_pembelian/ProductList.vue'))
 
 // Props & emits
 const emit = defineEmits(['update:modelValue', 'success', 'close', 'loading'])
+
 
 // Store
 const store = usePurchaseOrderStore()
@@ -303,7 +285,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (autosaveTimer) clearTimeout(autosaveTimer)
-  document.removeEventListener('click', () => {})
+  document.removeEventListener('click', () => { })
 })
 
 // Props
@@ -325,6 +307,7 @@ const props = defineProps({
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -339,6 +322,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 input[type="number"] {
-  -moz-appearance: textfield; /* Firefox */
+  -moz-appearance: textfield;
+  /* Firefox */
 }
 </style>

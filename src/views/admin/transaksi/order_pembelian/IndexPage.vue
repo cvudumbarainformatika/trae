@@ -2,12 +2,8 @@
   <BasePage title="Order Pembelian" subtitle="Manage Order Pemebelian dari Supplier">
     <template #actions>
       <div class="flex items-center gap-2">
-        <BaseButton
-          @click="purchaseOrderStore.showCreateDialog = true"
-          variant="primary"
-          size="md"
-          class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:scale-105 hover:translate-y-[-2px]"
-        >
+        <BaseButton @click="purchaseOrderStore.showCreateDialog = true" variant="primary" size="md"
+          class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:scale-105 hover:translate-y-[-2px]">
           <template #icon-left>
             <Icon name="Plus" class="w-4 h-4" />
           </template>
@@ -23,113 +19,85 @@
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
             <Icon name="Search" class="w-5 h-5 text-indigo-400" />
           </div>
-          <BaseInput
-            v-model="purchaseOrderStore.searchQuery"
-            placeholder="Cari order pembelian..."
-            type="text"
-            clearable
-            :debounce="500"
-            @update:model-value="purchaseOrderStore.fetchPurchaseOrders"
-          />
+          <BaseInput v-model="purchaseOrderStore.searchQuery" placeholder="Cari order pembelian..." type="text"
+            clearable :debounce="500" @update:model-value="purchaseOrderStore.fetchPurchaseOrders" />
         </div>
 
         <!-- Filter Periode -->
-        <BaseDateRangeFilter
-          v-model="dateRange"
-          @change="handleDateRangeChange"
-          default-period="month"
-        />
+        <BaseDateRangeFilter v-model="dateRange" @change="handleDateRangeChange" default-period="month" />
       </div>
     </template>
 
     <!-- Status Filter Buttons -->
     <div class="flex flex-wrap gap-2 mb-4 mt-2">
-      <BaseButton
-        variant="ghost"
-        size="sm"
+      <BaseButton variant="ghost" size="sm"
         class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300"
         :class="{ 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700': true }"
-        @click="purchaseOrderStore.changeStatusParams('semua')"
-      >
+        @click="purchaseOrderStore.changeStatusParams('semua')">
         <span class="relative z-10">Semua</span>
-        <span class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+        <span
+          class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
 
-      <BaseButton
-        @click="purchaseOrderStore.changeStatusParams('draft')"
-        variant="ghost"
-        size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
-      >
+      <BaseButton @click="purchaseOrderStore.changeStatusParams('draft')" variant="ghost" size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
           Draft
         </span>
-        <span class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+        <span
+          class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
 
-      <BaseButton
-        @click="purchaseOrderStore.changeStatusParams('ordered')"
-        variant="ghost"
-        size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300"
-      >
+      <BaseButton @click="purchaseOrderStore.changeStatusParams('ordered')" variant="ghost" size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
           Ordered
         </span>
-        <span class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+        <span
+          class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
 
-      <BaseButton
-        @click="purchaseOrderStore.changeStatusParams('received')"
-        variant="ghost"
-        size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
-      >
+      <BaseButton @click="purchaseOrderStore.changeStatusParams('received')" variant="ghost" size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
           Received
         </span>
-        <span class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+        <span
+          class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
 
-      <BaseButton
-        @click="purchaseOrderStore.changeStatusParams('cancelled')"
-        variant="ghost"
-        size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300"
-      >
+      <BaseButton @click="purchaseOrderStore.changeStatusParams('cancelled')" variant="ghost" size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
           Cancelled
         </span>
-        <span class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-rose-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+        <span
+          class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-rose-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
     </div>
 
     <!-- HAPUS Date Range Filter yang ada di sini -->
 
     <!-- Futuristic Order List Section -->
-    <BaseList
-      :items="purchaseOrderStore.items"
-      :loading="purchaseOrderStore.loading"
-      empty-icon="PackageOpen"
+    <BaseList :items="purchaseOrderStore.items" :loading="purchaseOrderStore.loading" empty-icon="PackageOpen"
       empty-title="Belum Ada Order"
       empty-description="Belum ada order pembelian yang tersedia. Klik tombol 'Tambah Order' untuk membuat order baru."
-      @page-change="handlePageChange"
-    >
+      @page-change="handlePageChange">
       <template #item="{ item }">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 group hover:border-indigo-200 dark:hover:border-indigo-800">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 group hover:border-indigo-200 dark:hover:border-indigo-800">
           <div class="flex flex-col md:flex-row">
             <!-- Order Status Badge -->
-            <div class="w-full md:w-1 h-1 md:h-auto"
-                 :class="{
-                   'bg-yellow-400': item.status === 'draft',
-                   'bg-blue-500': item.status === 'ordered',
-                   'bg-green-500': item.status === 'received',
-                   'bg-red-500': item.status === 'cancelled'
-                 }">
+            <div class="w-full md:w-1 h-1 md:h-auto" :class="{
+              'bg-yellow-400': item.status === 'draft',
+              'bg-blue-500': item.status === 'ordered',
+              'bg-green-500': item.status === 'received',
+              'bg-red-500': item.status === 'cancelled'
+            }">
             </div>
 
             <!-- Order Content - Redesigned -->
@@ -161,7 +129,8 @@
                 <!-- Right: Amount - Larger -->
                 <div class="text-right">
                   <div class="text-xl font-bold text-gray-900 dark:text-white">
-                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.total_amount || 0) }}
+                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(getTotal(item) ||
+                    0) }}
                   </div>
                 </div>
               </div>
@@ -174,50 +143,34 @@
                     <Icon name="Receipt" class="w-4 h-4" />
                     <div class="text-base">{{ item?.unique_code }}</div>
                   </div>
-                  <span class="text-xs px-2 py-0.5 rounded-full"
-                      :class="{
-                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': item.status === 'draft',
-                        'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': item.status === 'ordered',
-                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.status === 'received',
-                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': item.status === 'cancelled'
-                      }">
-                  {{ item.status === 'draft' ? 'Draft' :
-                     item.status === 'ordered' ? 'Ordered' :
-                     item.status === 'received' ? 'Received' : 'Cancelled' }}
-                </span>
+                  <span class="text-xs px-2 py-0.5 rounded-full" :class="{
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': item.status === 'draft',
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': item.status === 'ordered',
+                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.status === 'received',
+                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': item.status === 'cancelled'
+                  }">
+                    {{ item.status === 'draft' ? 'Draft' :
+                      item.status === 'ordered' ? 'Ordered' :
+                        item.status === 'received' ? 'Received' : 'Cancelled' }}
+                  </span>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-3">
-                  <IconButton
-                    @click="viewPurchaseOrderDetail(item)"
-                    variant="primary"
-                    size="sm"
-                    title="Lihat Detail"
-                  >
+                  <IconButton @click="viewPurchaseOrderDetail(item)" variant="primary" size="sm" title="Lihat Detail">
                     <template #icon>
-                      <Icon name="Eye"  />
+                      <Icon name="Eye" />
                     </template>
                   </IconButton>
-                  <IconButton
-                    v-if="item.status === 'draft'"
-                    @click="editPurchaseOrder(item)"
-                    variant="primary"
-                    size="sm"
-                    title="Edit"
-                  >
+                  <IconButton v-if="item.status === 'draft'" @click="editPurchaseOrder(item)" variant="primary"
+                    size="sm" title="Edit">
                     <template #icon>
-                      <Icon name="Edit"  />
+                      <Icon name="Edit" />
                     </template>
                   </IconButton>
-                  <IconButton
-                    @click="copyPurchaseOrder(item)"
-                    variant="primary"
-                    size="sm"
-                    title="Copy Order"
-                  >
+                  <IconButton @click="copyPurchaseOrder(item)" variant="primary" size="sm" title="Copy Order">
                     <template #icon>
-                      <Icon name="Copy"  />
+                      <Icon name="Copy" />
                     </template>
                   </IconButton>
                 </div>
@@ -230,27 +183,17 @@
 
     <BasePagination v-model:current-page="purchaseOrderStore.pagination.page"
       :total-items="purchaseOrderStore.pagination.totalItems"
-      :items-per-page="purchaseOrderStore.pagination.itemsPerPage"
-      @update:current-page="handlePageChange"
-    />
+      :items-per-page="purchaseOrderStore.pagination.itemsPerPage" @update:current-page="handlePageChange" />
 
-  <div>
-    <PurchaseOrderDetail
-        v-model="showDetailDialog"
-        :purchase-order-id="selectedPurchaseOrderId"
-        :data-order="purchaseOrderStore.purchaseOrder"
-        @status-updated="handleStatusUpdated"
-      />
-  </div>
+    <div>
+      <PurchaseOrderDetail v-model="showDetailDialog" :purchase-order-id="selectedPurchaseOrderId"
+        :data-order="purchaseOrderStore.purchaseOrder" @status-updated="handleStatusUpdated" />
+    </div>
 
-   <div>
-    <PurchaseOrderForm
-      v-model="purchaseOrderStore.showCreateDialog"
-      @success="handleFormSuccess"
-      @close="handleFormClose"
-
-    />
-   </div>
+    <div>
+      <PurchaseOrderForm v-model="purchaseOrderStore.showCreateDialog" @success="handleFormSuccess"
+        @close="handleFormClose" />
+    </div>
 
 
   </BasePage>
@@ -349,11 +292,12 @@ const editPurchaseOrder = async (item) => {
     // Reset form terlebih dahulu
     console.log('Resetting form...');
     purchaseOrderStore.resetForm();
+    purchaseOrderStore.purchaseOrder = item;
 
     // Langsung gunakan data item yang sudah ada
-    console.log('Setting form data from item...');
     purchaseOrderStore.form = {
       supplier_id: item.supplier_id,
+      supplier: item?.supplier || null,
       date: item.date,
       due_date: item.due_date || '',
       status: item.status,
@@ -367,6 +311,7 @@ const editPurchaseOrder = async (item) => {
       notes: item.notes || ''
     };
 
+    console.log('Setting form data from item...', purchaseOrderStore.form);
     // Pastikan supplier ada di daftar suppliers
     if (item.supplier && !purchaseOrderStore.suppliers.some(s => s.id === item.supplier.id)) {
       console.log('Adding supplier to suppliers list:', item.supplier);
@@ -389,6 +334,12 @@ const editPurchaseOrder = async (item) => {
   } catch (error) {
     console.error('Error preparing purchase order for edit:', error);
   }
+}
+
+// Handle form cancel
+const getTotal = (item) => {
+  return item.items?.reduce((total, orderItem) => total + orderItem.price * orderItem.quantity, 0)
+  purchaseOrderStore.showCreateDialog = false
 }
 
 // Handle form success

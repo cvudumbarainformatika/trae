@@ -26,7 +26,7 @@ export const useSupplierStore = defineStore('supplier', {
     filteredSuppliers: (state) => {
       return state.suppliers
     },
-    
+
     paginationInfo: (state) => {
       return {
         currentPage: state.pagination.current_page,
@@ -47,19 +47,19 @@ export const useSupplierStore = defineStore('supplier', {
       this.params.page = 1
       this.fetchSuppliers()
     },
-    
+
     setPage(page) {
       this.params.page = page
       this.fetchSuppliers()
     },
-    
+
     setSorting(field, direction) {
       this.params.sort_by = field
       this.params.sort_direction = direction
       this.params.page = 1
       this.fetchSuppliers()
     },
-    
+
     setPerPage(perPage) {
       this.params.per_page = perPage
       this.params.page = 1
@@ -72,7 +72,7 @@ export const useSupplierStore = defineStore('supplier', {
       try {
         const response = await api.get('/api/v1/suppliers', { params: this.params })
         this.suppliers = response.data.data || []
-        
+
         // Update pagination info
         if (response.data.meta) {
           this.pagination = {
@@ -100,7 +100,7 @@ export const useSupplierStore = defineStore('supplier', {
           current_amount: supplierData.initial_amount || 0, // Set to same as initial on creation
           notes: supplierData.notes || null
         }
-        
+
         const response = await api.post('/api/v1/suppliers', dataToSend)
         this.suppliers.unshift(response.data)
         return response.data
@@ -145,7 +145,9 @@ export const useSupplierStore = defineStore('supplier', {
       } finally {
         this.loading = false
       }
-    }
+    },
+
+
   }
 })
 

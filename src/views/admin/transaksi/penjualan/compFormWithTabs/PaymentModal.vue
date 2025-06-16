@@ -18,7 +18,7 @@
                 QRIS <span class="text-xs text-gray-400">(Ctrl+2)</span>
               </label>
               <label v-if="item.category !== 'umum'" class="flex items-center gap-2">
-                <input type="radio" v-model="form.payment_method" value="kredit" name="payment" />
+                <input type="radio" v-model="form.payment_method" value="credit" name="payment" />
                 Kredit <span class="text-xs text-gray-400">(Ctrl+3)</span>
               </label>
             </div>
@@ -69,7 +69,7 @@
               </div>
             </div>
 
-            <div v-else-if="form.payment_method === 'kredit'">
+            <div v-else-if="form.payment_method === 'credit'">
               <div class="flex gap-4">
                 <div class="flex-1">
                   <label class="block mb-1">DP</label>
@@ -93,11 +93,26 @@
 
           <!-- Rincian Total -->
           <div class="text-right">
-            <div>Total Awal : Rp. {{ formatCurrency(totalAwal) }}</div>
+            <div>Total Penjualan : Rp. {{ formatCurrency(totalAwal) }}</div>
             <div>Diskon : <span class="text-red-400">Rp. {{ formatCurrency(form.discount) }}</span></div>
             <div>Pajak : <span class="text-emerald-400">Rp. {{ formatCurrency(pajakNilai) }}</span></div>
-            <div class="text-lg font-bold">Total Bayar : <span class="text-emerald-400">Rp. {{
+            <div class="text-lg font-bold">Total Semua : <span class="text-emerald-400">Rp. {{
               formatCurrency(totalBayar) }}</span></div>
+            <!-- Separator -->
+            <hr class="border-gray-600" />
+            <div v-if="form.payment_method !== 'credit'">
+              <div class="text-lg font-bold mt-4">Total Bayar : <span class="text-emerald-400">Rp. {{
+                formattedPembayaran }}</span></div>
+              <div v-if="kembali > 0" class="text-lg font-bold mt-4">Kembalian : <span class="text-emerald-400"> Rp. {{
+                formatCurrency(kembali)
+                  }}</span></div>
+            </div>
+            <div v-else>
+              <div class="text-lg font-bold mt-4">Total Bayar / DP : <span class="text-emerald-400">Rp. {{
+                formattedDP }}</span></div>
+              <div class="text-lg font-bold mt-4">Sisa Pembayaran : <span class="text-emerald-400"> Rp. {{
+                formatCurrency(totalBayar - form.dp) }}</span></div>
+            </div>
           </div>
 
 
@@ -171,15 +186,15 @@ const form = ref({
   tempo: 30
 })
 
-const totalAwal = props.items.reduce((sum, item) => sum + item.qty * item.price, 0)
-const pajakNilai = computed(() => totalAwal * (form.value.tax / 100))
-const totalBayar = computed(() => Math.max(0, totalAwal - form.value.discount + pajakNilai.value))
+const totalAwal = computed(() => props.items.reduce((sum, item) => sum + item.qty * item.price, 0))
+const pajakNilai = computed(() => totalAwal.value * (form.value.tax / 100))
+const totalBayar = computed(() => Math.max(0, totalAwal.value - form.value.discount + pajakNilai.value))
 const kembali = computed(() => form.value.pembayaran - totalBayar.value)
 const bolehBayar = computed(() => {
   if (form.value.payment_method === 'cash' || form.value.payment_method === 'qris') {
     return form.value.pembayaran >= totalBayar.value
   }
-  if (form.value.payment_method === 'kredit') {
+  if (form.value.payment_method === 'credit') {
     return form.value.dp >= 0 && form.value.tempo > 0
   }
   return false
@@ -214,7 +229,7 @@ function handleKeydown(e) {
   if (e.ctrlKey) {
     if (e.key === '1') form.value.payment_method = 'cash'
     if (e.key === '2') form.value.payment_method = 'qris'
-    if (e.key === '3' && props.item.category === 'pelanggan') form.value.payment_method = 'kredit'
+    if (e.key === '3' && props.item.category === 'pelanggan') form.value.payment_method = 'credit'
     if (e.key === 'Enter' && bolehBayar.value) submit()
     if (e.key === 'd') nextTick(() => diskonRef.value?.focus())
     if (e.key === 'p') nextTick(() => pajakRef.value?.focus())
@@ -277,7 +292,7 @@ watch(
     nextTick().then(() => {
       if ((val === 'cash' || val === 'qris') && bayarRef.value) {
         bayarRef.value.focus()
-      } else if (val === 'kredit' && dpRef.value) {
+      } else if (val === 'credit' && dpRef.value) {
         dpRef.value?.focus()
       } else {
         bayarRef.value?.focus()

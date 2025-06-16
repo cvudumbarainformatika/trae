@@ -27,8 +27,9 @@
       </template>
     </base-tabs>
 
-    <PaymentModal :show="isPaymentOpen" :items="isiTab.items" :customer-id="isiTab.customer_id" :unique-code="activeTab"
-      @submit="handlePayment" @close="isPaymentOpen = false" :item="isiTab" :loading="loadingSimpan" />
+    <PaymentModal :show="isPaymentOpen" :items="isiTab?.items || []" :customer-id="isiTab?.customer_id || null"
+      :unique-code="activeTab" @submit="handlePayment" @close="isPaymentOpen = false" :item="isiTab"
+      :loading="loadingSimpan" />
 
   </div>
 </template>

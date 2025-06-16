@@ -1,22 +1,15 @@
 <template>
-  <BasePage :title="`Detail Pembelian #${purchase?.invoice_number || purchase?.id || ''}`" subtitle="Detail transaksi pembelian">
+  <BasePage :title="`Detail Pembelian #${purchase?.invoice_number || purchase?.id || ''}`"
+    subtitle="Detail transaksi pembelian">
     <template #actions>
       <div class="flex space-x-2">
-        <BaseButton
-          @click="router.push('/admin/transaksi/pembelian')"
-          variant="secondary"
-          size="md"
-        >
+        <BaseButton @click="router.push('/admin/transaksi/pembelian')" variant="secondary" size="md">
           <template #icon-left>
             <Icon name="ArrowLeft" class="w-4 h-4" />
           </template>
           Kembali
         </BaseButton>
-        <BaseButton
-          @click="printPurchase"
-          variant="secondary"
-          size="md"
-        >
+        <BaseButton @click="printPurchase" variant="secondary" size="md">
           <template #icon-left>
             <Icon name="Printer" class="w-4 h-4" />
           </template>
@@ -46,14 +39,13 @@
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ new Date(purchase.date).toLocaleDateString() }}</p>
             </div>
             <div>
-              <span class="px-3 py-1 rounded-full text-sm font-medium"
-                    :class="{
-                      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': purchase.status === 'completed',
-                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': purchase.status === 'pending',
-                      'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': purchase.status === 'cancelled'
-                    }">
-                {{ purchase.status === 'completed' ? 'Selesai' :
-                   purchase.status === 'pending' ? 'Pending' : 'Dibatalkan' }}
+              <span class="px-3 py-1 rounded-full text-sm font-medium" :class="{
+                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': purchase?.purchase_order?.status === 'received',
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': purchase.purchase_order?.status === 'draft',
+                'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': purchase.purchase_order?.status === 'cancelled'
+              }">
+                {{ purchase.purchase_order?.status === 'received' ? 'Selesai' :
+                  purchase.purchase_order?.status === 'draft' ? 'Pending' : 'Dibatalkan' }}
               </span>
             </div>
           </div>
@@ -66,19 +58,19 @@
               <div class="text-xs mt-1 text-gray-500 dark:text-gray-400">Dibuat</div>
             </div>
             <div class="flex-1 h-1 bg-gray-200 dark:bg-gray-700"
-                 :class="{ 'bg-indigo-500 dark:bg-indigo-500': purchase.status !== 'draft' }"></div>
+              :class="{ 'bg-indigo-500 dark:bg-indigo-500': purchase.purchase_order?.status !== 'draft' }"></div>
             <div class="flex-1 flex flex-col items-center">
               <div class="w-8 h-8 rounded-full flex items-center justify-center"
-                   :class="purchase.status === 'pending' || purchase.status === 'completed' ? 'bg-indigo-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
+                :class="purchase.purchase_order?.status === 'received' || purchase.purchase_order?.status === 'cancelled' ? 'bg-indigo-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
                 <Icon name="Package" class="w-4 h-4" />
               </div>
               <div class="text-xs mt-1 text-gray-500 dark:text-gray-400">Diproses</div>
             </div>
             <div class="flex-1 h-1 bg-gray-200 dark:bg-gray-700"
-                 :class="{ 'bg-indigo-500 dark:bg-indigo-500': purchase.status === 'completed' }"></div>
+              :class="{ 'bg-indigo-500 dark:bg-indigo-500': purchase.status === 'received' }"></div>
             <div class="flex-1 flex flex-col items-center">
               <div class="w-8 h-8 rounded-full flex items-center justify-center"
-                   :class="purchase.status === 'completed' ? 'bg-indigo-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
+                :class="purchase.purchase_order?.status === 'received' ? 'bg-indigo-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'">
                 <Icon name="CheckCircle" class="w-4 h-4" />
               </div>
               <div class="text-xs mt-1 text-gray-500 dark:text-gray-400">Selesai</div>
@@ -109,14 +101,23 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Produk</th>
-                  <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Harga</th>
-                  <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Qty</th>
-                  <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subtotal</th>
+                  <th scope="col"
+                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Produk</th>
+                  <th scope="col"
+                    class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Harga</th>
+                  <th scope="col"
+                    class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Qty</th>
+                  <th scope="col"
+                    class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Subtotal</th>
                 </tr>
               </thead>
               <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                <tr v-for="(item, index) in purchase.items" :key="index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr v-for="(item, index) in purchase.items" :key="index"
+                  class="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td class="px-4 py-3 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.product?.name }}</div>
                     <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.product?.barcode }}</div>
@@ -125,36 +126,47 @@
                     {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price) }}
                   </td>
                   <td class="px-4 py-3 text-right whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {{ item.quantity }}
+                    {{ item.qty }}
                   </td>
                   <td class="px-4 py-3 text-right whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price * item.quantity) }}
+                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.subtotal) }}
                   </td>
                 </tr>
               </tbody>
               <tfoot class="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">Subtotal</td>
+                  <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Subtotal
+                  </td>
                   <td class="px-4 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">
-                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateSubtotal()) }}
+                    {{ new Intl.NumberFormat('id-ID', {
+                      style: 'currency', currency: 'IDR'
+                    }).format(calculateSubtotal()) }}
                   </td>
                 </tr>
                 <tr v-if="purchase.discount">
-                  <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">Diskon</td>
+                  <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Diskon
+                  </td>
                   <td class="px-4 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">
-                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(purchase.discount) }}
+                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(purchase.discount)
+                    }}
                   </td>
                 </tr>
                 <tr v-if="purchase.tax">
-                  <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">Pajak ({{ purchase.tax }}%)</td>
+                  <td colspan="3" class="px-4 py-3 text-right text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Pajak
+                    ({{ purchase.tax }}%)</td>
                   <td class="px-4 py-3 text-right text-sm font-medium text-gray-900 dark:text-white">
                     {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateTax()) }}
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="3" class="px-4 py-3 text-right text-sm font-bold text-gray-900 dark:text-white">Total</td>
+                  <td colspan="3" class="px-4 py-3 text-right text-sm font-bold text-gray-900 dark:text-white">Total
+                  </td>
                   <td class="px-4 py-3 text-right text-sm font-bold text-gray-900 dark:text-white">
-                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateTotal()) }}
+                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateTotal())
+                    }}
                   </td>
                 </tr>
               </tfoot>
@@ -190,27 +202,29 @@
           <div class="space-y-3">
             <div class="flex justify-between">
               <span class="text-sm text-gray-500 dark:text-gray-400">No. Invoice</span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ purchase.invoice_number || '-' }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ purchase.invoice_number || '-'
+                }}</span>
             </div>
             <div class="flex justify-between">
               <span class="text-sm text-gray-500 dark:text-gray-400">Tanggal</span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ new Date(purchase.date).toLocaleDateString() }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ new
+                Date(purchase.date).toLocaleDateString() }}</span>
             </div>
             <div class="flex justify-between">
               <span class="text-sm text-gray-500 dark:text-gray-400">Status</span>
-              <span class="text-sm font-medium"
-                    :class="{
-                      'text-green-600 dark:text-green-400': purchase.status === 'completed',
-                      'text-yellow-600 dark:text-yellow-400': purchase.status === 'pending',
-                      'text-red-600 dark:text-red-400': purchase.status === 'cancelled'
-                    }">
+              <span class="text-sm font-medium" :class="{
+                'text-green-600 dark:text-green-400': purchase.status === 'completed',
+                'text-yellow-600 dark:text-yellow-400': purchase.status === 'pending',
+                'text-red-600 dark:text-red-400': purchase.status === 'cancelled'
+              }">
                 {{ purchase.status === 'completed' ? 'Selesai' :
-                   purchase.status === 'pending' ? 'Pending' : 'Dibatalkan' }}
+                  purchase.status === 'pending' ? 'Pending' : 'Dibatalkan' }}
               </span>
             </div>
             <div v-if="purchase.purchase_order_id" class="flex justify-between">
               <span class="text-sm text-gray-500 dark:text-gray-400">Purchase Order</span>
-              <router-link :to="`/transaksi/po/${purchase.purchase_order_id}`" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+              <router-link :to="`/transaksi/po/${purchase.purchase_order_id}`"
+                class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
                 Lihat PO
               </router-link>
             </div>
@@ -232,7 +246,10 @@
             </div>
             <div class="flex justify-between">
               <span class="text-sm text-gray-500 dark:text-gray-400">Total Harga</span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateTotal()) }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ new Intl.NumberFormat('id-ID', {
+                style:
+                  'currency', currency: 'IDR'
+              }).format(calculateTotal()) }}</span>
             </div>
           </div>
         </div>
@@ -270,7 +287,7 @@ const fetchPurchase = async () => {
 // Calculate totals
 const calculateSubtotal = () => {
   if (!purchase.value?.items) return 0
-  return purchase.value.items.reduce((total, item) => total + (item.price * item.quantity), 0)
+  return purchase.value.items.reduce((total, item) => total + (item.price * item.qty), 0)
 }
 
 const calculateTax = () => {
@@ -287,7 +304,7 @@ const calculateTotal = () => {
 
 const calculateTotalQuantity = () => {
   if (!purchase.value?.items) return 0
-  return purchase.value.items.reduce((total, item) => total + item.quantity, 0)
+  return purchase.value.items.reduce((total, item) => total + item.qty, 0)
 }
 
 // Update purchase status

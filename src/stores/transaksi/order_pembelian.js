@@ -34,6 +34,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   // Form state
   const form = ref({
     supplier_id: '',
+    supplier: null,
     date: new Date().toISOString().split('T')[0],
     due_date: '',
     status: 'draft',
@@ -48,6 +49,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   const resetForm = () => {
     form.value = {
       supplier_id: '',
+      supplier: null,
       date: new Date().toISOString().split('T')[0],
       due_date: '',
       status: 'draft',
@@ -252,6 +254,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
       // Update form dengan data yang diambil
       form.value = {
         supplier_id: data.supplier_id,
+        supplier: data.supplier,
         date: data.date,
         due_date: data.due_date,
         status: data.status,
