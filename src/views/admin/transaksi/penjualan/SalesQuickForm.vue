@@ -11,13 +11,13 @@
      <!-- Grid summary -->
      <div class="w-full md:w-1/3 space-y-4 rounded shadow">
         <RiwayatPenjualan/>
-        <button class="bg-white" @click="store.simpanPenjualan">Coba</button>
+        <button class="bg-white p-4" @click="store.simpanPenjualan">Coba simpanPenjualan</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineAsyncComponent } from 'vue';
+import { ref, defineAsyncComponent, onMounted, onBeforeUnmount } from 'vue';
 import { useSalesFormStore } from '../../../../stores/transaksi/penjualan/form';
 
 const ProductListSection = defineAsyncComponent(()=> import('./compQuickForm/ProductListSection.vue'));
@@ -27,7 +27,26 @@ const RiwayatPenjualan = defineAsyncComponent(()=> import('./compQuickForm/Riway
 
 const store = useSalesFormStore()
 
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+});
 
+// Listener keydown
+function handleKeydown(e) {
+  if (e.keyCode === 113) { // F2
+    // Optional: abaikan jika sedang fokus di input/textarea
+    const tag = e.target.tagName
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+      e.preventDefault() // Hindari efek default browser
+      store.simpanPenjualan()
+    }
+  }
+}
+
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <style scoped>

@@ -1,30 +1,18 @@
 <template>
   <div class="relative">
-    <BaseInput
-      v-model="searchQuery"
-      :placeholder="placeholder"
-      class="pr-10"
-      :debounce="debounce"
-      @update:model-value="onSearch"
-      @keydown="handleKeydown"
-      ref="inputRef"
-    >
+    <BaseInput v-model="searchQuery" :placeholder="placeholder" class="pr-10" :debounce="debounce"
+      @update:model-value="onSearch" @keydown="handleKeydown" ref="inputRef">
       <template #append>
         <i :class="[isLoading ? 'ri-loader-4-line animate-spin' : 'ri-search-line', 'text-secondary-400']"></i>
       </template>
     </BaseInput>
 
     <!-- Results Dropdown -->
-    <transition
-      enter-active-class="transition ease-out duration-200"
-      enter-from-class="opacity-0 translate-y-1"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition ease-in duration-150"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 translate-y-1"
-    >
+    <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 translate-y-1"
+      enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150"
+      leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
       <div v-if="showResults"
-           class="absolute z-10 mt-1 w-full bg-white dark:bg-dark-700 rounded-md shadow-lg max-h-60 overflow-auto border border-secondary-200 dark:border-secondary-700">
+        class="absolute z-10 mt-1 w-full bg-white dark:bg-dark-700 rounded-md shadow-lg max-h-60 overflow-auto border border-secondary-200 dark:border-secondary-700">
         <div v-if="isLoading" class="p-4 text-center text-secondary-500 dark:text-secondary-400">
           <div class="flex justify-center items-center space-x-2">
             <i class="ri-loader-4-line animate-spin text-xl"></i>
@@ -32,25 +20,23 @@
           </div>
         </div>
         <div v-else-if="displayItems.length > 0">
-          <div v-for="(item, index) in displayItems" :key="getItemKey(item, index)"
-               @click="onItemSelect(item)"
-               @mouseover="selectedIndex = index"
-               class="search-dropdown-item p-3 hover:bg-secondary-100 dark:hover:bg-secondary-700 cursor-pointer transition-colors duration-150 border-b border-secondary-100 dark:border-secondary-700 last:border-0"
-               :class="{ 'selected bg-secondary-100 dark:bg-secondary-700': selectedIndex === index }">
+          <div v-for="(item, index) in displayItems" :key="getItemKey(item, index)" @click="onItemSelect(item)"
+            @mouseover="selectedIndex = index"
+            class="search-dropdown-item p-3 hover:bg-secondary-100 dark:hover:bg-secondary-700 cursor-pointer transition-colors duration-150 border-b border-secondary-100 dark:border-secondary-700 last:border-0"
+            :class="{ 'selected bg-secondary-100 dark:bg-secondary-700': selectedIndex === index }">
             <slot name="item" :item="item">
               <div class="font-medium text-secondary-900 dark:text-white">{{ getItemLabel(item) }}</div>
             </slot>
           </div>
         </div>
-        <div v-else-if="searchQuery.length >= minSearchLength" class="p-4 text-center text-secondary-500 dark:text-secondary-400">
+        <div v-else-if="searchQuery.length >= minSearchLength"
+          class="p-4 text-center text-secondary-500 dark:text-secondary-400">
           <i class="ri-search-line text-xl mb-2 block"></i>
           <p>{{ notFoundText }}</p>
           <div v-if="showAddButton" class="mt-3 flex flex-col gap-2">
             <p class="text-xs">{{ notFoundSubtext }}</p>
-            <button
-              @click="onAddNew"
-              class="mt-1 text-sm px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-white rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5 mx-auto"
-            >
+            <button @click="onAddNew"
+              class="mt-1 text-sm px-3 py-1.5 bg-primary-500 hover:bg-primary-600 text-white rounded-md transition-colors duration-200 flex items-center justify-center gap-1.5 mx-auto">
               <i class="ri-add-line"></i> {{ addButtonText }}
             </button>
           </div>
@@ -61,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, nextTick, defineEmits, defineProps, defineExpose } from 'vue'
+import { ref, watch, computed, nextTick, defineEmits, defineProps } from 'vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import { api } from '@/services/api'
 
@@ -145,6 +131,7 @@ const internalLoading = ref(false)
 const internalItems = ref([])
 // Tambahkan state untuk melacak item yang dipilih
 const selectedIndex = ref(-1)
+
 
 // Computed untuk menentukan items yang akan ditampilkan
 const displayItems = computed(() => {
@@ -356,6 +343,7 @@ defineExpose({
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

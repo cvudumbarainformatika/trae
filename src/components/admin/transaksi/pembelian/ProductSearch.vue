@@ -1,41 +1,27 @@
 <template>
   <div class="mb-4 flex space-x-2">
     <div class="flex-1 relative">
-      <SearchDropdown
-        ref="productSearchRef"
-        id="product-search"
-        v-model="searchQuery"
-        placeholder="Cari produk untuk ditambahkan..."
-        :debounce="300"
-        :min-search-length="3"
-        item-key="id"
-        item-label="name"
-        not-found-text="Produk tidak ditemukan"
-        not-found-subtext="Coba kata kunci lain atau tambahkan produk baru"
-        add-button-text="Tambah Produk Baru"
-        api-url="/api/v1/products/search"
-        api-response-path="data.data"
-        :api-params="{ per_page: 10 }"
-        :use-api="true"
-        @select="handleProductSelect"
-        @items-loaded="onProductsLoaded"
-      >
+      <SearchDropdown ref="productSearchRef" id="product-search" v-model="searchQuery"
+        placeholder="Cari produk untuk ditambahkan..." :debounce="300" :min-search-length="3" item-key="id"
+        item-label="name" not-found-text="Produk tidak ditemukan"
+        not-found-subtext="Coba kata kunci lain atau tambahkan produk baru" add-button-text="Tambah Produk Baru"
+        api-url="/api/v1/products/search" api-response-path="data.data" :api-params="{ per_page: 10 }" :use-api="true"
+        @select="handleProductSelect" @items-loaded="onProductsLoaded">
         <template #item="{ item }">
           <div class="font-medium text-secondary-900 dark:text-white">{{ item.name }}</div>
           <div class="flex justify-between text-sm">
             <span class="text-secondary-500 dark:text-secondary-400">{{ item.barcode || 'Tidak ada barcode' }}</span>
-            <span class="font-medium text-primary-600 dark:text-primary-400">Rp {{ formatCurrency(item.hargabeli) }}</span>
+            <span class="font-medium text-primary-600 dark:text-primary-400">Rp {{ formatCurrency(item.hargabeli)
+              }}</span>
           </div>
         </template>
       </SearchDropdown>
     </div>
 
     <!-- Barcode Scanner Button -->
-    <button
-      @click="openScanner"
+    <button @click="openScanner"
       class="px-3 py-2 bg-secondary-100 dark:bg-secondary-700 text-secondary-700 dark:text-secondary-300 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-600 transition-colors duration-200"
-      title="Scan Barcode"
-    >
+      title="Scan Barcode">
       <Icon name="Scan" class="w-5 h-5" />
     </button>
   </div>
@@ -62,6 +48,8 @@ const emit = defineEmits([
 
 // Refs
 const productSearchRef = ref(null)
+
+
 
 // Computed untuk v-model
 const searchQuery = ref(props.modelValue)

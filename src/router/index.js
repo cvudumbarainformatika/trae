@@ -112,7 +112,7 @@ const routes = [
           {
             path: 'kasir',
             name: 'sales-quick-form',
-            component: () => import('../views/admin/transaksi/penjualan/SalesQuickForm.vue'),
+            component: () => import('../views/admin/transaksi/penjualan/SalesQuickFormWithTabs.vue'),
             meta: { requiresAuth: true }
           }
         ]

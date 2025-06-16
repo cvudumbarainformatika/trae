@@ -18,10 +18,15 @@ export const useSalesFormStore = defineStore('salesForm', {
     items: [
       // { product_id: null, qty: 1, price: 0, subtotal: 0  }
     ],
+    itemIndexOnDelete: null,
+    showDeleteConfirm: false,
 
 
 
     existingItemHighlighted: null,
+
+    // ini baru pakai tab
+    tabs:[],
   }),
 
   getters: {
@@ -74,10 +79,41 @@ export const useSalesFormStore = defineStore('salesForm', {
       this.items[index] = item
     },
     removeItem(index) {
-      this.items.splice(index, 1)
+      this.itemIndexOnDelete = index
+      this.showDeleteConfirm = true
+      // this.items.splice(index, 1)
+    },
+    confirmDeleteItem() {
+      this.items.splice(this.itemIndexOnDelete, 1)
+      this.showDeleteConfirm = false
+      this.itemIndexOnDelete = null
+    },
+    cancelDeleteItem() {
+      this.itemIndexOnDelete = null
+      this.showDeleteConfirm = false
     },
     setItems(items) {
       this.items = items
+    },
+
+    increaseQty(index) {
+      console.log('index from store form', index);
+
+      const item = this.items[index]
+      if (!item) return
+      item.qty = (item.qty || 1) + 1
+      item.subtotal = (item.price || 0) * item.qty
+      this.updateItem(index, item)
+    },
+
+    decreaseQty(index) {
+      const item = this.items[index]
+      if (!item) return
+      if (item.qty > 1) {
+        item.qty -= 1
+        item.subtotal = (item.price || 0) * item.qty
+        this.updateItem(index, item)
+      }
     },
 
     generateUniqueCode() {
@@ -108,7 +144,7 @@ export const useSalesFormStore = defineStore('salesForm', {
         payment_method: this.payment_method,
         discount: this.discount,
         tax: this.tax,
-        reference: this.reference,
+        unique_code: this.unique_code,
         cashier_id: this.cashier_id,
         date: this.date,
         category: this.category,

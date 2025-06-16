@@ -102,6 +102,12 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       this.isDirty = true;
     },
 
+    // Method untuk memperbarui subtotal item
+    updateItemSubtotal(index) {
+      const item = this.form.items[index];
+      item.subtotal = item.price * item.quantity;
+    },
+
     // Method untuk menghapus item
     removeItem(index) {
       if (index < 0 || index >= this.form.items.length) return;
@@ -163,7 +169,13 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
     },
 
     calculateTotal() {
-      return this.form.items.reduce((total, item) => total + (item.subtotal || 0), 0)
+      // console.log('Calculating total...', this.form.items);
+
+      return this.form.items.reduce((total, item) => {
+        const price = parseFloat(item.price || 0)
+        const quantity = parseFloat(item.quantity || 0)
+        return total + (price * quantity)
+      }, 0)
     },
 
     calculateTotalQuantity() {

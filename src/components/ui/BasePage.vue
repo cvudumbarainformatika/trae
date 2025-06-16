@@ -21,7 +21,7 @@
 
     <!-- Main Content Section -->
     <div class="flex-1 flex overflow-hidden w-full relative">
-      <div class="flex flex-col h-full w-full space-y-4">
+      <div class="flex flex-col h-full w-full space-y-4 overflow-y-auto">
         <slot></slot>
       </div>
     </div>

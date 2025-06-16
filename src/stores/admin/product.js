@@ -75,17 +75,17 @@ export const useProductStore = defineStore('product', {
         ...state.filters,
         page: state.pagination.currentPage
       }
-      
+
       // Only include non-null filter values
       Object.keys(params).forEach(key => {
         if (params[key] === null || params[key] === '') {
           delete params[key]
         }
       })
-      
+
       return params
     },
-           
+
 
     paginatedProducts: (state, getters) => {
       const filteredProducts = getters?.filteredProducts || []
@@ -137,7 +137,7 @@ export const useProductStore = defineStore('product', {
     },
 
     setSearchQuery(query) {
-      
+
       this.filters.q = query
       this.setCurrentPage(1)
       this.fetchProducts()
@@ -209,7 +209,7 @@ export const useProductStore = defineStore('product', {
       this.pagination.currentPage = page
       this.fetchProducts()
     },
-    
+
 
     async fetchProducts() {
       this.loading = true
@@ -226,14 +226,14 @@ export const useProductStore = defineStore('product', {
         })
 
         // console.log('fetch products', response.data);
-        
+
         this.products = response.data?.data
         this.pagination = {
           currentPage: response.data?.meta?.current_page,
           total: response.data?.meta?.total,
           itemsPerPage: this.pagination.itemsPerPage,
           maxVisiblePages: this.pagination.maxVisiblePages
-        } 
+        }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch products'
         // console.error('Error fetching products:', error)
@@ -285,7 +285,7 @@ export const useProductStore = defineStore('product', {
       this.loading = true
       this.error = null
       try {
-        await api.delete(`/api/products/${productId}`)
+        await api.delete(`/api/v1/products/${productId}`)
         this.products = this.products.filter(p => p.id !== productId)
         this.showDeleteConfirm = false
       } catch (error) {

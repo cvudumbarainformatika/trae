@@ -102,7 +102,7 @@ const setViewMode = (mode) => {
   <BasePage
     title="Product Management"
   >
-  
+
     <!-- Filters and Search Section -->
     <div class="flex-1 flex overflow-hidden w-full space-y-4 relative">
       <div class="flex flex-col h-full w-full space-y-4">
@@ -121,7 +121,7 @@ const setViewMode = (mode) => {
                 <Icon name="filter" class="w-4 h-4" />
               </template>
               <span class="hidden sm:inline">Filters</span>
-              <span v-if="filters.category || filters.priceRange.min || filters.priceRange.max || filters.stockLevel.min || filters.stockLevel.max || filters.status !== 'all'" 
+              <span v-if="filters.category || filters.priceRange.min || filters.priceRange.max || filters.stockLevel.min || filters.stockLevel.max || filters.status !== 'all'"
                 class="ml-2 px-2 py-0.5 text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200 rounded-full"
               >
                 Active
@@ -142,8 +142,8 @@ const setViewMode = (mode) => {
           </div>
 
           <div class="flex flex-wrap items-center gap-2 bg-white dark:bg-dark-800 rounded-lg p-1">
-            <IconButton 
-              variant="info" 
+            <IconButton
+              variant="info"
               size="md"
               @click="handleAddProduct"
               class="sm:w-auto"
@@ -246,7 +246,7 @@ const setViewMode = (mode) => {
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
                     <BaseSelect
                       v-model="filters.category_id"
-                      :options="[{ label: 'All Categories', value: '' }, ...categories?.map(cat => ({ label: cat?.name, value: cat?.id }))]" 
+                      :options="[{ label: 'All Categories', value: '' }, ...categories?.map(cat => ({ label: cat?.name, value: cat?.id }))]"
                       options-label="label"
                       options-value="value"
                       placeholder="Select Category"
@@ -307,13 +307,13 @@ const setViewMode = (mode) => {
                 :key="product.id"
                 :product="product"
                 :search-query="searchQuery"
-                v-html-safe="{ 
-                  data: { 
-                    name: product.name, 
-                    barcode: product.barcode, 
-                    'category.name': product.category?.name 
-                  },   
-                  fields: ['name', 'barcode', 'category.name'], 
+                v-html-safe="{
+                  data: {
+                    name: product.name,
+                    barcode: product.barcode,
+                    'category.name': product.category?.name
+                  },
+                  fields: ['name', 'barcode', 'category.name'],
                   searchQuery: searchQuery || ''
                 }"
                 @edit="handleEditProduct"
@@ -342,7 +342,7 @@ const setViewMode = (mode) => {
               class="col-span-full"
             />
           </div>
-          
+
           <!-- Table View -->
           <div v-else class="w-full">
             <template v-if="getPageItems.length > 0">
@@ -361,10 +361,10 @@ const setViewMode = (mode) => {
               action-label="Add Product"
               @action="showProductForm = true"
             />
-            
+
           </div>
         </div>
-        
+
         <!-- Pagination -->
         <div class="flex-row">
           <BasePagination
@@ -375,7 +375,7 @@ const setViewMode = (mode) => {
             @update:currentPage="(val)=> productStore.handlePage(val)"
           />
         </div>
-        
+
       </div>
     </div>
      <!-- Product Form Modal -->
@@ -387,7 +387,7 @@ const setViewMode = (mode) => {
       <ProductForm
         :product="selectedProduct"
         :is-edit="isEdit"
-        
+
         @cancel="handleProductCancel"
       />
     </Modal>
@@ -401,25 +401,30 @@ const setViewMode = (mode) => {
     >
       <div class="p-6">
         <p class="text-gray-700 dark:text-gray-300 mb-4">
-          Are you sure you want to delete this product?
-          <span class="font-semibold">{{ selectedProduct?.name }}</span>?
-          This action cannot be undone.
+          Benar akan Menghapus product ini?
+          <span class="font-semibold text-primary-300 dark:text-primary-300">{{ selectedProduct?.name }}</span>?
+          Product ini akan terhapus dari Master.
         </p>
         <div class="flex justify-end space-x-4">
-          <IconButton
+          <!-- <IconButton
             @click="productStore.showDeleteConfirm = false"
-            variant="ghost"
+            variant="danger"
             size="md"
           >
             <span>Cancel</span>
-          </IconButton>
-          <IconButton
+          </IconButton> -->
+
+          <base-button label="Cancel" variant="ghost" @click="productStore.showDeleteConfirm = false"/>
+          <base-button label="Hapus !" variant="danger" @click="confirmDelete"/>
+
+
+          <!-- <IconButton
             @click="confirmDelete"
             variant="danger"
             size="md"
           >
             <span>Delete</span>
-          </IconButton>
+          </IconButton> -->
         </div>
       </div>
     </Modal>
