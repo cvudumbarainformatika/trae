@@ -12,7 +12,7 @@ const themeStore = useThemeStore()
 
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-hidden flex justify-center">
-      <div class="h-ful overflow-y-auto w-full max-w-[1280px] min-w-[320px] mx-auto px-2">
+      <div class="h-ful overflow-y-auto w-full max-w-[1280px] min-w-[320px] mx-auto">
         <router-view></router-view>
       </div>
     </main>
@@ -25,6 +25,7 @@ const themeStore = useThemeStore()
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);

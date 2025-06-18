@@ -13,8 +13,8 @@ const app = createApp(App)
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
-app.use(router)
 app.use(pinia)
+app.use(router)
 app.use(UIPlugin)
 // app.use(IconsPlugin)
 

@@ -1,24 +1,41 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+// import { createPinia } from 'pinia'
+
+// const pinia = createPinia()
+
 
 // Tambahkan import untuk komponen pembelian
 import PurchaseIndex from '@/views/admin/transaksi/pembelian/IndexPage.vue'
 import PurchaseDetail from '@/views/admin/transaksi/pembelian/PurchaseDetail.vue'
 import PurchaseForm from '@/views/admin/transaksi/pembelian/PurchaseForm.vue'
 
+
+
+
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: () => import('../views/Home.vue')
-  },
+  { path: '/', redirect: '/login' },
   {
     path: '/about',
     name: 'about',
     component: () => import('../views/About.vue')
   },
   {
+    path: '/login',
+    name: 'login',
+    component: () => import('../views/Login.vue')
+  },
+  {
     path: '/admin',
     component: () => import('../layouts/AdminLayout.vue'),
+    meta: { requiresAuth: true },
+    // beforeEnter: (to, from, next) => {
+    //   if (!auth.token) {
+    //     next('/login')
+    //   } else {
+    //     next()
+    //   }
+    // },
     children: [
       {
         path: '',
@@ -34,6 +51,11 @@ const routes = [
         path: 'settings',
         name: 'admin-settings',
         component: () => import('../views/admin/Settings.vue')
+      },
+      {
+        path: 'profile',
+        name: 'admin-profile',
+        component: () => import('../views/admin/Profile.vue')
       },
       // master data
       {
@@ -124,6 +146,21 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  const auth = useAuthStore()
+  const token = auth.token
+
+  if (to.meta.requiresAuth && !token) {
+    return next('/login')
+  }
+
+  if (to.name === 'login' && token) {
+    return next('/admin')
+  }
+
+  next()
 })
 
 export default router

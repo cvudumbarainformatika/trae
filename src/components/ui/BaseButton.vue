@@ -30,7 +30,11 @@ const props = defineProps({
   label: {
     type: String,
     default: ''
-  }
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  },
 })
 
 const variantClasses = {
@@ -51,20 +55,26 @@ const sizeClasses = {
 </script>
 
 <template>
-  <button
-    :type="type"
-    :disabled="disabled"
-    :class="[
-      'rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
-      variantClasses[variant],
-      sizeClasses[size],
-      block ? 'w-full' : 'inline-flex items-center justify-center',
-      'focus:ring-' + variant + '-500'
-    ]"
-  >
-    <slot name="icon-left" v-if="$slots['icon-left'] && iconPosition === 'left'" class="mr-2"></slot>
+  <button :type="type" :disabled="disabled || loading" :class="[
+    'rounded-lg font-medium transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed',
+    variantClasses[variant],
+    sizeClasses[size],
+    block ? 'w-full' : 'inline-flex items-center justify-center',
+    'focus:ring-' + variant + '-500'
+  ]">
+
+    <!-- Spinner -->
+    <svg v-if="loading" class="animate-spin h-5 w-5 text-white absolute"
+      :class="iconPosition === 'right' ? 'right-3' : 'left-3'" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+    </svg>
+
+
+    <slot name="icon-left" v-if="$slots['icon-left'] && iconPosition === 'left' && !loading" class="mr-2"></slot>
     <span v-if="label">{{ label }}</span>
     <slot v-else></slot>
-    <slot name="icon-right" v-if="$slots['icon-right'] && iconPosition === 'right'" class="ml-2"></slot>
+    <slot name="icon-right" v-if="$slots['icon-right'] && iconPosition === 'right' && !loading" class="ml-2"></slot>
   </button>
 </template>

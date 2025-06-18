@@ -1,24 +1,24 @@
 <template>
   <div class="relative">
     <!-- Tombol ikon untuk membuka dialog -->
-    <IconButton
-      @click="showDialog = true"
-      variant="ghost"
-      size="sm"
-      :title="label"
-      class="relative bg-dark-700 text-white rounded-full shadow-sm border border-gray-700 hover:bg-blue-600/20 hover:border-blue-600/50 transition-all duration-200 date-range-filter-button"
-    >
-      <template #icon>
-        <Icon name="Calendar" class="w-5 h-5" />
-        <span v-if="hasActiveFilter" class="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
-      </template>
-    </IconButton>
+    <div class="flex items-center gap-3">
+
+
+      <div class="text-secondary-800 dark:text-secondary-500">
+        <span class="text-xs">Periode {{ formatDateRange(tempRange.start_date, tempRange.end_date) }}</span>
+      </div>
+      <IconButton @click="showDialog = true" variant="ghost" size="sm" :title="label"
+        class="relative bg-dark-700 text-white rounded-full shadow-sm border border-gray-700 hover:bg-blue-600/20 hover:border-blue-600/50 transition-all duration-200 date-range-filter-button">
+        <template #icon>
+          <Icon name="Calendar" class="w-5 h-5" />
+          <span v-if="hasActiveFilter" class="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+        </template>
+      </IconButton>
+    </div>
 
     <!-- Dialog untuk filter tanggal -->
-    <div
-      v-if="showDialog"
-      class="absolute right-0 top-full mt-2 z-50 bg-dark-700 rounded-lg shadow-lg border border-gray-700 w-[600px] overflow-hidden date-range-filter-dialog"
-    >
+    <div v-if="showDialog"
+      class="absolute right-0 top-full mt-2 z-50 bg-dark-700 rounded-lg shadow-lg border border-gray-700 w-[600px] overflow-hidden date-range-filter-dialog">
       <div class="flex justify-between items-center p-4 border-b border-gray-700">
         <h3 class="text-lg font-medium text-white">{{ label }}</h3>
         <button @click="showDialog = false" class="text-gray-400 hover:text-gray-300">
@@ -30,13 +30,9 @@
         <!-- Kolom kiri: Pilihan range -->
         <div class="md:col-span-1 border-r border-gray-700 pr-4">
           <div class="space-y-2">
-            <button
-              v-for="period in periods"
-              :key="period.value"
-              @click="selectPeriod(period.value)"
+            <button v-for="period in periods" :key="period.value" @click="selectPeriod(period.value)"
               class="w-full text-left px-3 py-2 rounded-md text-sm text-gray-300 hover:bg-gray-700 transition-colors"
-              :class="{ 'bg-blue-600/20 text-blue-400': selectedPeriod === period.value }"
-            >
+              :class="{ 'bg-blue-600/20 text-blue-400': selectedPeriod === period.value }">
               {{ period.label }}
             </button>
           </div>
@@ -59,14 +55,13 @@
                     </button>
                   </div>
                   <div class="calendar-grid grid grid-cols-7 gap-1">
-                    <div v-for="day in ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']" :key="day" class="text-center text-xs text-gray-500 py-1">
+                    <div v-for="day in ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']" :key="day"
+                      class="text-center text-xs text-gray-500 py-1">
                       {{ day }}
                     </div>
                     <div v-for="(day, index) in startCalendarDays" :key="`start-${index}`"
-                      class="text-center py-1 text-sm rounded-md cursor-pointer"
-                      :class="getStartDayClasses(day)"
-                      @click="selectStartDate(day)"
-                    >
+                      class="text-center py-1 text-sm rounded-md cursor-pointer" :class="getStartDayClasses(day)"
+                      @click="selectStartDate(day)">
                       {{ day.getDate() }}
                     </div>
                   </div>
@@ -87,14 +82,13 @@
                     </button>
                   </div>
                   <div class="calendar-grid grid grid-cols-7 gap-1">
-                    <div v-for="day in ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']" :key="day" class="text-center text-xs text-gray-500 py-1">
+                    <div v-for="day in ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']" :key="day"
+                      class="text-center text-xs text-gray-500 py-1">
                       {{ day }}
                     </div>
                     <div v-for="(day, index) in endCalendarDays" :key="`end-${index}`"
-                      class="text-center py-1 text-sm rounded-md cursor-pointer"
-                      :class="getEndDayClasses(day)"
-                      @click="selectEndDate(day)"
-                    >
+                      class="text-center py-1 text-sm rounded-md cursor-pointer" :class="getEndDayClasses(day)"
+                      @click="selectEndDate(day)">
                       {{ day.getDate() }}
                     </div>
                   </div>
@@ -115,20 +109,10 @@
       </div>
 
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
-        <BaseButton
-          @click="resetFilter"
-          variant="ghost"
-          size="sm"
-          class="mr-2 text-gray-300 hover:bg-gray-700"
-        >
+        <BaseButton @click="resetFilter" variant="ghost" size="sm" class="mr-2 text-gray-300 hover:bg-gray-700">
           Reset
         </BaseButton>
-        <BaseButton
-          @click="applyFilter"
-          variant="primary"
-          size="sm"
-          class="bg-blue-600 hover:bg-blue-700"
-        >
+        <BaseButton @click="applyFilter" variant="primary" size="sm" class="bg-blue-600 hover:bg-blue-700">
           Terapkan
         </BaseButton>
       </div>
@@ -288,7 +272,7 @@ function nextMonthEnd() {
 }
 
 function selectStartDate(day) {
-  const dateStr = day.toISOString().split('T')[0]
+  const dateStr = toLocalDateString(day)
   tempRange.value.start_date = dateStr
   selectedPeriod.value = 'custom'
 
@@ -299,7 +283,7 @@ function selectStartDate(day) {
 }
 
 function selectEndDate(day) {
-  const dateStr = day.toISOString().split('T')[0]
+  const dateStr = toLocalDateString(day)
   tempRange.value.end_date = dateStr
   selectedPeriod.value = 'custom'
 
@@ -310,11 +294,11 @@ function selectEndDate(day) {
 }
 
 function getStartDayClasses(day) {
-  const dateStr = day.toISOString().split('T')[0]
+  const dateStr = toLocalDateString(day)
   const isCurrentMonth = day.getMonth() === startCalendarDate.value.getMonth()
   const isSelected = dateStr === tempRange.value.start_date
   const isInRange = tempRange.value.start_date && tempRange.value.end_date &&
-                    dateStr >= tempRange.value.start_date && dateStr <= tempRange.value.end_date
+    dateStr >= tempRange.value.start_date && dateStr <= tempRange.value.end_date
 
   return {
     'text-gray-500': !isCurrentMonth,
@@ -326,11 +310,11 @@ function getStartDayClasses(day) {
 }
 
 function getEndDayClasses(day) {
-  const dateStr = day.toISOString().split('T')[0]
+  const dateStr = toLocalDateString(day)
   const isCurrentMonth = day.getMonth() === endCalendarDate.value.getMonth()
   const isSelected = dateStr === tempRange.value.end_date
   const isInRange = tempRange.value.start_date && tempRange.value.end_date &&
-                    dateStr >= tempRange.value.start_date && dateStr <= tempRange.value.end_date
+    dateStr >= tempRange.value.start_date && dateStr <= tempRange.value.end_date
 
   return {
     'text-gray-500': !isCurrentMonth,
@@ -366,7 +350,14 @@ watch(() => props.modelValue, (newValue) => {
   }
 }, { deep: true })
 
+
+function toLocalDateString(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+
 // Pilih periode
+
 const selectPeriod = (period) => {
   selectedPeriod.value = period
 
@@ -374,38 +365,40 @@ const selectPeriod = (period) => {
     const now = new Date()
     let startDate, endDate
 
-    switch(period) {
+    switch (period) {
       case 'today':
-        startDate = now.toISOString().split('T')[0]
+        startDate = toLocalDateString(now)
         endDate = startDate
         break
+
       case 'week':
-        // Mendapatkan hari Senin dari minggu ini
+        // Senin
         const day = now.getDay()
         const diff = now.getDate() - day + (day === 0 ? -6 : 1)
-        const weekStart = new Date(new Date(now).setDate(diff))
-        startDate = weekStart.toISOString().split('T')[0]
-        // Mendapatkan hari Minggu dari minggu ini
-        const weekEnd = new Date(new Date(weekStart).setDate(weekStart.getDate() + 6))
-        endDate = weekEnd.toISOString().split('T')[0]
+        const weekStart = new Date(now.getFullYear(), now.getMonth(), diff)
+        startDate = toLocalDateString(weekStart)
+
+        // Minggu
+        const weekEnd = new Date(weekStart)
+        weekEnd.setDate(weekStart.getDate() + 6)
+        endDate = toLocalDateString(weekEnd)
         break
+
       case 'month':
-        // Tanggal 1 bulan ini
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-        // Tanggal terakhir bulan ini
-        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+        startDate = toLocalDateString(monthStart)
+        endDate = toLocalDateString(monthEnd)
         break
+
       case 'year':
-        // 1 Januari tahun ini
-        startDate = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0]
-        // 31 Desember tahun ini
-        endDate = new Date(now.getFullYear(), 11, 31).toISOString().split('T')[0]
+        startDate = toLocalDateString(new Date(now.getFullYear(), 0, 1))
+        endDate = toLocalDateString(new Date(now.getFullYear(), 11, 31))
         break
     }
 
     tempRange.value = { start_date: startDate, end_date: endDate }
 
-    // Update calendar views
     if (startDate) {
       startCalendarDate.value = new Date(startDate)
     }
@@ -442,7 +435,7 @@ const detectSelectedPeriod = () => {
   }
 
   const now = new Date()
-  const today = now.toISOString().split('T')[0]
+  const today = toLocalDateString(now)
 
   // Cek hari ini
   if (props.modelValue.start_date === today && props.modelValue.end_date === today) {
@@ -454,9 +447,9 @@ const detectSelectedPeriod = () => {
   const day = now.getDay()
   const diff = now.getDate() - day + (day === 0 ? -6 : 1)
   const weekStart = new Date(new Date(now).setDate(diff))
-  const weekStartStr = weekStart.toISOString().split('T')[0]
+  const weekStartStr = toLocalDateString(weekStart)
   const weekEnd = new Date(new Date(weekStart).setDate(weekStart.getDate() + 6))
-  const weekEndStr = weekEnd.toISOString().split('T')[0]
+  const weekEndStr = toLocalDateString(weekEnd)
 
   if (props.modelValue.start_date === weekStartStr && props.modelValue.end_date === weekEndStr) {
     selectedPeriod.value = 'week'
@@ -464,8 +457,8 @@ const detectSelectedPeriod = () => {
   }
 
   // Cek bulan ini
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+  const monthStart = toLocalDateString(new Date(now.getFullYear(), now.getMonth(), 1))
+  const monthEnd = toLocalDateString(new Date(now.getFullYear(), now.getMonth() + 1, 0))
 
   if (props.modelValue.start_date === monthStart && props.modelValue.end_date === monthEnd) {
     selectedPeriod.value = 'month'
@@ -473,8 +466,8 @@ const detectSelectedPeriod = () => {
   }
 
   // Cek tahun ini
-  const yearStart = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0]
-  const yearEnd = new Date(now.getFullYear(), 11, 31).toISOString().split('T')[0]
+  const yearStart = toLocalDateString(new Date(now.getFullYear(), 0, 1))
+  const yearEnd = toLocalDateString(new Date(now.getFullYear(), 11, 31))
 
   if (props.modelValue.start_date === yearStart && props.modelValue.end_date === yearEnd) {
     selectedPeriod.value = 'year'
@@ -484,6 +477,8 @@ const detectSelectedPeriod = () => {
   // Jika tidak cocok dengan periode yang ada, maka custom
   selectedPeriod.value = 'custom'
 }
+
+
 
 // Inisialisasi
 onMounted(() => {
@@ -506,6 +501,7 @@ onMounted(() => {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -531,7 +527,7 @@ onMounted(() => {
   user-select: none;
 }
 
-.calendar-grid > div {
+.calendar-grid>div {
   height: 28px;
   display: flex;
   align-items: center;

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
 
 // Create axios instance
 const api = axios.create({
@@ -12,7 +13,10 @@ const api = axios.create({
 // Add request interceptor to include auth token
 api.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('token')
+    const auth = useAuthStore()
+    const token = auth.token
+    // console.log('token', token);
+
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
@@ -57,7 +61,7 @@ api.interceptors.response.use(
       if (error.response.status === 401) {
         // Clear token and redirect to login
         localStorage.removeItem('token')
-        window.location.href = '/login'
+        // window.location.href = '/login'
       }
     } else if (error.request) {
       // The request was made but no response was received

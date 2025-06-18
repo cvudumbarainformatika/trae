@@ -15,7 +15,7 @@
     <template #search>
       <div class="flex items-center justify-between gap-2 w-full">
         <!-- Search Input (dengan lebar yang cukup) -->
-        <div class="relative rounded-full shadow-lg w-3/4">
+        <div class="relative rounded-full shadow-lg min-w-[300px]">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
             <Icon name="Search" class="w-5 h-5 text-indigo-400" />
           </div>
@@ -24,7 +24,9 @@
         </div>
 
         <!-- Filter Periode -->
-        <BaseDateRangeFilter v-model="dateRange" @change="handleDateRangeChange" default-period="month" />
+        <div class="flex-1 flex justify-end">
+          <BaseDateRangeFilter v-model="dateRange" @change="handleDateRangeChange" default-period="month" />
+        </div>
       </div>
     </template>
 
@@ -32,7 +34,7 @@
     <div class="flex flex-wrap gap-2 mb-4 mt-2">
       <BaseButton variant="ghost" size="sm"
         class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300"
-        :class="{ 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700': true }"
+        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'semua' }"
         @click="purchaseOrderStore.changeStatusParams('semua')">
         <span class="relative z-10">Semua</span>
         <span
@@ -40,7 +42,8 @@
       </BaseButton>
 
       <BaseButton @click="purchaseOrderStore.changeStatusParams('draft')" variant="ghost" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300">
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
+        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'draft' }">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
           Draft
@@ -50,7 +53,8 @@
       </BaseButton>
 
       <BaseButton @click="purchaseOrderStore.changeStatusParams('ordered')" variant="ghost" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300">
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300"
+        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'ordered' }">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
           Ordered
@@ -60,7 +64,8 @@
       </BaseButton>
 
       <BaseButton @click="purchaseOrderStore.changeStatusParams('received')" variant="ghost" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300">
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
+        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'received' }">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
           Received
@@ -70,7 +75,8 @@
       </BaseButton>
 
       <BaseButton @click="purchaseOrderStore.changeStatusParams('cancelled')" variant="ghost" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300">
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300"
+        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'cancelled' }">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
           Cancelled
@@ -115,7 +121,7 @@
                   <div class="flex flex-wrap items-center text-xs text-gray-500 dark:text-gray-400 gap-x-3">
                     <div class="flex items-center">
                       <Icon name="Calendar" class="w-3.5 h-3.5 mr-1" />
-                      <span>{{ new Date(item.date).toLocaleDateString() }}</span>
+                      <span>{{ formatDateIndo((item?.order_date)) }}</span>
                     </div>
                     <div class="flex items-center">
                       <Icon name="ShoppingCart" class="w-3.5 h-3.5 mr-1" />
@@ -128,9 +134,8 @@
 
                 <!-- Right: Amount - Larger -->
                 <div class="text-right">
-                  <div class="text-xl font-bold text-gray-900 dark:text-white">
-                    {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(getTotal(item) ||
-                    0) }}
+                  <div class="text-lg font-bold text-gray-900 dark:text-white">
+                    Rp. {{ formatRupiahNumber(getTotal(item) || 0) }}
                   </div>
                 </div>
               </div>
@@ -202,6 +207,8 @@
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
 import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
+import { formatDateIndo } from '@/utils/dateHelper'
+import { formatRupiahNumber } from '@/utils/uangHelper'
 import PurchaseOrderForm from './PurchaseOrderForm.vue'
 import PurchaseOrderDetail from './PurchaseOrderDetail.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'

@@ -48,6 +48,9 @@ export const useSalesStore = defineStore('sales', {
         const { data } = await api.get('/api/v1/sales', {
           params: this.params
         })
+
+        // console.log('data', data);
+
         this.sales = data?.data || []
         this.pagination.totalItems = parseInt(data?.meta?.total) || 0
         this.meta = data?.meta || null
