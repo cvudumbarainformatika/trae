@@ -38,7 +38,7 @@ const props = defineProps({
 })
 
 const variantClasses = {
-  primary: 'bg-primary-600 hover:bg-primary-700 text-white',
+  primary: 'bg-indigo-700 hover:bg-indigo-900 text-white',
   secondary: 'bg-secondary-600 hover:bg-secondary-700 text-white',
   success: 'bg-success-600 hover:bg-success-700 text-white',
   danger: 'bg-danger-600 hover:bg-danger-700 text-white',

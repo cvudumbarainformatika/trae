@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="relative p-2">
     <!-- Tombol ikon untuk membuka dialog -->
     <div class="flex items-center gap-3">
 

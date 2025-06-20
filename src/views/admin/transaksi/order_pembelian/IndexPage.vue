@@ -32,18 +32,19 @@
 
     <!-- Status Filter Buttons -->
     <div class="flex flex-wrap gap-2 mb-4 mt-2">
-      <BaseButton variant="ghost" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300"
-        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'semua' }"
+      <BaseButton :variant="purchaseOrderStore.params.status === 'semua' ? 'primary' : 'ghost'" size="sm"
+        class="relative overflow-hidden rounded-full px-6 group transition-all duration-300 border "
+        :class="`${purchaseOrderStore.params.status === 'semua' ? ' border-indigo-300 dark:border-indigo-700' : 'border-gray-400 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 '}`"
         @click="purchaseOrderStore.changeStatusParams('semua')">
         <span class="relative z-10">Semua</span>
         <span
           class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
 
-      <BaseButton @click="purchaseOrderStore.changeStatusParams('draft')" variant="ghost" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
-        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'draft' }">
+      <BaseButton @click="purchaseOrderStore.changeStatusParams('draft')"
+        :variant="purchaseOrderStore.params.status === 'draft' ? 'primary' : 'ghost'" size="sm"
+        class="relative overflow-hidden group border border-gray-400 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
+        :class="{ ' border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'draft' }">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span>
           Draft
@@ -52,9 +53,10 @@
           class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
 
-      <BaseButton @click="purchaseOrderStore.changeStatusParams('ordered')" variant="ghost" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300"
-        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'ordered' }">
+      <BaseButton @click="purchaseOrderStore.changeStatusParams('ordered')"
+        :variant="purchaseOrderStore.params.status === 'ordered' ? 'primary' : 'ghost'" size="sm"
+        class="relative overflow-hidden group border border-gray-400 dark:border-gray-700 rounded-full px-6 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300"
+        :class="{ ' border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'ordered' }">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
           Ordered
@@ -63,9 +65,10 @@
           class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
 
-      <BaseButton @click="purchaseOrderStore.changeStatusParams('received')" variant="ghost" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
-        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'received' }">
+      <BaseButton @click="purchaseOrderStore.changeStatusParams('received')"
+        :variant="purchaseOrderStore.params.status === 'received' ? 'primary' : 'ghost'" size="sm"
+        class="relative overflow-hidden group border border-gray-400 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
+        :class="{ ' border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'received' }">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
           Received
@@ -74,8 +77,9 @@
           class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
 
-      <BaseButton @click="purchaseOrderStore.changeStatusParams('cancelled')" variant="ghost" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300"
+      <BaseButton @click="purchaseOrderStore.changeStatusParams('cancelled')"
+        :variant="purchaseOrderStore.params.status === 'cancelled' ? 'primary' : 'ghost'" size="sm"
+        class="relative overflow-hidden group border border-gray-400 dark:border-gray-700 rounded-full px-6 hover:border-red-300 dark:hover:border-red-700 transition-all duration-300"
         :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': purchaseOrderStore.params.status === 'cancelled' }">
         <span class="relative z-10 flex items-center">
           <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>

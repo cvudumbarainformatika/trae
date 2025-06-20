@@ -20,7 +20,7 @@ const submenus = {
     { name: 'PO', label: 'Order Pembelian', path: '/admin/transaksi/po' },
     { name: 'Purchases', label: 'Pembelian', path: '/admin/transaksi/pembelian' },
     { name: 'Sales', label: 'Penjualan', path: '/admin/transaksi/penjualan' },
-    { name: 'Returns', label: 'Retur', path: '/admin/transaction/returns' }
+    // { name: 'Returns', label: 'Retur', path: '/admin/transaction/returns' }
   ],
   'reports': [
     { name: 'Sales Report', path: '/admin/reports/sales' },
@@ -49,6 +49,10 @@ const toggleSubmenu = (menu) => {
   }
 }
 
+const hideSubmenu = () => {
+  activeSubmenu.value = null
+}
+
 const handleSubmenuItemClick = () => {
   // Keep submenu open when clicking items
   // Only close when clicking outside or toggling the menu button
@@ -74,6 +78,10 @@ const getSubmenuIcon = (name) => {
 defineComponent({
   name: 'Sidebar',
   emits: ['submenu-toggle']
+})
+
+defineExpose({
+  hideSubmenu
 })
 </script>
 

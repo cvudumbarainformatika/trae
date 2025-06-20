@@ -1,17 +1,26 @@
 <script setup>
-import { useThemeStore } from '@/stores/theme'
+import { ref, onMounted } from 'vue'
 import Sidebar from '@/components/admin/Sidebar.vue'
 
-const themeStore = useThemeStore()
+// import { useThemeStore } from '@/stores/theme'
+// const themeStore = useThemeStore()
+
+const sidebarRef = ref(null)
+
+onMounted(() => {
+  console.log('sidebarRef', sidebarRef.value);
+
+})
+
 </script>
 
 <template>
   <div class="flex h-screen bg-gray-100 dark:bg-dark-900 overflow-hidden">
     <!-- Sidebar -->
-    <Sidebar class="w-16 h-full flex-shrink-0" />
+    <Sidebar ref="sidebarRef" class="w-16 h-full flex-shrink-0" />
 
     <!-- Main Content -->
-    <main class="flex-1 p-8 overflow-hidden flex justify-center">
+    <main class="flex-1 p-8 overflow-hidden flex justify-center" @click="sidebarRef.hideSubmenu">
       <div class="h-ful overflow-y-auto w-full max-w-[1280px] min-w-[320px] mx-auto">
         <router-view></router-view>
       </div>
