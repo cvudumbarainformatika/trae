@@ -139,6 +139,85 @@ const routes = [
           }
         ]
       },
+
+
+      // return penjualan
+      {
+        path: 'transaksi/returnpenjualan',
+        component: () => import('../views/admin/transaksi/return_penjualan/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'returnpenjualan',
+            component: () => import('../views/admin/transaksi/return_penjualan/ReturnPenjualanPage.vue')
+          },
+        ]
+      },
+      // return pembelian
+      {
+        path: 'transaksi/returnpembelian',
+        component: () => import('../views/admin/transaksi/return_pembelian/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'returnpembelian',
+            component: () => import('../views/admin/transaksi/return_pembelian/ReturnPurchasePage.vue')
+          },
+        ]
+      },
+      // pembayaran hutang ke supplier
+      {
+        path: 'transaksi/bayarhutang',
+        component: () => import('../views/admin/transaksi/pembayaran_hutang_ke_supplier/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'pembayaranhutangkesupplier',
+            component: () => import('../views/admin/transaksi/pembayaran_hutang_ke_supplier/PaymentToSupplierPage.vue')
+          },
+        ]
+      },
+      // pembayaran piutang customer
+      {
+        path: 'transaksi/bayarpiutang',
+        component: () => import('../views/admin/transaksi/pembayaran_piutang_customer/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'pembayaranpiutangcustomer',
+            component: () => import('../views/admin/transaksi/pembayaran_piutang_customer/CustomerPaymentPage.vue')
+          },
+        ]
+      },
+      // pembayaran pengeluaran kas / Beban
+      {
+        path: 'transaksi/pengeluarankas',
+        component: () => import('../views/admin/transaksi/pengeluaran_kas/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'pembayaranpiutangcustomer',
+            component: () => import('../views/admin/transaksi/pengeluaran_kas/CashOutTransactionPage.vue')
+          },
+        ]
+      },
+
+
+
+
+      // reports
+      {
+        path: 'reports/salesreport',
+        component: () => import('../views/admin/reports/sales_report/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'sales-report',
+            component: () => import('../views/admin/reports/sales_report/SalesReportPage.vue')
+          },
+        ]
+      },
+
     ]
   }
 ]

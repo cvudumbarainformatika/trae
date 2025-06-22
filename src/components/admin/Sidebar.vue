@@ -20,10 +20,14 @@ const submenus = {
     { name: 'PO', label: 'Order Pembelian', path: '/admin/transaksi/po' },
     { name: 'Purchases', label: 'Pembelian', path: '/admin/transaksi/pembelian' },
     { name: 'Sales', label: 'Penjualan', path: '/admin/transaksi/penjualan' },
-    // { name: 'Returns', label: 'Retur', path: '/admin/transaction/returns' }
+    { name: 'ReturnPjl ', label: 'Return Penjualan', path: '/admin/transaksi/returnpenjualan' },
+    { name: 'ReturnPbl', label: 'Return Pembelian', path: '/admin/transaksi/returnpembelian' },
+    { name: 'PaymentToSupplier', label: 'Pembayaran Hutang', path: '/admin/transaksi/bayarhutang' },
+    { name: 'CustomerPayment', label: 'Pembayaran Piutang', path: '/admin/transaksi/bayarpiutang' },
+    { name: 'CashOut', label: 'Pengeluaran Kas', path: '/admin/transaksi/pengeluarankas' },
   ],
   'reports': [
-    { name: 'Sales Report', path: '/admin/reports/sales' },
+    { name: 'SalesReport', label: 'Laporan Penjualan', path: '/admin/reports/salesreport' },
     { name: 'Inventory Report', path: '/admin/reports/inventory' },
     { name: 'Financial Report', path: '/admin/reports/financial' }
   ]
@@ -191,7 +195,7 @@ defineExpose({
             class="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors rounded-md"
             :class="{ 'bg-blue-600/20 text-white': route.path === item.path }">
             <component :is="getSubmenuIcon(item.name)" class="w-4 h-4 mr-2" />
-            {{ item.name }}
+            {{ item.label }}
           </router-link>
         </div>
       </div>

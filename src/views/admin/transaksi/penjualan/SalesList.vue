@@ -56,21 +56,28 @@
           class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
     </div>
-    <SalesTable :data="sales" />
+    <SalesTable :data="sales" @detail="handleDetail" />
+
+    <DialogDetail v-model="salesStore.showDetailDialog" :data="salesStore.detail"
+      @close="salesStore.showDetailDialog = false" />
+
   </BasePage>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSalesStore } from '@/stores/transaksi/penjualan/index'
 import { toLocalDateString, getMonthStartDate, getMonthEndDate } from '@/utils/dateHelper'
-import SalesTable from './SalesTable.vue'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
-import BasePage from '@/components/ui/BasePage.vue'
-import Icon from '@/components/ui/Icon.vue'
+// import SalesTable from './SalesTable.vue'
+// import BaseButton from '@/components/ui/BaseButton.vue'
+// import BaseInput from '@/components/ui/BaseInput.vue'
+// import BasePage from '@/components/ui/BasePage.vue'
+// import Icon from '@/components/ui/Icon.vue'
 import { storeToRefs } from 'pinia'
+
+const SalesTable = defineAsyncComponent(() => import('./SalesTable.vue'))
+const DialogDetail = defineAsyncComponent(() => import('./compFormWithTabs/DialogDetail.vue'))
 
 const router = useRouter()
 const salesStore = useSalesStore()
@@ -81,12 +88,6 @@ const sales = ref([])
 onMounted(() => {
   salesStore.params.start_date = dateRange.value.start_date
   salesStore.params.end_date = dateRange.value.end_date
-
-  // console.log('salesStore.params', salesStore.params, dateRange.value);
-
-
-  // salesStore.fetchSales()
-  // sales.value = salesStore.sales
 })
 
 const dateRange = ref({
@@ -96,6 +97,11 @@ const dateRange = ref({
 
 function goToKasir() {
   router.push({ path: '/admin/transaksi/penjualan/kasir' })
+}
+
+const handleDetail = (data) => {
+  salesStore.detail = data
+  salesStore.showDetailDialog = true
 }
 
 const handleDateRangeChange = () => {

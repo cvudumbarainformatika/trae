@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -40,7 +40,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'close'])
+const emit = defineEmits(['update:modelValue', 'close', 'show', 'hide'])
 
 const show = computed({
   get: () => props.modelValue,
@@ -84,70 +84,49 @@ const transitionClasses = computed(() => ({
   leaveFrom: props.fullscreen ? 'translate-x-0' : 'opacity-100 translate-y-0 sm:scale-100',
   leaveTo: props.fullscreen ? 'translate-x-full' : 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95',
 }))
+
+watchEffect(() => {
+  if (props.modelValue) {
+    emit('show')
+  } else {
+    emit('hide')
+  }
+})
+
 </script>
 
 <template>
   <Teleport to="body">
     <!-- Backdrop transition -->
-    <transition
-      enter-active-class="ease-out duration-300"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="ease-in duration-200"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="show"
-        class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity"
-        @click="handleClose"
-      />
+    <transition enter-active-class="ease-out duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100"
+      leave-active-class="ease-in duration-200" leave-from-class="opacity-100" leave-to-class="opacity-0">
+      <div v-if="show" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity"
+        @click="handleClose" />
     </transition>
 
     <!-- Dialog transition -->
-    <transition
-      :enter-active-class="transitionClasses.enter"
-      :enter-from-class="transitionClasses.enterFrom"
-      :enter-to-class="transitionClasses.enterTo"
-      :leave-active-class="transitionClasses.leave"
-      :leave-from-class="transitionClasses.leaveFrom"
-      :leave-to-class="transitionClasses.leaveTo"
-    >
-      <div
-        v-if="show"
-        :class="[
-          'fixed inset-0 z-50 flex items-center justify-center transition-all',
-          fullscreen ? 'p-0' : 'p-4',
-          customClass, // Tambahkan prop customClass
-          isEditDialog ? 'z-60' : '' // Tambahkan z-index lebih tinggi untuk dialog edit
-        ]"
-        @click.self="handleClose"
-      >
+    <transition :enter-active-class="transitionClasses.enter" :enter-from-class="transitionClasses.enterFrom"
+      :enter-to-class="transitionClasses.enterTo" :leave-active-class="transitionClasses.leave"
+      :leave-from-class="transitionClasses.leaveFrom" :leave-to-class="transitionClasses.leaveTo">
+      <div v-if="show" :class="[
+        'fixed inset-0 z-50 flex items-center justify-center transition-all',
+        fullscreen ? 'p-0' : 'p-4',
+        customClass, // Tambahkan prop customClass
+        isEditDialog ? 'z-60' : '' // Tambahkan z-index lebih tinggi untuk dialog edit
+      ]" @click.self="handleClose">
         <div :class="dialogClasses">
           <!-- Header -->
-          <div class="flex-none flex items-center justify-between p-4 border-b border-secondary-200 dark:border-secondary-700">
+          <div
+            class="flex-none flex items-center justify-between p-4 border-b border-secondary-200 dark:border-secondary-700">
             <h3 class="text-lg font-medium text-secondary-900 dark:text-white">
               {{ title }}
             </h3>
-            <button
-              v-if="closable"
-              type="button"
+            <button v-if="closable" type="button"
               class="text-secondary-400 hover:text-secondary-500 dark:text-secondary-400 dark:hover:text-secondary-300 focus:outline-none"
-              @click="handleClose"
-            >
+              @click="handleClose">
               <span class="sr-only">Close</span>
-              <svg
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
@@ -160,10 +139,8 @@ const transitionClasses = computed(() => ({
           </div>
 
           <!-- Footer -->
-          <div
-            v-if="$slots.footer"
-            class="flex-none flex items-center justify-end p-4 border-t border-secondary-200 dark:border-secondary-700 space-x-2 bg-white dark:bg-dark-700 sticky bottom-0"
-          >
+          <div v-if="$slots.footer"
+            class="flex-none flex items-center justify-end p-4 border-t border-secondary-200 dark:border-secondary-700 space-x-2 bg-white dark:bg-dark-700 sticky bottom-0">
             <slot name="footer" />
           </div>
         </div>
@@ -185,6 +162,7 @@ const transitionClasses = computed(() => ({
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -194,6 +172,7 @@ const transitionClasses = computed(() => ({
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(100%);
   }
