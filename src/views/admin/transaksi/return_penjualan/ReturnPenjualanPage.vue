@@ -3,7 +3,7 @@
     <template #actions>
       <div class="flex items-center gap-2">
         <BaseButton @click="store.showCreateDialog = true" variant="primary" size="md"
-          class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:scale-105 hover:translate-y-[-2px]">
+          class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:scale-105 hover:translate-y-[-2px] mr-2">
           <template #icon-left>
             <Icon name="Plus" class="w-4 h-4" />
           </template>
@@ -38,6 +38,9 @@
     <div v-if="store.showCreateDialog">
       <DialoFormReturn v-model="store.showCreateDialog" @close="store.showCreateDialog = false" />
     </div>
+    <div v-if="store.showDetailDialog">
+      <DialogDetail v-model="store.showDetailDialog" :data="store.detail" @close="store.showDetailDialog = false" />
+    </div>
 
     <!-- <div class="max-w-4xl mx-auto mt-10">
 
@@ -54,6 +57,7 @@ import { useReturnPenjualanStore } from '@/stores/transaksi/return_penjualan'
 
 const DataTable = defineAsyncComponent(() => import('./DataTable.vue'))
 const DialoFormReturn = defineAsyncComponent(() => import('./DialogFormReturn.vue'))
+const DialogDetail = defineAsyncComponent(() => import('./DialogDetail.vue'))
 
 
 

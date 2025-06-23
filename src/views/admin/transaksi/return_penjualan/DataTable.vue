@@ -5,11 +5,11 @@
       <div
         class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 group hover:border-indigo-200 dark:hover:border-indigo-800">
         <div class="flex flex-col md:flex-row">
-          <div class="w-full md:w-1 h-1 md:h-auto" :class="{
+          <!-- <div class="w-full md:w-1 h-1 md:h-auto" :class="{
             'bg-green-500': item?.payment_method === 'cash',
             'bg-yellow-500': item?.payment_method === 'credit',
           }">
-          </div>
+          </div> -->
           <div class="flex-1 p-4">
             <div class="flex items-start justify-between">
               <div>
@@ -38,14 +38,14 @@
               <div class="flex gap-x-4 items-center text-gray-500 dark:text-gray-400">
                 <div class="flex space-x-1 items-center">
                   <Icon name="Receipt" class="w-4 h-4" />
-                  <div class="text-base">{{ item.invoice_number || `INV-${item.id}` }}</div>
+                  <div class="text-base">{{ item.unique_code || `INV-${item.id}` }}</div>
                 </div>
-                <span class="text-xs px-2 py-0.5 rounded-full" :class="{
+                <!-- <span class="text-xs px-2 py-0.5 rounded-full" :class="{
                   'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.payment_method === 'cash',
                   'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': item.payment_method === 'credit',
                 }">
                   {{ item.payment_method === 'cash' ? 'Tunai' : 'Kredit' }}
-                </span>
+                </span> -->
               </div>
               <div class="flex items-center gap-3">
                 <BaseButton size="sm" color="primary" @click="$emit('detail', item)">

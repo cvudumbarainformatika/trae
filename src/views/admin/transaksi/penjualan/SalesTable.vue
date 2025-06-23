@@ -38,7 +38,7 @@
               <div class="flex gap-x-4 items-center text-gray-500 dark:text-gray-400">
                 <div class="flex space-x-1 items-center">
                   <Icon name="Receipt" class="w-4 h-4" />
-                  <div class="text-base">{{ item.invoice_number || `INV-${item.id}` }}</div>
+                  <div class="text-sm">{{ item.unique_code || `INV-${item.id}` }}</div>
                 </div>
                 <span class="text-xs px-2 py-0.5 rounded-full" :class="{
                   'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.payment_method === 'cash',
