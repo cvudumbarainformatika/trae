@@ -81,13 +81,14 @@ const DialogDetail = defineAsyncComponent(() => import('./compFormWithTabs/Dialo
 
 const router = useRouter()
 const salesStore = useSalesStore()
-const { params } = storeToRefs(salesStore)
-const sales = ref([])
+const { params, sales } = storeToRefs(salesStore)
 // const params = ref({ q: '', status: 'semua' })
 
 onMounted(() => {
   salesStore.params.start_date = dateRange.value.start_date
   salesStore.params.end_date = dateRange.value.end_date
+
+  salesStore.fetchSales()
 })
 
 const dateRange = ref({
@@ -116,9 +117,7 @@ watch(dateRange, (newRange) => {
 
 watch(salesStore.params, () => {
   salesStore.fetchSales()
-    .then(() => {
-      sales.value = salesStore.sales
-    })
+
   // sales.value = salesStore.sales
 }, { deep: true })
 

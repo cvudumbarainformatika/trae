@@ -6,14 +6,17 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="!items || items.length === 0"
+    <!-- <div v-else-if="!items || items.length === 0"
       class="flex flex-col items-center justify-center h-64 text-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700">
       <Icon :name="emptyIcon" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
       <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ emptyTitle }}</h3>
       <p class="text-gray-500 dark:text-gray-400 max-w-md">
         {{ emptyDescription }}
       </p>
-    </div>
+    </div> -->
+
+    <NoData v-else-if="!items || items.length === 0" :empty-icon="emptyIcon" :empty-message="emptyTitle"
+      :description="emptyDescription" />
 
     <!-- Item List -->
     <div v-else class="grid gap-4">

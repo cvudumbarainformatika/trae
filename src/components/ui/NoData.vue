@@ -38,7 +38,7 @@ const iconSize = computed(() => {
     </div>
 
     <!-- Content container -->
-    <div class="relative z-10 flex flex-col items-center space-y-6 text-center max-w-lg mx-auto">
+    <div class="relative z-5 flex flex-col items-center space-y-6 text-center max-w-lg mx-auto">
       <!-- Icon with glowing effect -->
       <div class="relative">
         <div class="absolute inset-0 bg-primary-500/20 dark:bg-primary-500/10 blur-xl rounded-full animate-pulse"></div>

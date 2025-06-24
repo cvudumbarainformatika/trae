@@ -34,6 +34,8 @@ const storeForm = useReturnPenjualanFormStore()
 
 
 const closeDialog = () => {
+
+  storeForm.item = null
   emit('close')
 }
 
