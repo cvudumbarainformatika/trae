@@ -179,25 +179,25 @@ const routes = [
       },
       // pembayaran piutang customer
       {
-        path: 'transaksi/bayarpiutang',
+        path: 'transaksi/bayar-piutang',
         component: () => import('../views/admin/transaksi/pembayaran_piutang_customer/IndexPage.vue'),
         children: [
           {
             path: '',
-            name: 'pembayaranpiutangcustomer',
+            name: 'pembayaran-piutangcustomer',
             component: () => import('../views/admin/transaksi/pembayaran_piutang_customer/CustomerPaymentPage.vue')
           },
         ]
       },
-      // pembayaran pengeluaran kas / Beban
+      // arus kas kasir
       {
-        path: 'transaksi/pengeluarankas',
-        component: () => import('../views/admin/transaksi/pengeluaran_kas/IndexPage.vue'),
+        path: 'transaksi/aruskas',
+        component: () => import('../views/admin/transaksi/aruskas/IndexPage.vue'),
         children: [
           {
             path: '',
-            name: 'pembayaranpiutangcustomer',
-            component: () => import('../views/admin/transaksi/pengeluaran_kas/CashOutTransactionPage.vue')
+            name: 'aruskas',
+            component: () => import('../views/admin/transaksi/aruskas/CashFlowPage.vue')
           },
         ]
       },
@@ -213,7 +213,40 @@ const routes = [
           {
             path: '',
             name: 'sales-report',
-            component: () => import('../views/admin/reports/sales_report/SalesReportPage.vue')
+            component: () => import('../views/admin/reports/sales_report/ReportPage.vue')
+          },
+        ]
+      },
+      {
+        path: 'reports/purchase-report',
+        component: () => import('../views/admin/reports/purchase_report/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'purchase-report',
+            component: () => import('../views/admin/reports/purchase_report/ReportPage.vue')
+          },
+        ]
+      },
+      {
+        path: 'reports/return-penjualan',
+        component: () => import('../views/admin/reports/return_penjualan/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'return-penjualan-report',
+            component: () => import('../views/admin/reports/return_penjualan/ReportPage.vue')
+          },
+        ]
+      },
+      {
+        path: 'reports/return-pembelian',
+        component: () => import('../views/admin/reports/return_pembelian/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'return-pembelian-report',
+            component: () => import('../views/admin/reports/return_pembelian/ReportPage.vue')
           },
         ]
       },

@@ -23,13 +23,14 @@ const submenus = {
     { name: 'ReturnPjl ', label: 'Return Penjualan', path: '/admin/transaksi/returnpenjualan' },
     { name: 'ReturnPbl', label: 'Return Pembelian', path: '/admin/transaksi/returnpembelian' },
     { name: 'PaymentToSupplier', label: 'Pembayaran Hutang', path: '/admin/transaksi/bayarhutang' },
-    { name: 'CustomerPayment', label: 'Pembayaran Piutang', path: '/admin/transaksi/bayarpiutang' },
-    { name: 'CashOut', label: 'Pengeluaran Kas', path: '/admin/transaksi/pengeluarankas' },
+    { name: 'CustomerPayment', label: 'Pembayaran Piutang', path: '/admin/transaksi/bayar-piutang' },
+    { name: 'CashFlow', label: 'Arus Kas Kasir', path: '/admin/transaksi/aruskas' },
   ],
   'reports': [
     { name: 'SalesReport', label: 'Laporan Penjualan', path: '/admin/reports/salesreport' },
-    { name: 'Inventory Report', path: '/admin/reports/inventory' },
-    { name: 'Financial Report', path: '/admin/reports/financial' }
+    { name: 'PurchaseReport', label: 'Laporan Pembelian', path: '/admin/reports/purchase-report' },
+    { name: 'SalesReturn', label: 'Return Penjualan', path: '/admin/reports/return-penjualan' },
+    { name: 'PurchaseReturn', label: 'Return Pembelian', path: '/admin/reports/return-pembelian' }
   ]
 }
 

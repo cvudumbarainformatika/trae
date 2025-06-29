@@ -203,7 +203,7 @@ const fetchFromApi = async (query) => {
 }
 
 const onSearch = () => {
-  if (searchQuery.value.length >= props.minSearchLength) {
+  if ((searchQuery.value.length >= props.minSearchLength) && searchQuery.value.trim()) {
     if (props.useApi) {
       fetchFromApi(searchQuery.value)
     } else {

@@ -4,9 +4,10 @@
       <SearchDropdown ref="productSearchRef" id="product-search" v-model="searchQuery"
         placeholder="Cari produk untuk ditambahkan..." :debounce="300" :min-search-length="3" item-key="id"
         item-label="name" not-found-text="Produk tidak ditemukan"
-        not-found-subtext="Coba kata kunci lain atau tambahkan produk baru" add-button-text="Tambah Produk Baru"
-        api-url="/api/v1/products/search" api-response-path="data.data" :api-params="{ per_page: 10 }" :use-api="true"
-        @select="handleProductSelect" @items-loaded="onProductsLoaded">
+        :not-found-subtext="addNotFoundProduct ? 'Coba kata kunci lain atau tambahkan produk baru' : 'Coba kata kunci lain'"
+        :add-button-text="addNotFoundProduct ? 'Tambah Produk Baru' : 'T'" api-url="/api/v1/products/search"
+        api-response-path="data.data" :api-params="{ per_page: 10 }" :use-api="true" @select="handleProductSelect"
+        @items-loaded="onProductsLoaded" :show-add-button="addNotFoundProduct">
         <template #item="{ item }">
           <div class="font-medium text-secondary-900 dark:text-white">{{ item.name }}</div>
           <div class="flex justify-between text-sm">
@@ -36,6 +37,10 @@ const props = defineProps({
   modelValue: {
     type: String,
     default: ''
+  },
+  addNotFoundProduct: {
+    type: Boolean,
+    default: true
   }
 })
 

@@ -1,0 +1,86 @@
+<template>
+  <BasePage title="Laporan Penjualan" subtitle="Laporan Penjualan berdasarkan periode dan pendukung lainnya">
+
+    <template #actions>
+      <div class="flex items-center gap-2 no-print">
+        <BaseButton @click="handlePrint" variant="primary" size="md"
+          class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:scale-105 hover:translate-y-[-2px] mr-2">
+          <template #icon-left>
+            <Icon name="Print" class="w-4 h-4 mr-2" />
+          </template>
+          Cetak
+        </BaseButton>
+      </div>
+    </template>
+    <template #search>
+      <div class="flex items-center justify-between gap-2 w-full no-print">
+        <!-- Search Input (dengan lebar yang cukup) -->
+        <div class="relative rounded-full shadow-lg min-w-[300px]">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+            <Icon name="Search" class="w-5 h-5 text-indigo-400" />
+          </div>
+          <BaseInput v-model="store.params.q" placeholder="Cari Transksi / Kasir .." type="text" clearable
+            :debounce="500" @update:model-value="store.fetchData" />
+        </div>
+
+        <!-- Filter Periode -->
+        <div class="flex-1 flex justify-end no-print">
+          <BaseDateRangeFilter v-model="store.params" @change="store.fetchData" default-period="month" />
+        </div>
+
+
+      </div>
+    </template>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      <div v-for="box in summaryBoxes" :key="box.label"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow p-2 flex flex-col justify-between">
+        <div class="text-sm text-gray-500 dark:text-gray-400">{{ box?.label }}</div>
+        <div class="text-lg font-bold text-gray-900 dark:text-white mt-1">{{ formatRupiah(box?.value) }}</div>
+      </div>
+    </div>
+    <div class="printable-area">
+      <DataTable ref="printRef" :data="store.items" :params="store.params" :summary="store.summary" />
+    </div>
+    <BasePagination v-if="store.paginationInfo.totalItems > 0" v-model:current-page="store.pagination.page"
+      :total-items="store.paginationInfo.totalItems" :items-per-page="store.pagination.itemsPerPage"
+      @update:current-page="store.handlePageChange" />
+
+  </BasePage>
+</template>
+
+<script setup>
+import { ref, onMounted, defineAsyncComponent, computed } from 'vue'
+import { useReportPenjualanStore } from '@/stores/reports/penjualan'
+import { formatRupiah } from '@/utils/uangHelper'
+import { printHtmlElement } from '@/utils/printing';
+
+const DataTable = defineAsyncComponent(() => import('./DataTable.vue'))
+
+const store = useReportPenjualanStore()
+const summaryBoxes = computed(() => {
+  return [
+    { label: 'Total Penjualan', value: store.summary?.total_penjualan },
+    { label: 'Total Dibayar', value: store.summary?.total_dibayar },
+    { label: 'Total Penjualan Kredit', value: store.summary?.total_credit },
+    { label: 'Jumlah Transaksi', value: store.summary?.jumlah_transaksi },
+  ]
+})
+
+const printRef = ref(null)
+
+
+onMounted(() => {
+  Promise.all([
+    store.fetchData(),
+    store.fetchSummary()
+  ])
+})
+
+const handlePrint = () => {
+  if (printRef.value) {
+    printHtmlElement(printRef.value.$el);
+  }
+}
+</script>
+<style scoped></style>

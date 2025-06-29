@@ -5,7 +5,7 @@
       DAFTAR PRODUK
     </h3>
     <ProductSearch ref="productSearchRef" v-model="productSearch" @add-product="addProduct"
-      @open-scanner="showScanner = true" @products-loaded="onProductsLoaded" />
+      @open-scanner="showScanner = true" @products-loaded="onProductsLoaded" :add-not-found-product="false" />
     <div class="overflow-x-auto">
       <!-- <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 hidden md:table">
         <thead class="bg-gray-50 dark:bg-gray-700">
@@ -183,6 +183,7 @@ function addProduct(product) {
   const item = {
     product_id: product.id ?? product.product_id ?? null,
     product: product,
+    harga_modal: StringToNumber(product.hargabeli) ?? 0,
     qty: 1,
     price: getItemPrice(product),
     subtotal: getItemPrice(product) * 1,

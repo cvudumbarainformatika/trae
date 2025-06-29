@@ -18,6 +18,15 @@ export function formatDateIndo(dateInput) {
   })
 }
 
+export function formatTimeIndo(dateInput) {
+  const date = new Date(dateInput)
+  return date.toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
+}
+
 // Format rentang tanggal bahasa Indonesia
 export function formatDateRange(startDate, endDate) {
   if (!startDate || !endDate) return ''
