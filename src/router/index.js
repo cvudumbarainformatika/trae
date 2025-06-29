@@ -250,6 +250,17 @@ const routes = [
           },
         ]
       },
+      {
+        path: 'reports/laba-rugi',
+        component: () => import('../views/admin/reports/labarugi/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'laba-rugi-report',
+            component: () => import('../views/admin/reports/labarugi/ReportPage.vue')
+          },
+        ]
+      },
 
     ]
   }

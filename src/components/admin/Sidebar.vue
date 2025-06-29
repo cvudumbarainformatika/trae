@@ -30,7 +30,8 @@ const submenus = {
     { name: 'SalesReport', label: 'Laporan Penjualan', path: '/admin/reports/salesreport' },
     { name: 'PurchaseReport', label: 'Laporan Pembelian', path: '/admin/reports/purchase-report' },
     { name: 'SalesReturn', label: 'Return Penjualan', path: '/admin/reports/return-penjualan' },
-    { name: 'PurchaseReturn', label: 'Return Pembelian', path: '/admin/reports/return-pembelian' }
+    { name: 'PurchaseReturn', label: 'Return Pembelian', path: '/admin/reports/return-pembelian' },
+    { name: 'LabaRugi', label: 'Laba Rugi', path: '/admin/reports/laba-rugi' }
   ]
 }
 
