@@ -4,6 +4,7 @@ import { api } from '@/services/api'
 export const useSupplierStore = defineStore('supplier', {
   state: () => ({
     suppliers: [],
+    meta:null,
     searchQuery: '',
     showSupplierForm: false,
     params: {
@@ -14,9 +15,9 @@ export const useSupplierStore = defineStore('supplier', {
       q: ''
     },
     pagination: {
-      total: 0,
-      current_page: 1,
-      last_page: 1
+      page: 1,
+      itemsPerPage: 10,
+      totalItems: 0
     },
     loading: false,
     error: null
@@ -29,15 +30,26 @@ export const useSupplierStore = defineStore('supplier', {
 
     paginationInfo: (state) => {
       return {
-        currentPage: state.pagination.current_page,
-        totalPages: state.pagination.last_page,
-        totalItems: state.pagination.total,
-        itemsPerPage: state.params.per_page
+        currentPage: state.pagination.page,
+        totalPages: Math.ceil(state.pagination.totalItems / state.pagination.itemsPerPage),
+        totalItems: state.pagination.totalItems,
+        itemsPerPage: state.pagination.itemsPerPage
       }
     }
   },
 
   actions: {
+    handlePageChange(page) {
+      if (page < 1 || page > Math.ceil(this.pagination.totalItems / this.pagination.itemsPerPage)) {
+        return
+      }
+      this.pagination = {
+        ...this.pagination,
+        page
+      }
+      // this.params.page = page
+      this.setPage(page)
+    },
     setShowSupplierForm(value) {
       this.showSupplierForm = value
     },
@@ -49,6 +61,7 @@ export const useSupplierStore = defineStore('supplier', {
     },
 
     setPage(page) {
+      this.pagination.page = page
       this.params.page = page
       this.fetchSuppliers()
     },
@@ -72,15 +85,22 @@ export const useSupplierStore = defineStore('supplier', {
       try {
         const response = await api.get('/api/v1/suppliers', { params: this.params })
         this.suppliers = response.data.data || []
+        this.pagination.totalItems = parseInt(response?.data?.meta?.total) || 0
+        this.meta = response?.data?.meta || null
 
-        // Update pagination info
-        if (response.data.meta) {
-          this.pagination = {
-            total: response.data.meta.total,
-            current_page: response.data.meta.current_page,
-            last_page: response.data.meta.last_page
-          }
-        }
+        // console.log('suppliers', this.suppliers, response, this.paginationInfo);
+        // // Update pagination info
+        // if (response.data.meta) {
+        //   this.pagination = {
+        //     totalItems: response.data.meta.total,
+        //     current_page: response.data.meta.current_page,
+        //     last_page: response.data.meta.last_page
+        //   }
+        // }
+
+        return this.suppliers
+
+
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch suppliers'
         console.error('Error fetching suppliers:', error)

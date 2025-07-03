@@ -140,7 +140,8 @@ export const useReturnPenjualanStore = defineStore('return-penjualan-store', {
         ...this.pagination,
         page
       }
-      this.params.page = page
+      // this.params.page = page
+      this.setPage(page)
     }
   }
 })

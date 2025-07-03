@@ -8,7 +8,7 @@ import Sidebar from '@/components/admin/Sidebar.vue'
 const sidebarRef = ref(null)
 
 onMounted(() => {
-  console.log('sidebarRef', sidebarRef.value);
+  // console.log('sidebarRef', sidebarRef.value);
 
 })
 

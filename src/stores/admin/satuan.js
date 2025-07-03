@@ -15,7 +15,7 @@ export const useSatuanStore = defineStore('satuan', {
     filteredSatuans: (state) => {
       return state.satuans.filter(satuan => {
         if (!state.searchQuery) return true
-        
+
         const query = state.searchQuery.toLowerCase()
         return (
           satuan.name.toLowerCase().includes(query) ||
@@ -41,8 +41,8 @@ export const useSatuanStore = defineStore('satuan', {
       this.error = null
       try {
         const response = await api.get('/api/v1/satuans')
-        console.log('satuans', response.data);
-        
+        // console.log('satuans', response.data);
+
         this.satuans = response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch units'
@@ -106,7 +106,7 @@ export const useSatuanStore = defineStore('satuan', {
 
     setShowSatuanForm(show) {
       this.showSatuanForm = show
-      
+
     },
 
     setSearchQuery(query) {

@@ -52,7 +52,7 @@
           <BaseButton variant="secondary" @click="handleClose">
             Batal
           </BaseButton>
-          <BaseButton variant="primary" :disabled="!canSubmitForm" @click="submitForm">
+          <BaseButton variant="primary" :loading="store.loading" :disabled="!canSubmitForm" @click="submitForm">
             <Icon name="Save" class="w-4 h-4 mr-1" /> {{ store.editMode ? 'Simpan Perubahan' : 'Simpan Order' }}
           </BaseButton>
         </div>
@@ -72,9 +72,8 @@ import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
 import SupplierForm from '@/components/admin/suppliers/SupplierForm.vue'
 import { useSupplierStore } from '@/stores/admin/supplier'
 import { useRouter } from 'vue-router'
-// import SupplierSelection from '@/components/admin/transaksi/order_pembelian/SupplierSelection.vue'
-// import ProductList from '@/components/admin/transaksi/order_pembelian/ProductList.vue'
 import { api } from '@/services/api'
+import { useNotification } from '@/composables/useNotification'
 
 
 const SupplierSelection = defineAsyncComponent(() => import('@/components/admin/transaksi/order_pembelian/SupplierSelection.vue'))
@@ -82,6 +81,9 @@ const ProductList = defineAsyncComponent(() => import('@/components/admin/transa
 
 // Props & emits
 const emit = defineEmits(['update:modelValue', 'success', 'close', 'loading'])
+
+
+const { notify } = useNotification()
 
 
 // Store
@@ -162,6 +164,11 @@ const handleSupplierSubmit = async (formData) => {
     }
   } catch (error) {
     console.error('Error adding supplier:', error)
+    notify({
+      title: 'Gagal',
+      message: 'Gagal Saat menambahkan supplier',
+      type: 'error'
+    })
   }
 }
 
@@ -215,11 +222,21 @@ const formatNumber = (value) =>
 const submitForm = () => {
   if (!isFormValid.value) {
     if (!store.form.supplier_id) {
-      alert('Silakan pilih supplier terlebih dahulu')
+      // alert('Silakan pilih supplier terlebih dahulu')
+      notify({
+        title: 'Peringatan !',
+        message: 'Silakan pilih supplier terlebih dahulu',
+        type: 'error'
+      })
       return
     }
     if (store.form.items.length === 0) {
-      alert('Silakan tambahkan minimal satu item')
+      // alert('Silakan tambahkan minimal satu item')
+      notify({
+        title: 'Peringatan !',
+        message: 'Silakan tambahkan minimal satu item',
+        type: 'error'
+      })
       return
     }
     return
@@ -227,12 +244,23 @@ const submitForm = () => {
 
   store.submitForm()
     .then(() => {
-      console.log('Form submitted successfully')
+      // console.log('Form submitted successfully')
       emit('success')
+      // alert('Order berhasil disimpan')
+      notify({
+        title: 'Berhasil',
+        message: 'Order berhasil disimpan',
+        type: 'success'
+      })
     })
     .catch(error => {
       console.error('Error submitting form:', error)
-      alert('Terjadi kesalahan saat menyimpan order. Silakan coba lagi.')
+      // alert('Terjadi kesalahan saat menyimpan order. Silakan coba lagi.')
+      notify({
+        title: 'Gagal',
+        message: 'Gagal saat menyimpan order. Silakan coba lagi.',
+        type: 'error'
+      })
     })
 }
 
@@ -278,9 +306,9 @@ onMounted(async () => {
   })
 
   // Log untuk debugging
-  console.log('PurchaseOrderForm mounted, editMode:', store.editMode)
-  console.log('Supplier ID:', store.form.supplier_id)
-  console.log('Available suppliers:', store.suppliers)
+  // console.log('PurchaseOrderForm mounted, editMode:', store.editMode)
+  // console.log('Supplier ID:', store.form.supplier_id)
+  // console.log('Available suppliers:', store.suppliers)
 })
 
 onUnmounted(() => {

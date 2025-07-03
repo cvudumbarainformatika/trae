@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useProductStore } from '@/stores/admin/product'
 import { useProductFormStore } from '@/stores/forms/productForm'
 import { useSatuanStore } from '@/stores/admin/satuan'
@@ -8,6 +8,7 @@ import BarcodeScanner from '@/components/admin/BarcodeScanner.vue'
 import ProductCard from '@/components/admin/products/ProductCard.vue'
 import ProductTable from '@/components/admin/products/ProductTable.vue'
 import { useCategoryStore } from '@/stores/admin/category'
+import { useNotification } from '@/composables/useNotification'
 
 // Store initialization
 const productStore = useProductStore()

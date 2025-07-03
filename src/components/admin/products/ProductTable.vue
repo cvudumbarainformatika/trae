@@ -43,8 +43,8 @@ const getStockStatusClass = (product) => {
 }
 
 const getStockStatus = (product) => {
-  if (product.stock <= 0) return 'out-of-stock'
-  if (product.stock <= product.minstock) return 'low-stock'
+  if (product.stock_akhir <= 0) return 'out-of-stock'
+  if (product.stock_akhir <= product.minstock && product.stock_akhir > 0) return 'low-stock'
   return 'in-stock'
 }
 
@@ -76,32 +76,32 @@ const formatCurrency = (value) => {
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Status
             </th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
+            <th scope="col"
+              class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Actions
             </th>
           </tr>
         </thead>
         <tbody class="bg-white dark:bg-dark-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <tr v-for="product in products" :key="product.id"
-          class="hover:bg-gray-50 dark:hover:bg-dark-700"
-          v-html-safe="{ 
-            data: { 
-              name: product.name, 
-              barcode: product.barcode, 
-              'category.name': product.category?.name 
-            },  
-            fields: ['name', 'barcode', 'category.name'], 
-            searchQuery: searchQuery 
-          }"
-          >
+          <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50 dark:hover:bg-dark-700" v-html-safe="{
+            data: {
+              name: product.name,
+              barcode: product.barcode,
+              'category.name': product.category?.name
+            },
+            fields: ['name', 'barcode', 'category.name'],
+            searchQuery: searchQuery
+          }">
             <td class="px-6 py-4 lg:whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10">
                   <img class="h-10 w-10 rounded-full object-cover" :src="product.image || noImage" :alt="product.name">
                 </div>
                 <div class="ml-4">
-                  <div data-field="name" class="text-sm font-medium text-gray-900 dark:text-white lg:truncate">{{ product.name }}</div>
-                  <div data-field="barcode" class="text-sm text-gray-500 dark:text-gray-400 lg:truncate">{{ product.barcode }}</div>
+                  <div data-field="name" class="text-sm font-medium text-gray-900 dark:text-white lg:truncate">{{
+                    product.name }}</div>
+                  <div data-field="barcode" class="text-sm text-gray-500 dark:text-gray-400 lg:truncate">{{
+                    product.barcode }}</div>
                 </div>
               </div>
             </td>
@@ -112,7 +112,7 @@ const formatCurrency = (value) => {
               <div class="truncate">{{ formatCurrency(product.hargajual) }}</div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap">
-              <div class="truncate">{{ product.stock }}</div>
+              <div class="truncate">{{ product.stock_akhir }}</div>
             </td>
             <td class="px-6 py-4 lg:whitespace-nowrap">
               <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(product)]">
@@ -120,20 +120,12 @@ const formatCurrency = (value) => {
               </span>
             </td>
             <td class="px-6 py-4 lg:whitespace-nowrap text-right text-sm font-medium space-x-2">
-              <IconButton
-                @click="emit('edit', product)"
-                variant="primary"
-                size="sm"
-              >
+              <IconButton @click="emit('edit', product)" variant="primary" size="sm">
                 <template #icon>
                   <Icon name="Edit" class="w-4 h-4" />
                 </template>
               </IconButton>
-              <IconButton
-                @click="emit('delete', product)"
-                variant="danger"
-                size="sm"
-              >
+              <IconButton @click="emit('delete', product)" variant="danger" size="sm">
                 <template #icon>
                   <Icon name="Trash" class="w-4 h-4" />
                 </template>
@@ -165,21 +157,15 @@ const formatCurrency = (value) => {
             <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(product)]">
               {{ getStockStatus(product) }} ({{ product.currentStock }})
             </span>
+
+
             <div class="space-x-2">
-              <IconButton
-                @click="emit('edit', product)"
-                variant="primary"
-                size="sm"
-              >
+              <IconButton @click="emit('edit', product)" variant="primary" size="sm">
                 <template #icon>
                   <Icon name="Edit" class="w-4 h-4" />
                 </template>
               </IconButton>
-              <IconButton
-                @click="emit('delete', product)"
-                variant="danger"
-                size="sm"
-              >
+              <IconButton @click="emit('delete', product)" variant="danger" size="sm">
                 <template #icon>
                   <Icon name="Trash" class="w-4 h-4" />
                 </template>

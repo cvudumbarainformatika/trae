@@ -160,18 +160,18 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   const submitForm = async () => {
     loading.value = true
     try {
-      console.log('Submitting form to API:', form.value);
+      // console.log('Submitting form to API:', form.value);
 
       let response;
 
       if (editMode.value && editId.value) {
         // Update existing PO
         response = await api.put(`/api/v1/purchase-orders/${editId.value}`, form.value);
-        console.log('API response (update):', response);
+        // console.log('API response (update):', response);
       } else {
         // Create new PO
         response = await api.post('/api/v1/purchase-orders', form.value);
-        console.log('API response (create):', response);
+        // console.log('API response (create):', response);
       }
 
       purchaseOrder.value = response?.data || null;
@@ -192,12 +192,12 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   const updateForm = async (id) => {
     loading.value = true
     try {
-      console.log('Updating form to API:', form.value);
+      // console.log('Updating form to API:', form.value);
 
       // Pastikan endpoint API benar
       const response = await api.put(`/api/v1/purchase-orders/${id}`, form.value);
 
-      console.log('API response:', response);
+      // console.log('API response:', response);
 
       await fetchPurchaseOrders();
       showCreateDialog.value = false;
@@ -249,7 +249,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     try {
       console.log('Fetching purchase order by ID:', id)
       const { data } = await api.get(`/api/v1/purchase-orders/${id}`)
-      console.log('Purchase order data received:', data)
+      // console.log('Purchase order data received:', data)
 
       // Update form dengan data yang diambil
       form.value = {
@@ -294,7 +294,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
     if (!supplierId) return
 
     try {
-      console.log('Fetching supplier by ID:', supplierId)
+      // console.log('Fetching supplier by ID:', supplierId)
       const { data } = await api.get(`/api/v1/suppliers/${supplierId}`)
 
       // Periksa apakah supplier sudah ada di array
@@ -312,7 +312,7 @@ export const usePurchaseOrderStore = defineStore('purchaseOrder', () => {
   // Tambahkan fungsi untuk memuat semua supplier
   const fetchSuppliers = async () => {
     try {
-      console.log('Fetching all suppliers')
+      // console.log('Fetching all suppliers')
       const { data } = await api.get('/api/v1/suppliers')
       suppliers.value = data?.data || []
       return suppliers.value

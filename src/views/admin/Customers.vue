@@ -1,11 +1,8 @@
 <template>
   <BasePage title="Pelanggan" subtitle="Kelola data pelanggan Anda">
     <template #actions>
-      <button
-        type="button"
-        @click="customerStore.setShowCustomerForm(true)"
-        class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
-      >
+      <button type="button" @click="customerStore.setShowCustomerForm(true)"
+        class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
         Tambah Pelanggan
       </button>
     </template>
@@ -15,16 +12,8 @@
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <i class="ri-search-line text-gray-400" />
         </div>
-        <BaseInput
-          v-model="customerStore.params.q"
-          placeholder="Cari pelanggan..."
-          type="text"
-          class="w-full"
-          clearable
-          :debounce="500"
-          @clear="customerStore.params.q = ''"
-          @update:model-value="customerStore.setSearchQuery"
-        />
+        <BaseInput v-model="customerStore.params.q" placeholder="Cari pelanggan..." type="text" class="w-full" clearable
+          :debounce="500" @clear="customerStore.params.q = ''" @update:model-value="customerStore.setSearchQuery" />
       </div>
     </template>
 
@@ -37,7 +26,8 @@
               <!-- In the table header section -->
               <thead class="bg-gray-100 dark:bg-dark-700">
                 <tr>
-                  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 sm:pl-6">
+                  <th scope="col"
+                    class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 sm:pl-6">
                     Nama
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -57,7 +47,7 @@
                   </th>
                 </tr>
               </thead>
-              
+
               <!-- In the table body section -->
               <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-dark-800">
                 <tr v-if="customerStore.loading" class="animate-pulse">
@@ -75,8 +65,10 @@
                     Tidak ada data pelanggan
                   </td>
                 </tr>
-                <tr v-for="customer in customerStore.filteredCustomers" :key="customer.id" class="hover:bg-gray-50 dark:hover:bg-dark-700">
-                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-700 dark:text-gray-300 sm:pl-6">
+                <tr v-for="customer in customerStore.filteredCustomers" :key="customer.id"
+                  class="hover:bg-gray-50 dark:hover:bg-dark-700">
+                  <td
+                    class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-700 dark:text-gray-300 sm:pl-6">
                     {{ customer.name }}
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400">
@@ -89,7 +81,7 @@
                     {{ formatCurrency(customer.receivable?.initial_amount || 0) }}
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400">
-                    {{ formatCurrency(customer.receivable?.current_amount || 0) }}
+                    {{ formatCurrency(customer?.total_piutang || 0) }}
                   </td>
                   <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                     <div class="space-x-2">
@@ -114,36 +106,24 @@
     </div>
 
     <!-- Customer Form Modal -->
-    <CustomerForm
-      v-if="showCustomerForm"
-      v-model="showCustomerForm"
-      :customer="selectedCustomer"
-      :is-edit="!!selectedCustomer"
-      @close="handleClose"
-      @submit="handleSubmit"
-    />
+    <CustomerForm v-if="showCustomerForm" v-model="showCustomerForm" :customer="selectedCustomer"
+      :is-edit="!!selectedCustomer" @close="handleClose" @submit="handleSubmit" />
 
     <!-- Delete Confirmation Modal -->
-    <Modal 
-      v-model="showDeleteModal" 
-      title="Hapus Pelanggan"
-      @close="showDeleteModal = false"
-    >
+    <Modal v-model="showDeleteModal" title="Hapus Pelanggan" @close="showDeleteModal = false">
       <div class="mt-2">
-        <p class="text-sm text-gray-500 dark:text-gray-400">Apakah Anda yakin ingin menghapus pelanggan ini? Tindakan ini tidak dapat dibatalkan.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Apakah Anda yakin ingin menghapus pelanggan ini? Tindakan
+          ini
+          tidak dapat dibatalkan.</p>
       </div>
       <template #footer>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-          <button
-            @click="confirmDelete"
-            class="inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-          >
+          <button @click="confirmDelete"
+            class="inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
             Hapus
           </button>
-          <button
-            @click="showDeleteModal = false"
-            class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:w-auto sm:text-sm"
-          >
+          <button @click="showDeleteModal = false"
+            class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:w-auto sm:text-sm">
             Batal
           </button>
         </div>
@@ -190,7 +170,7 @@ const handleClose = () => {
 
 const editCustomer = (customer) => {
   // Create a flattened version of the customer with receivable properties at the top level
-  selectedCustomer.value = { 
+  selectedCustomer.value = {
     ...customer,
     initial_amount: customer.receivable?.initial_amount || 0,
     notes: customer.receivable?.notes || ''

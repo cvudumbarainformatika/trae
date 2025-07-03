@@ -15,7 +15,7 @@ export const useCategoryStore = defineStore('category', {
     filteredCategories: (state) => {
       return state.categories.filter(category => {
         if (!state.searchQuery) return true
-        
+
         const query = state.searchQuery.toLowerCase()
         return (
           category.name.toLowerCase().includes(query) ||
@@ -32,8 +32,8 @@ export const useCategoryStore = defineStore('category', {
       try {
         const response = await api.get('/api/v1/categories')
         this.categories = response.data
-        console.log('categories', response.data);
-        
+        // console.log('categories', response.data);
+
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch categories'
         console.error('Error fetching categories:', error)

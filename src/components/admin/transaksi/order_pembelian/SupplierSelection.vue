@@ -193,19 +193,19 @@ const loadSupplierById = async () => {
   // if (props.suppliers.some(s => s.id === props.supplierId)) return
 
   try {
-    console.log('Loading supplier by ID:', props.supplierId, props.supplier)
+    // console.log('Loading supplier by ID:', props.supplierId, props.supplier)
     const data = props.supplier
     selectedSupplier.value = data
-    console.log('Data :', data);
+    // console.log('Data :', data);
 
     if (data) {
       // Emit event dengan supplier yang dimuat
       // emit('suppliers-loaded', [...props.suppliers, data])
-      console.log('selectSupplier', data);
+      // console.log('selectSupplier', data);
       selectSupplier(data)
       emit('suppliers-loaded', data)
     } else {
-      console.log('No data returned from API');
+      // console.log('No data returned from API');
 
     }
   } catch (error) {

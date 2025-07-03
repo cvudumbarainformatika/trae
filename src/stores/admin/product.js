@@ -215,7 +215,7 @@ export const useProductStore = defineStore('product', {
       this.loading = true
       this.error = null
       try {
-        const response = await api.get('/api/v1/products/search', {
+        const response = await api.get('/api/v1/products', {
           params: {
             page: this.pagination.currentPage,
             per_page: this.pagination.itemsPerPage,
@@ -236,7 +236,6 @@ export const useProductStore = defineStore('product', {
         }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch products'
-        // console.error('Error fetching products:', error)
       } finally {
         this.loading = false
       }
@@ -256,6 +255,12 @@ export const useProductStore = defineStore('product', {
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to add product'
         // console.error('Error adding product:', error)
+        // const {notify} = useNotification()
+        // notify({
+        //   title: 'Update Gagal',
+        //   message: this.error,
+        //   type: 'error'
+        // })
         throw error
       } finally {
         this.loading = false
@@ -275,6 +280,7 @@ export const useProductStore = defineStore('product', {
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to update product'
         // console.error('Error updating product:', error)
+        // alert(this.error)
         throw error
       } finally {
         this.loading = false

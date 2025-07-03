@@ -3,6 +3,7 @@ import { useSatuanStore } from '../admin/satuan'
 import { useCategoryStore } from '../admin/category'
 import { api } from '@/services/api'
 import { useProductStore } from '../admin/product'
+import { useNotification } from '@/composables/useNotification'
 
 export const useProductFormStore = defineStore('productForm', {
   state: () => ({
@@ -69,7 +70,7 @@ export const useProductFormStore = defineStore('productForm', {
       const editing = storeProduct.isEdit
       const selectedProduct = storeProduct.selectedProduct
 
-      
+
       if (!editing) {
         this.formData = {
           barcode: '',
@@ -96,12 +97,12 @@ export const useProductFormStore = defineStore('productForm', {
           minstock: selectedProduct.minstock ? parseInt(selectedProduct.minstock) : 0,
         }
       }
-      
+
       console.log('formData', this.formData);
-      
+
       // Reset error state
       this.error = null
-      
+
       // Reset image preview only if not editing
       if (!editing) {
         this.imagePreview = null
@@ -111,13 +112,13 @@ export const useProductFormStore = defineStore('productForm', {
 
     async submitForm() {
       console.log('submitForm', this.formData)
-      
+
       this.loading = true
       this.error = null
-      
+
       try {
         const formDataToSubmit = new FormData()
-        
+
         // Append all form fields to FormData
         Object.keys(this.formData).forEach(key => {
           if (this.formData[key] !== null) {
@@ -149,6 +150,12 @@ export const useProductFormStore = defineStore('productForm', {
 
       } catch (err) {
         this.error = err.response?.data?.message || 'Failed to save product'
+        const { notify } = useNotification()
+        notify({
+          title: 'Simpan / Update Gagal',
+          message: this.error,
+          type: 'error'
+        })
         throw this.error
       } finally {
         this.loading = false
