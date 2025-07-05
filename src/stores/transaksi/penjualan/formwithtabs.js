@@ -8,7 +8,10 @@ export const useSalesFormWitTabsStore = defineStore('salesFormWitTabs', {
     ],
     activeTab: null,
     isPaymentOpen: false,
-    loadingSimpan: false
+    loadingSimpan: false,
+    riwayats: [],
+    printing: false,
+    isiPrint: null
   }),
 
 
@@ -48,6 +51,7 @@ export const useSalesFormWitTabsStore = defineStore('salesFormWitTabs', {
           cashier_id: null,
           date: null,
           due_date: null,
+
           items: [
             // { product_id: null, qty: 1, price: 0, subtotal: 0  }
           ],
@@ -103,9 +107,24 @@ export const useSalesFormWitTabsStore = defineStore('salesFormWitTabs', {
 
     removeTab(unique_code) {
       this.tabs = this.tabs.filter(tab => tab.unique_code !== unique_code)
+
+
+
+
+      // if (this.tabs.length === 0) {
+      //   this.generateTabBaru()
+      // }
+
+
+
       if (this.tabs.length > 0) {
+        // console.log('tab > 0');
         this.activeTab = this.tabs[this.tabs.length - 1].unique_code
       }
+      // else {
+      //   // console.log('tab = 0');
+      //   this.generateTabBaru()
+      // }
     },
 
 
@@ -209,7 +228,7 @@ export const useSalesFormWitTabsStore = defineStore('salesFormWitTabs', {
       // Atau simpan data penjualan ke dalam database
       // Setelah penyimpanan berhasil, reset form
       // this.resetForm()
-      console.log('handlePayment',form);
+      // console.log('handlePayment',form);
 
       // setTimeout(() => {
       //   this.isPaymentOpen = false
@@ -220,7 +239,18 @@ export const useSalesFormWitTabsStore = defineStore('salesFormWitTabs', {
 
       await api.post('/api/v1/sales', form)
       .then((res) => {
-        console.log(res);
+        // console.log(res);
+        this.printing = true
+        this.isiPrint = res?.data?.sales
+        this.riwayats.unshift(res?.data?.sales)
+        this.riwayats = this.riwayats.slice(0, 5)
+
+        // const existing = this.riwwayats || []
+        // const newData = res?.data?.sales
+        // const updated = [newData, ...existing].slice(0, 5)
+
+        // this.riwwayats = updated
+
         this.isPaymentOpen = false
         this.removeTab(this.isiTab.unique_code)
         this.generateTabBaru()

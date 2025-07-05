@@ -229,21 +229,21 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
         }
       }
 
-      // Validasi format data
-      if (typeof this.form.paid !== 'number') {
-        console.warn('Field paid bukan number, mengkonversi dari', typeof this.form.paid, 'ke number')
-        this.form.paid = this.form.paid ? 1 : 0
-      }
+      // // Validasi format data
+      // if (typeof this.form.paid !== 'number') {
+      //   console.warn('Field paid bukan number, mengkonversi dari', typeof this.form.paid, 'ke number')
+      //   this.form.paid = this.form.paid ? 1 : 0
+      // }
 
-      if (typeof this.form.discount !== 'number') {
-        console.warn('Field discount bukan number, mengkonversi dari', typeof this.form.discount)
-        this.form.discount = Number(this.form.discount) || 0
-      }
+      // if (typeof this.form.discount !== 'number') {
+      //   console.warn('Field discount bukan number, mengkonversi dari', typeof this.form.discount)
+      //   this.form.discount = Number(this.form.discount) || 0
+      // }
 
-      if (typeof this.form.tax !== 'number') {
-        console.warn('Field tax bukan number, mengkonversi dari', typeof this.form.tax)
-        this.form.tax = Number(this.form.tax) || 0
-      }
+      // if (typeof this.form.tax !== 'number') {
+      //   console.warn('Field tax bukan number, mengkonversi dari', typeof this.form.tax)
+      //   this.form.tax = Number(this.form.tax) || 0
+      // }
 
       return errors
     },
@@ -325,6 +325,9 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
 
       try {
         // Prepare data for API
+
+        const totalYgHrsDibayar = this.calculateGrandTotal();
+
         const formData = {
           supplier_id: this.form.supplier_id,
           date: this.form.date,
@@ -351,8 +354,9 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
           due_date: this.form.payment_method === 'credit' ? this.form.due_date : null,
           // Untuk cash/transfer, paid = total invoice. Untuk credit, paid = 0
           paid: (this.form.payment_method === 'cash' || this.form.payment_method === 'transfer')
-            ? this.calculateGrandTotal()
-            : 0
+            ? totalYgHrsDibayar
+            : this.form.paid
+
         }
 
         // Hanya tambahkan purchase_order_id jika ada nilainya
@@ -373,6 +377,8 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
         const { data } = await api.post('/api/v1/purchases', formData)
         this.success = true
         return data // Pastikan mengembalikan data respons API
+
+        return data
       } catch (error) {
         // Improved error handling
         if (error.response) {

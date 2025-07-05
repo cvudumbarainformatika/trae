@@ -33,7 +33,7 @@
           </tr>
           <tr>
             <td class="p-2 border">Retur Penjualan</td>
-            <td class="p-2 border text-right text-red-500">- {{ formatRupiah(data.pendapatan.retur_penjualan) }}</td>
+            <td class="p-2 border text-right text-red-500"> {{ formatRupiah(data.pendapatan.retur_penjualan) }}</td>
           </tr>
           <tr class="font-bold bg-green-50 dark:bg-green-900">
             <td class="p-2 border">Pendapatan Bersih</td>
@@ -47,7 +47,7 @@
           </tr>
           <tr>
             <td class="p-2 border">Total HPP</td>
-            <td class="p-2 border text-right text-red-500">- {{ formatRupiah(data.hpp.hpp) }}</td>
+            <td class="p-2 border text-right text-red-500"> {{ formatRupiah(data.hpp.hpp) }}</td>
           </tr>
           <tr class="font-bold bg-yellow-50 dark:bg-yellow-900">
             <td class="p-2 border">Laba Kotor</td>
@@ -61,7 +61,7 @@
           </tr>
           <tr>
             <td class="p-2 border">Total Biaya</td>
-            <td class="p-2 border text-right text-red-500">- {{ formatRupiah(data.operasional.biaya_operasional) }}</td>
+            <td class="p-2 border text-right text-red-500"> {{ formatRupiah(data.operasional.biaya_operasional) }}</td>
           </tr>
 
           <!-- LABA BERSIH -->

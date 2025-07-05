@@ -2,7 +2,7 @@
   <!-- Tabs Wrapper -->
   <div class="h-full">
     <base-tabs :tabs="tabs" :active-tab="activeTab" @update:active-tab="(val) => {
-      console.log('val', val);
+      // console.log('val', val);
 
       activeTab = val
     }" @remove-tab="(val) => removeTab(val)" @add-tab="store.generateTabBaru">
@@ -20,16 +20,19 @@
           <!-- Grid summary -->
           <div class="w-full md:w-1/4 space-y-4 rounded shadow">
             <RiwayatPenjualan />
-            <button class="bg-white p-4 text-secondary-900 " @click="store.simpanPenjualan">Coba
-              simpanPenjualan</button>
+            <!-- <button class="bg-white p-4 text-secondary-900 " @click="store.simpanPenjualan">Coba
+              simpanPenjualan</button> -->
           </div>
         </div>
       </template>
     </base-tabs>
 
     <PaymentModal :show="isPaymentOpen" :items="isiTab?.items || []" :customer-id="isiTab?.customer_id || null"
-      :unique-code="activeTab" @submit="handlePayment" @close="isPaymentOpen = false" :item="isiTab"
+      :unique-code="activeTab" @submit="handleSubmit" @close="isPaymentOpen = false" :item="isiTab"
       :loading="loadingSimpan" />
+
+    <StrukPenjualan ref="printRef" v-model="printing" :data="isiPrint" />
+
 
   </div>
 </template>
@@ -37,6 +40,7 @@
 <script setup>
 import { ref, defineAsyncComponent, onMounted, onBeforeUnmount } from 'vue';
 import { useSalesFormWitTabsStore } from '../../../../stores/transaksi/penjualan/formwithtabs';
+import { printReceiptElement } from '@/utils/printing';
 import { storeToRefs } from 'pinia';
 
 // import Icon from '@/components/ui/Icon.vue';
@@ -48,10 +52,12 @@ const CustomerAndKasirSection = defineAsyncComponent(() => import('./compFormWit
 const RiwayatPenjualan = defineAsyncComponent(() => import('./compFormWithTabs/RiwayatPenjualan.vue'));
 const ProductListSection = defineAsyncComponent(() => import('./compFormWithTabs/ProductListSection.vue'));
 const PaymentModal = defineAsyncComponent(() => import('./compFormWithTabs/PaymentModal.vue'));
+const StrukPenjualan = defineAsyncComponent(() => import('./compFormWithTabs/StrukPenjualan.vue'));
+const printRef = ref(null)
 
 const store = useSalesFormWitTabsStore()
 
-const { tabs, activeTab, isiTab, isPaymentOpen, loadingSimpan } = storeToRefs(store)
+const { tabs, activeTab, isiTab, isPaymentOpen, loadingSimpan, printing, isiPrint } = storeToRefs(store)
 const { initTabs, removeTab, handlePayment } = store
 
 const productListSectionRef = ref(null)
@@ -88,6 +94,27 @@ function handleKeydown(e) {
     store.simpanPenjualan()
     // }
   }
+}
+
+function handleSubmit(val) {
+  handlePayment(val)
+    .then(() => {
+      if (printRef.value?.printAreaRef) {
+        printReceiptElement(printRef.value.printAreaRef, () => {
+          console.log('print selesai');
+
+          printing.value = false
+          isiPrint.value = null
+        })
+        // .then(() => {
+        console.log('print selesai with then');
+
+        printing.value = false
+        isiPrint.value = null
+        // })
+
+      }
+    })
 }
 
 

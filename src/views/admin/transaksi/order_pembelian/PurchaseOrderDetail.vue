@@ -1,11 +1,8 @@
 <template>
-  <BaseDialog
-    v-model="showDialog"
-    :title="`Detail Order Pembelian #${purchaseOrder?.unique_code || ''}`"
-    max-width="4xl"
-    @close="closeDialog"
-  >
-    <div class="flex flex-col gap-6 p-4 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900 dark:to-secondary-800">
+  <BaseDialog v-model="showDialog" :title="`Detail Order Pembelian #${purchaseOrder?.unique_code || ''}`"
+    max-width="4xl" @close="closeDialog">
+    <div
+      class="flex flex-col gap-6 p-4 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900 dark:to-secondary-800">
       <!-- Header with Actions -->
       <div class="flex justify-between items-center p-4 bg-white dark:bg-secondary-800 rounded-xl shadow-sm">
         <div>
@@ -17,17 +14,12 @@
           </BaseButton>
         </div>
         <div class="flex items-center gap-3">
-          <BaseButton
-            v-if="purchaseOrder?.status === 'draft'"
-            @click="editPurchaseOrder"
-            variant="primary"
-            size="sm"
-          >
+          <!-- <BaseButton v-if="purchaseOrder?.status === 'draft'" @click="editPurchaseOrder" variant="primary" size="sm">
             <template #icon-left>
               <Icon name="Edit" class="w-4 h-4" />
             </template>
             <div class="ml-2">Edit Order</div>
-          </BaseButton>
+          </BaseButton> -->
 
 
 
@@ -36,10 +28,7 @@
           <!-- Tombol untuk membuat pembelian aktual (hanya muncul jika status received dan belum ada pembelian) -->
           <BaseButton
             v-if="purchaseOrder?.status === 'received' && (!purchaseOrder?.purchases?.length || purchaseOrder?.purchases?.length === 0)"
-            @click="createPurchase"
-            variant="primary"
-            size="sm"
-          >
+            @click="createPurchase" variant="primary" size="sm">
             <template #icon-left>
               <Icon name="ShoppingBag" class="w-4 h-4" />
             </template>
@@ -49,17 +38,12 @@
           <!-- Informasi jika sudah ada pembelian -->
           <div
             v-if="purchaseOrder?.status === 'received' && purchaseOrder?.purchases && purchaseOrder?.purchases.length > 0"
-            class="flex items-center gap-2"
-          >
+            class="flex items-center gap-2">
             <span class="text-sm text-green-600 dark:text-green-400 flex items-center">
               <Icon name="CheckCircle" class="w-4 h-4 mr-1" />
               Sudah dibuat pembelian
             </span>
-            <BaseButton
-              @click="viewPurchase(purchaseOrder?.purchases[0].id)"
-              variant="secondary"
-              size="sm"
-            >
+            <BaseButton @click="viewPurchase(purchaseOrder?.purchases[0].id)" variant="secondary" size="sm">
               <template #icon-left>
                 <Icon name="Eye" class="w-4 h-4" />
               </template>
@@ -68,36 +52,24 @@
           </div>
 
           <!-- Tombol untuk mengubah status PO -->
-          <BaseButton
-            v-if="purchaseOrder?.status === 'ordered'"
-            @click="prepareReceiveItems"
-            variant="success"
-            size="sm"
-          >
+          <BaseButton v-if="purchaseOrder?.status === 'ordered'" @click="prepareReceiveItems" variant="success"
+            size="sm">
             <template #icon-left>
               <Icon name="CheckCircle" class="w-4 h-4" />
             </template>
             <div class="ml-2">Terima Barang</div>
           </BaseButton>
 
-          <BaseButton
-            v-if="purchaseOrder?.status === 'draft'"
-            @click="updateStatus('ordered')"
-            variant="primary"
-            size="sm"
-          >
+          <BaseButton :loading="statusLoading" v-if="purchaseOrder?.status === 'draft'" @click="updateStatus('ordered')"
+            variant="primary" size="sm">
             <template #icon-left>
               <Icon name="Send" class="w-4 h-4" />
             </template>
             <div class="ml-2">Proses Order</div>
           </BaseButton>
 
-          <BaseButton
-            v-if="['draft', 'ordered'].includes(purchaseOrder?.status)"
-            @click="updateStatus('cancelled')"
-            variant="danger"
-            size="sm"
-          >
+          <BaseButton :loading="statusLoading" v-if="['draft', 'ordered'].includes(purchaseOrder?.status)"
+            @click="updateStatus('cancelled')" variant="danger" size="sm">
             <template #icon-left>
               <Icon name="XCircle" class="w-4 h-4" />
             </template>
@@ -105,12 +77,8 @@
           </BaseButton>
 
           <!-- Tombol untuk mengubah status PO kembali ke draft -->
-          <BaseButton
-            v-if="purchaseOrder?.status === 'ordered'"
-            @click="updateStatus('draft')"
-            variant="warning"
-            size="sm"
-          >
+          <BaseButton :loading="statusLoading" v-if="purchaseOrder?.status === 'ordered'" @click="updateStatus('draft')"
+            variant="warning" size="sm">
             <template #icon-left>
               <Icon name="Edit" class="w-4 h-4" />
             </template>
@@ -124,35 +92,33 @@
         <h3 class="text-sm font-medium text-secondary-500 dark:text-secondary-400 mb-4">Status Order</h3>
         <div class="flex items-center">
           <div class="flex-1 flex flex-col items-center">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center"
-                 :class="purchaseOrder?.status === 'draft' ? 'bg-yellow-500 text-white' :
-                         (purchaseOrder?.status === 'ordered' || purchaseOrder?.status === 'received' || purchaseOrder?.status === 'cancelled') ? 'bg-yellow-500 text-white' :
-                         'bg-secondary-200 dark:bg-secondary-700 text-secondary-500 dark:text-secondary-400'">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center" :class="purchaseOrder?.status === 'draft' ? 'bg-yellow-500 text-white' :
+              (purchaseOrder?.status === 'ordered' || purchaseOrder?.status === 'received' || purchaseOrder?.status === 'cancelled') ? 'bg-yellow-500 text-white' :
+                'bg-secondary-200 dark:bg-secondary-700 text-secondary-500 dark:text-secondary-400'">
               <Icon name="Edit" class="w-4 h-4" />
             </div>
             <div class="text-xs mt-1 text-center text-secondary-900 dark:text-white font-medium">Draft</div>
           </div>
 
           <div class="flex-1 h-1 bg-secondary-200 dark:bg-secondary-700"
-               :class="(purchaseOrder?.status === 'ordered' || purchaseOrder?.status === 'received') ? 'bg-blue-500 dark:bg-blue-500' : ''"></div>
+            :class="(purchaseOrder?.status === 'ordered' || purchaseOrder?.status === 'received') ? 'bg-blue-500 dark:bg-blue-500' : ''">
+          </div>
 
           <div class="flex-1 flex flex-col items-center">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center"
-                 :class="purchaseOrder?.status === 'ordered' ? 'bg-blue-500 text-white' :
-                         purchaseOrder?.status === 'received' ? 'bg-blue-500 text-white' :
-                         'bg-secondary-200 dark:bg-secondary-700 text-secondary-500 dark:text-secondary-400'">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center" :class="purchaseOrder?.status === 'ordered' ? 'bg-blue-500 text-white' :
+              purchaseOrder?.status === 'received' ? 'bg-blue-500 text-white' :
+                'bg-secondary-200 dark:bg-secondary-700 text-secondary-500 dark:text-secondary-400'">
               <Icon name="ShoppingCart" class="w-4 h-4" />
             </div>
             <div class="text-xs mt-1 text-center text-secondary-900 dark:text-white font-medium">Ordered</div>
           </div>
 
           <div class="flex-1 h-1 bg-secondary-200 dark:bg-secondary-700"
-               :class="purchaseOrder?.status === 'received' ? 'bg-green-500 dark:bg-green-500' : ''"></div>
+            :class="purchaseOrder?.status === 'received' ? 'bg-green-500 dark:bg-green-500' : ''"></div>
 
           <div class="flex-1 flex flex-col items-center">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center"
-                 :class="purchaseOrder?.status === 'received' ? 'bg-green-500 text-white' :
-                         'bg-secondary-200 dark:bg-secondary-700 text-secondary-500 dark:text-secondary-400'">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center" :class="purchaseOrder?.status === 'received' ? 'bg-green-500 text-white' :
+              'bg-secondary-200 dark:bg-secondary-700 text-secondary-500 dark:text-secondary-400'">
               <Icon name="Package" class="w-4 h-4" />
             </div>
             <div class="text-xs mt-1 text-center text-secondary-900 dark:text-white font-medium">Received</div>
@@ -182,20 +148,20 @@
           <div class="grid grid-cols-2 gap-2 text-sm">
             <div class="text-secondary-500 dark:text-secondary-400">Status:</div>
             <div>
-              <span class="px-2 py-0.5 rounded-full text-xs"
-                    :class="{
-                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': purchaseOrder?.status === 'draft',
-                      'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': purchaseOrder?.status === 'ordered',
-                      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': purchaseOrder?.status === 'received',
-                      'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': purchaseOrder?.status === 'cancelled'
-                    }">
+              <span class="px-2 py-0.5 rounded-full text-xs" :class="{
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': purchaseOrder?.status === 'draft',
+                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': purchaseOrder?.status === 'ordered',
+                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': purchaseOrder?.status === 'received',
+                'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': purchaseOrder?.status === 'cancelled'
+              }">
                 {{ purchaseOrder?.status === 'draft' ? 'Draft' :
-                   purchaseOrder?.status === 'ordered' ? 'Ordered' :
-                   purchaseOrder?.status === 'received' ? 'Received' : 'Cancelled' }}
+                  purchaseOrder?.status === 'ordered' ? 'Ordered' :
+                    purchaseOrder?.status === 'received' ? 'Received' : 'Cancelled' }}
               </span>
             </div>
             <div class="text-secondary-500 dark:text-secondary-400">Tanggal Order:</div>
-            <div class="text-secondary-900 dark:text-white">{{ new Date(purchaseOrder?.date).toLocaleDateString() }}</div>
+            <div class="text-secondary-900 dark:text-white">{{ new Date(purchaseOrder?.date).toLocaleDateString() }}
+            </div>
             <!-- <div class="text-secondary-500 dark:text-secondary-400">Jatuh Tempo:</div> -->
             <!-- <div class="text-secondary-900 dark:text-white">{{ purchaseOrder?.due_date ? new Date(purchaseOrder.due_date).toLocaleDateString() : '-' }}</div> -->
           </div>
@@ -217,24 +183,41 @@
 
       <!-- Items Table -->
       <div class="bg-white dark:bg-secondary-800 rounded-xl shadow-sm overflow-hidden">
-        <h3 class="p-4 border-b border-secondary-200 dark:border-secondary-700 font-medium text-secondary-900 dark:text-white">Daftar Item</h3>
+        <h3
+          class="p-4 border-b border-secondary-200 dark:border-secondary-700 font-medium text-secondary-900 dark:text-white">
+          Daftar Item</h3>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-secondary-200 dark:divide-secondary-700">
             <thead class="bg-secondary-50 dark:bg-secondary-800">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Produk</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Harga</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Qty Pesanan</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Subtotal</th>
-                <th class="px-4 py-3 text-center text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Status</th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                  Produk</th>
+                <th
+                  class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                  Harga</th>
+                <th
+                  class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                  Qty Pesanan</th>
+                <th
+                  class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                  Subtotal</th>
+                <th
+                  class="px-4 py-3 text-center text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                  Status</th>
                 <!-- Kolom untuk jumlah diterima jika status received -->
-                <th v-if="purchaseOrder?.status === 'received'" class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Qty Diterima</th>
+                <th v-if="purchaseOrder?.status === 'received'"
+                  class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                  Qty Diterima</th>
                 <!-- Kolom untuk selisih jika status received -->
-                <th v-if="purchaseOrder?.status === 'received'" class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Selisih</th>
+                <th v-if="purchaseOrder?.status === 'received'"
+                  class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                  Selisih</th>
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-secondary-800 divide-y divide-secondary-200 dark:divide-secondary-700">
-              <tr v-for="(item, index) in purchaseOrder?.items" :key="index" class="hover:bg-secondary-50 dark:hover:bg-secondary-700/50">
+              <tr v-for="(item, index) in purchaseOrder?.items" :key="index"
+                class="hover:bg-secondary-50 dark:hover:bg-secondary-700/50">
                 <td class="px-4 py-3 whitespace-nowrap">
                   <div class="font-medium text-secondary-900 dark:text-white">{{ item.product?.name }}</div>
                   <div class="text-xs text-secondary-500 dark:text-secondary-400">{{ item.product?.barcode }}</div>
@@ -242,28 +225,32 @@
                 <td class="px-4 py-3 text-right whitespace-nowrap text-secondary-900 dark:text-white">
                   {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price) }}
                 </td>
-                <td class="px-4 py-3 text-right whitespace-nowrap text-secondary-900 dark:text-white">{{ item.quantity }}</td>
+                <td class="px-4 py-3 text-right whitespace-nowrap text-secondary-900 dark:text-white">{{ item.quantity
+                  }}</td>
                 <td class="px-4 py-3 text-right whitespace-nowrap font-medium text-secondary-900 dark:text-white">
-                  {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price * item.quantity) }}
+                  {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price *
+                    item.quantity)
+                  }}
                 </td>
                 <td class="px-4 py-3 text-center whitespace-nowrap text-secondary-900 dark:text-white">
-                  <span class="px-2 py-0.5 rounded-full text-xs"
-                        :class="{
-                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': item.status === 'added',
-                          'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': item.status === 'ordered',
-                          'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.status === 'active'
-                        }">
+                  <span class="px-2 py-0.5 rounded-full text-xs" :class="{
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': item.status === 'added',
+                    'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': item.status === 'ordered',
+                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.status === 'active'
+                  }">
                     {{ item.status === 'added' ? 'Added' :
-                       item.status === 'ordered' ? 'Ordered' : 'Active' }}
+                      item.status === 'ordered' ? 'Ordered' : 'Active' }}
                   </span>
                 </td>
                 <!-- Kolom untuk jumlah diterima jika status received -->
-                <td v-if="purchaseOrder?.status === 'received'" class="px-4 py-3 text-right whitespace-nowrap text-secondary-900 dark:text-white">
+                <td v-if="purchaseOrder?.status === 'received'"
+                  class="px-4 py-3 text-right whitespace-nowrap text-secondary-900 dark:text-white">
                   {{ item.received_quantity || 0 }}
                 </td>
                 <!-- Kolom untuk selisih jika status received -->
                 <td v-if="purchaseOrder?.status === 'received'" class="px-4 py-3 text-right whitespace-nowrap">
-                  <span :class="(item.quantity - (item.received_quantity || 0)) > 0 ? 'text-red-600 dark:text-red-400' : 'text-secondary-900 dark:text-white'">
+                  <span
+                    :class="(item.quantity - (item.received_quantity || 0)) > 0 ? 'text-red-600 dark:text-red-400' : 'text-secondary-900 dark:text-white'">
                     {{ item.quantity - (item.received_quantity || 0) }}
                   </span>
                   <div v-if="item.notes" class="text-xs text-secondary-500 dark:text-secondary-400 mt-1">
@@ -331,13 +318,15 @@
             <td>{{ item.product?.name }}</td>
             <td>{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price) }}</td>
             <td>{{ item.quantity }}</td>
-            <td>{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price * item.quantity) }}</td>
+            <td>{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price *
+              item.quantity) }}</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
             <td colspan="4" class="text-right"><strong>Total:</strong></td>
-            <td>{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateTotal()) }}</td>
+            <td>{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateTotal()) }}
+            </td>
           </tr>
         </tfoot>
       </table>
@@ -362,29 +351,35 @@
   </div>
 
   <!-- Dialog Penerimaan Barang -->
-  <BaseDialog
-    v-model="showReceiveItemsDialog"
-    title="Penerimaan Barang"
-    max-width="3xl"
-    @close="showReceiveItemsDialog = false"
-  >
+  <BaseDialog v-model="showReceiveItemsDialog" title="Penerimaan Barang" max-width="3xl"
+    @close="showReceiveItemsDialog = false">
     <div class="p-4">
-      <p class="mb-4 text-secondary-600 dark:text-secondary-400">
-        Masukkan jumlah barang yang diterima untuk setiap item. Jika jumlah berbeda dengan pesanan, sistem akan mencatat perbedaannya.
+      <p class="mb-4 text-secondary-600 dark:text-blue-400">
+        Masukkan jumlah barang yang diterima untuk setiap item. Jika jumlah berbeda dengan pesanan, sistem akan mencatat
+        perbedaannya.
       </p>
 
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-secondary-200 dark:divide-secondary-700">
           <thead class="bg-secondary-50 dark:bg-secondary-800">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Produk</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Qty Pesanan</th>
-              <th class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Qty Diterima</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Catatan</th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                Produk</th>
+              <th
+                class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                Qty Pesanan</th>
+              <th
+                class="px-4 py-3 text-right text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                Qty Diterima</th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                Catatan</th>
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-secondary-800 divide-y divide-secondary-200 dark:divide-secondary-700">
-            <tr v-for="(item, index) in receiveItems" :key="index" class="hover:bg-secondary-50 dark:hover:bg-secondary-700/50">
+            <tr v-for="(item, index) in receiveItems" :key="index"
+              class="hover:bg-secondary-50 dark:hover:bg-secondary-700/50">
               <td class="px-4 py-3 whitespace-nowrap">
                 <div class="font-medium text-secondary-900 dark:text-white">{{ item.product?.name }}</div>
                 <div class="text-xs text-secondary-500 dark:text-secondary-400">{{ item.product?.barcode }}</div>
@@ -393,21 +388,12 @@
                 {{ item.quantity }}
               </td>
               <td class="px-4 py-3 text-right whitespace-nowrap">
-                <input
-                  type="number"
-                  v-model.number="item.received_quantity"
-                  min="0"
-                  :max="item.quantity"
-                  class="w-20 px-2 py-1 border border-secondary-300 dark:border-secondary-600 rounded-md text-right bg-white dark:bg-secondary-700 text-secondary-900 dark:text-white"
-                />
+                <input type="number" v-model.number="item.received_quantity" min="0" :max="item.quantity"
+                  class="w-20 px-2 py-1 border border-secondary-300 dark:border-secondary-600 rounded-md text-right bg-white dark:bg-secondary-700 text-secondary-900 dark:text-white" />
               </td>
               <td class="px-4 py-3">
-                <input
-                  type="text"
-                  v-model="item.notes"
-                  placeholder="Catatan (opsional)"
-                  class="w-full px-2 py-1 border border-secondary-300 dark:border-secondary-600 rounded-md bg-white dark:bg-secondary-700 text-secondary-900 dark:text-white"
-                />
+                <input type="text" v-model="item.notes" placeholder="Catatan (opsional)"
+                  class="w-full px-2 py-1 border border-secondary-300 dark:border-secondary-600 rounded-md bg-white dark:bg-secondary-700 text-secondary-900 dark:text-white" />
               </td>
             </tr>
           </tbody>
@@ -418,7 +404,7 @@
         <BaseButton @click="showReceiveItemsDialog = false" variant="secondary">
           Batal
         </BaseButton>
-        <BaseButton @click="submitReceiveItems" variant="primary">
+        <BaseButton :loading="statusLoading" @click="submitReceiveItems" variant="primary">
           Simpan & Terima Barang
         </BaseButton>
       </div>
@@ -433,7 +419,7 @@ import BaseDialog from '@/components/ui/BaseDialog.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { api } from '@/services/api'
-import html2pdf from 'html2pdf.js/dist/html2pdf.bundle.min.js'
+// import html2pdf from 'html2pdf.js/dist/html2pdf.bundle.min.js'
 import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
 
 const router = useRouter()
@@ -536,7 +522,7 @@ const printPurchaseOrder = () => {
   iframe.contentDocument.close();
 
   // Tunggu iframe selesai load
-  iframe.onload = function() {
+  iframe.onload = function () {
     // Cetak iframe
     iframe.contentWindow.print();
 
@@ -783,7 +769,7 @@ watch([() => props.purchaseOrderId, () => showDialog.value], ([newId, isOpen]) =
 }, { immediate: true })
 
 watch(() => props.dataOrder, (newData) => {
-  console.log('watch data order', newData);
+  // console.log('watch data order', newData);
 
   purchaseOrder.value = newData
 }, { immediate: true })
@@ -819,7 +805,8 @@ watch(() => props.dataOrder, (newData) => {
     margin-bottom: 30px;
   }
 
-  .print-items th, .print-items td {
+  .print-items th,
+  .print-items td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
@@ -881,7 +868,8 @@ watch(() => props.dataOrder, (newData) => {
   margin-bottom: 30px;
 }
 
-.print-items th, .print-items td {
+.print-items th,
+.print-items td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;

@@ -1,5 +1,6 @@
 <template>
-  <BaseDialog title="Detail Penjualan" max-width="5xl" @close="closeDialog" @show="handleShow">
+  <BaseDialog :title="`Detail Penjualan # ${data?.unique_code}`" max-width="5xl" @close="closeDialog"
+    @show="handleShow">
     <div
       class="h-full flex flex-col gap-6 p-4 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900 dark:to-secondary-800">
 
@@ -13,20 +14,21 @@
             </template>
             <div class="ml-2">Cetak</div>
           </BaseButton>
-          <BaseButton @click="printPenjualan" variant="info" size="sm">
+          <!-- <BaseButton @click="printPenjualan" variant="info" size="sm">
             <template #icon-left>
               <Icon name="Refresh" class="w-4 h-4" />
             </template>
             <div class="ml-2">Ke Return Penjualan</div>
-          </BaseButton>
+          </BaseButton> -->
         </div>
         <div class="flex items-center gap-3">
           <div class="flex flex-col items-center">
             <span class="text-xs px-2 py-0.5 rounded-full" :class="{
               'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': data?.payment_method === 'cash',
+              'bg-red-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': data?.payment_method === 'qris',
               'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': data?.payment_method === 'credit',
             }">
-              {{ data?.payment_method === 'cash' ? 'Tunai' : 'Kredit' }}
+              {{ data?.payment_method === 'cash' ? 'Tunai' : data?.payment_method === 'qris' ? 'QRIS' : 'Kredit' }}
             </span>
           </div>
         </div>
@@ -43,7 +45,7 @@
             {{ data?.customer_name || 'Penjualan Umum' }}
           </div>
           <div class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">
-            Kasir : Masih Kosong
+            Kasir : {{ data?.cashier?.name || '-' }}
           </div>
           <!-- <div class="text-sm text-secondary-500 dark:text-secondary-400">
             ddd
@@ -54,18 +56,19 @@
         <div class="p-4 bg-white dark:bg-secondary-800 rounded-xl shadow-sm">
           <h3 class="text-sm font-medium text-secondary-500 dark:text-secondary-400 mb-2">Informasi Penjualan</h3>
           <div class="grid grid-cols-2 gap-2 text-sm">
-            <div class="text-secondary-500 dark:text-secondary-400">Status:</div>
+            <div class="text-secondary-500 dark:text-secondary-400">Pembayaran :</div>
             <div>
               <span class="text-xs px-2 py-0.5 rounded-full" :class="{
                 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': data?.payment_method === 'cash',
-                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': data?.payment_method === 'credit',
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': data?.payment_method === 'qris',
+                'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': data?.payment_method === 'credit',
               }">
-                {{ data?.payment_method === 'cash' ? 'Tunai' : 'Kredit' }}
+                {{ data?.payment_method === 'cash' ? 'Tunai' : data?.payment_method === 'qris' ? 'QRIS' : 'Kredit' }}
               </span>
             </div>
-            <div class="text-secondary-500 dark:text-secondary-400">Tanggal Penjualan:</div>
-            <div class="text-secondary-900 dark:text-white">{{ new
-              Date(data?.created_at).toLocaleDateString()?.split('/')?.reverse()?.join('-') }}</div>
+            <div class="text-secondary-500 dark:text-secondary-400">Tgl Penjualan :</div>
+            <div class="text-secondary-900 dark:text-white">{{ formatDateIndo(data?.created_at) || '-' }}, {{
+              formatTimeIndo(data?.created_at) || '-' }}</div>
             <!-- <div class="text-secondary-500 dark:text-secondary-400">Jatuh Tempo:</div> -->
             <!-- <div class="text-secondary-900 dark:text-white">{{ purchaseOrder?.due_date ? new Date(purchaseOrder.due_date).toLocaleDateString() : '-' }}</div> -->
           </div>
@@ -135,13 +138,16 @@
                   <div class="text-xs text-secondary-500 dark:text-secondary-400">{{ item.product?.barcode }}</div>
                 </td>
                 <td class="px-4 py-3 text-right whitespace-nowrap text-secondary-900 dark:text-white">
-                  {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item?.price) }}
+                  <!-- {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item?.price) }} -->
+                  Rp. {{ formatRupiah(item?.price) }}
                 </td>
                 <td class="px-4 py-3 text-right whitespace-nowrap text-secondary-900 dark:text-white">{{ item?.qty }}
                 </td>
                 <td class="px-4 py-3 text-right whitespace-nowrap font-medium text-secondary-900 dark:text-white">
-                  {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format((item?.price || 0) *
-                    (item?.qty || 0)) }}
+                  <!-- {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format((item?.price || 0) *
+                    (item?.qty || 0)) }} -->
+
+                  Rp. {{ formatRupiah((item?.price || 0) * (item?.qty || 0)) }}
                 </td>
 
               </tr>
@@ -155,12 +161,15 @@
 
 
     <!-- Komponen Struk yang akan dicetak -->
-    <StrukPenjualan v-model="printed" :data="data" />
+    <StrukPenjualan ref="printRef" v-model="printed" :data="data" />
   </BaseDialog>
 </template>
 
 <script setup>
 import { defineAsyncComponent, ref } from 'vue'
+import { formatDateIndo, formatTimeIndo } from '@/utils/dateHelper'
+import { formatRupiah } from '@/utils/uangHelper'
+import { printReceiptElement } from '@/utils/printing';
 
 const StrukPenjualan = defineAsyncComponent(() => import('../compFormWithTabs/StrukPenjualan.vue'))
 
@@ -174,6 +183,7 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const printed = ref(false)
+const printRef = ref(null)
 
 const handleShow = () => {
   console.log('show');
@@ -195,9 +205,13 @@ const closeDialog = () => {
 }
 
 const printPenjualan = () => {
-  console.log('print penjualan');
-  printed.value = true
+  console.log('print penjualan', printRef.value?.printAreaRef);
+  // printed.value = true
+  if (printRef.value?.printAreaRef) {
+    printReceiptElement(printRef.value.printAreaRef)
+  }
 }
+
 
 const printAndClose = () => {
   window.print()

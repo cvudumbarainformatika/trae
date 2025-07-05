@@ -156,7 +156,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import ProductSearch from '@/components/admin/transaksi/pembelian/ProductSearch.vue'
+import ProductSearch from '@/components/admin/transaksi/penjualan/ProductSearch.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { useSalesFormWitTabsStore } from '@/stores/transaksi/penjualan/formwithtabs'

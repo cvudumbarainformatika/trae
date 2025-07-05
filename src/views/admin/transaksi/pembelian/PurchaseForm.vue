@@ -121,11 +121,11 @@
 
               <!-- Invoice Number -->
               <div>
-                <label for="invoice-number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Nomor Faktur <span class="text-red-500">*</span>
-                </label>
-                <BaseInput id="invoice-number" v-model="form.invoice_number" placeholder="Masukkan nomor faktur..."
-                  class="w-full" aria-label="Nomor faktur pembelian" aria-required="true" />
+
+                <BaseInput label="Nomor Faktur"
+                  :error="(form.invoice_number === null || form.invoice_number === '') ? 'Nomor faktur harus diisi' : null"
+                  v-model="form.invoice_number" placeholder="Masukkan nomor faktur..." class="w-full"
+                  aria-label="Nomor faktur pembelian" aria-required="true" />
               </div>
             </div>
           </div>
@@ -408,10 +408,10 @@
 
                 <!-- Due Date (for credit payment) -->
                 <div v-if="form.payment_method === 'credit'" class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <label for="due-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Tanggal Jatuh Tempo
-                  </label>
-                  <BaseInput id="due-date" v-model="form.due_date" type="date" class="w-full" />
+
+                  <BaseInput label="Tanggal Jatuh Tempo"
+                    :error="(form.due_date === null || form.due_date === '') ? 'Tanggal jatuh tempo harus diisi' : null"
+                    required id="due-date" v-model="form.due_date" type="date" class="w-full" />
                 </div>
               </div>
             </div>
@@ -456,11 +456,11 @@
       </p>
       <div class="flex justify-end space-x-2">
         <BaseButton @click="handlePrintDialogClose(false)" variant="secondary" size="md">
-          Nanti
+          OK
         </BaseButton>
-        <BaseButton @click="handlePrintDialogClose(true)" variant="primary" size="md">
+        <!-- <BaseButton @click="handlePrintDialogClose(true)" variant="primary" size="md">
           Cetak
-        </BaseButton>
+        </BaseButton> -->
       </div>
     </BaseDialog>
 
@@ -501,6 +501,7 @@ const supplierStore = useSupplierStore()
 const purchaseOrderId = ref(route.query.purchaseOrderId || null)
 const fromPage = ref(route.query.from || null)
 const editMode = ref(route.params.id ? true : false)
+const purchaseId = ref(null)
 
 // Initialize store
 const store = usePurchaseFormStore()
@@ -562,13 +563,13 @@ const handleSubmit = async () => {
     validationErrors.value = []
 
     // Log form data untuk debugging
-    console.log('Form data before submit:', {
-      supplier_id: form.value.supplier_id,
-      purchase_order_id: form.value.purchase_order_id,
-      items_count: form.value.items.length,
-      payment_method: form.value.payment_method,
-      from_page: store.fromPage
-    })
+    // console.log('Form data before submit:', {
+    //   supplier_id: form.value.supplier_id,
+    //   purchase_order_id: form.value.purchase_order_id,
+    //   items_count: form.value.items.length,
+    //   payment_method: form.value.payment_method,
+    //   from_page: store.fromPage
+    // })
 
     // Validasi manual terlebih dahulu
     const errors = []
@@ -592,6 +593,9 @@ const handleSubmit = async () => {
     if (!form.value.payment_method) {
       errors.push('Metode pembayaran harus dipilih')
     }
+    if (form.payment_method === 'credit' && !form.due_date) {
+      errors.push('Tanggal jatuh tempo harus diisi untuk pembayaran kredit')
+    }
 
     // Tampilkan error jika ada validasi yang gagal
     if (errors.length > 0) {
@@ -599,7 +603,7 @@ const handleSubmit = async () => {
 
       notify({
         title: 'Validasi Gagal',
-        message: errors.join(', '),
+        message: validationErrors.value.join(', '),
         type: 'error'
       })
       return
@@ -642,7 +646,7 @@ const handleSubmit = async () => {
 
     notify({
       title: 'Gagal',
-      message: error.message || 'Terjadi kesalahan saat menyimpan transaksi',
+      message: 'Terjadi kesalahan saat menyimpan transaksi',
       type: 'error'
     })
   }

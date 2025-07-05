@@ -1,26 +1,27 @@
 <template>
-  <div ref="printContainer" v-if="isOpen"
+  <div ref="printContainer" v-show="isOpen"
     class="fixed inset-0 bg-white text-black z-50 w-[280px] print:w-full  print-area">
-    <div ref="printArea" class="p-4 font-mono w-full print:w-full">
-      <div class="text-center mb-[8px]">
-        <div class="text-[10x] font-bold">TOKO MAJU JAYA</div>
-        <div class="text-[8px]">Jl. Merdeka No.123, Jakarta</div>
-        <div class="text-[8px]">Telp: 021-12345678</div>
-        <hr class="my-[8px] border-dashed border-gray-400">
+    <div ref="printAreaRef" class="p-1 font-mono w-full print:w-full">
+      <div class="text-center mb-[5px]">
+        <div class="font-bold center bold">TOKO MAJU JAYA</div>
+        <div class="center">Jl. Merdeka No.123, Jakarta</div>
+        <div class="center">Telp: 021-12345678</div>
+        <hr class="border-dashed border-gray-400">
       </div>
 
       <div class="mb-[8px]">
-        <div class="flex justify-between text-[8px]">
-          <span>No: {{ data?.unique_code }}</span>
-          <span>{{ data?.created_at }}</span>
+        <div class="flex justify-between">
+          <span>{{ data?.unique_code }}</span>
+          <span>{{ formatDateIndo(data?.created_at) }}</span>
         </div>
         <div class="flex justify-between text-[8px]">
-          <span>Kasir: {{ data.kasir_name || '-' }}</span>
-          <span>Jam: {{ data?.jam || '-' }}</span>
+          <span> {{ data?.cashier?.name || '-' }}</span>
+          <span>Jam: {{ formatTimeIndo(data?.created_at) || '-' }}</span>
         </div>
+        <hr class="border-dashed border-gray-400">
       </div>
 
-      <table class="w-full mb-[8px] text-[8px] leading-[1]">
+      <!-- <table class="w-full mb-[8px] text-[8px] leading-[1]">
         <thead>
           <tr class="border-y border-dashed border-gray-400 text-[8px] leading-[1]">
             <th class="text-left whitespace-nowrap">Barang</th>
@@ -33,39 +34,44 @@
             <td class="text-right whitespace-nowrap">{{ format(item.qty * item.price) }}</td>
           </tr>
         </tbody>
-      </table>
+      </table> -->
+      <div v-for="(item, index) in data?.items" :key="index" class="item-row">
+        <span>{{ item?.product?.name }}</span>
+        <span>{{ item?.qty }} X {{ formatRupiah(item?.price || 0) }}</span>
+      </div>
 
+      <hr class="border-dashed border-gray-400">
       <div class="border-t border-dashed border-gray-400 pt-2 text-[8px]">
         <div class="flex justify-between">
           <span>Subtotal</span>
-          <span>{{ format(data?.total) }}</span>
+          <span>{{ formatRupiah(data?.total) }}</span>
         </div>
         <div class="flex justify-between">
           <span>Diskon</span>
-          <span>{{ format(data.discount) }}</span>
+          <span>{{ formatRupiah(data?.discount) }}</span>
         </div>
         <div class="flex justify-between">
           <span>Pajak</span>
-          <span>{{ format(data.tax) }}</span>
+          <span>{{ formatRupiah(data?.tax) }}</span>
         </div>
-        <div class="flex justify-between font-bold">
+        <div class="flex justify-between">
           <span>Total</span>
-          <span>{{ format(data?.total) }}</span>
+          <span>{{ formatRupiah(data?.total) }}</span>
         </div>
         <div class="flex justify-between mt-[8px]">
           <span>Bayar</span>
-          <span>{{ format(data.bayar) }}</span>
+          <span>{{ formatRupiah(data?.bayar) }}</span>
         </div>
         <div class="flex justify-between">
           <span>Kembali</span>
-          <span>{{ format(data.kembali) }}</span>
+          <span>{{ formatRupiah(data?.kembali) }}</span>
         </div>
       </div>
-
+      <hr class="border-dashed border-gray-400">
       <div class="text-center text-[8px] mt-[20px]">
-        <div>~ Terima Kasih ~</div>
-        <div>Barang yang sudah dibeli</div>
-        <div>tidak dapat dikembalikan</div>
+        <div class=" center">~ Terima Kasih ~</div>
+        <div class="center">Barang yang sudah dibeli</div>
+        <div class="center">tidak dapat dikembalikan</div>
       </div>
     </div>
   </div>
@@ -73,6 +79,9 @@
 
 <script setup>
 import { ref, computed, watchEffect, nextTick, onMounted } from 'vue'
+import { formatDateIndo, formatTimeIndo } from '@/utils/dateHelper'
+import { formatRupiah } from '@/utils/uangHelper'
+import { printHtmlElement } from '@/utils/printing';
 
 const props = defineProps({
   data: {
@@ -94,42 +103,34 @@ const isOpen = computed({
   }
 })
 
-watchEffect(() => {
-  if (isOpen.value) {
-    nextTick(() => {
-      // Delay kecil agar browser sempat render ke layar
-      setTimeout(() => {
-        window.print()
+const printAreaRef = ref(null)
 
-        // Setelah print, tutup dialog
-        setTimeout(() => {
-          isOpen.value = false
-        }, 500)
-      }, 300) // ← delay 300ms penting agar tidak blank
-    })
-  }
-})
+defineExpose({ printAreaRef })
+
+// watchEffect(() => {
+//   if (isOpen.value) {
+//     nextTick(() => {
+//       // Delay kecil agar browser sempat render ke layar
+//       setTimeout(() => {
+//         // window.print()
+//         if (printRef.value) {
+//           printHtmlElement(printRef.value.$el);
+//         }
+
+//         // Setelah print, tutup dialog
+//         setTimeout(() => {
+//           isOpen.value = false
+//         }, 100)
+//       }, 300) // ← delay 300ms penting agar tidak blank
+//     })
+//   }
+// })
 
 onMounted(() => {
-  console.log('🟢 Komponen Struk ter-mount')
+  // console.log('🟢 Komponen Struk ter-mount', printAreaRef.value)
 })
 
-const nota = {
-  no: 'TRX-0001',
-  tanggal: '2025-06-20',
-  jam: '19:45',
-  kasir: 'Admin',
-  items: [
-    { nama: 'Indomie Goreng', qty: 2, harga: 3500 },
-    { nama: 'Teh Botol', qty: 1, harga: 4000 },
-    { nama: 'Roti Tawar', qty: 1, harga: 8000 },
-  ],
-  subtotal: 19000,
-  diskon: 1000,
-  total: 18000,
-  bayar: 20000,
-  kembali: 2000,
-}
+
 
 const format = (val) => new Intl.NumberFormat('id-ID', {
   minimumFractionDigits: 0
@@ -147,15 +148,15 @@ body * {
   visibility: visible;
 }
 
-.print-area {
+/* .print-area {
   width: 58mm;
   padding: 0;
   margin: 0;
-}
+} */
 </style>
 
 <style>
-@media print {
+/* @media print {
   @page {
     size: 58mm auto;
     margin: 0;
@@ -191,5 +192,5 @@ body * {
     margin: 0;
   }
 
-}
+} */
 </style>

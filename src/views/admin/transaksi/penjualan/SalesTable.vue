@@ -7,7 +7,8 @@
         <div class="flex flex-col md:flex-row">
           <div class="w-full md:w-1 h-1 md:h-auto" :class="{
             'bg-green-500': item.payment_method === 'cash',
-            'bg-yellow-500': item.payment_method === 'credit',
+            'bg-yellow-500': item.payment_method === 'qris',
+            'bg-red-500': item.payment_method === 'credit',
           }">
           </div>
           <div class="flex-1 p-4">
@@ -41,10 +42,13 @@
                   <div class="text-sm">{{ item.unique_code || `INV-${item.id}` }}</div>
                 </div>
                 <span class="text-xs px-2 py-0.5 rounded-full" :class="{
-                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.payment_method === 'cash',
-                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': item.payment_method === 'credit',
+                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item?.payment_method === 'cash',
+                  'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': item?.payment_method === 'qris',
+                  'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': item?.payment_method === 'credit',
                 }">
-                  {{ item.payment_method === 'cash' ? 'Tunai' : 'Kredit' }}
+                  {{ item.payment_method === 'cash'
+                    ? 'Tunai' : item.payment_method === 'qris'
+                      ? 'QRIS' : 'Kredit' }}
                 </span>
               </div>
               <div class="flex items-center gap-3">

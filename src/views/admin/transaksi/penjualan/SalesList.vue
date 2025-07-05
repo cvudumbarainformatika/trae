@@ -58,6 +58,9 @@
     </div>
     <SalesTable :data="sales" @detail="handleDetail" />
 
+    <BasePagination v-model:current-page="params.page" :total-items="salesStore.paginationInfo.totalItems"
+      :items-per-page="salesStore.paginationInfo.itemsPerPage" @update:current-page="salesStore.handlePageChange" />
+
     <DialogDetail v-model="salesStore.showDetailDialog" :data="salesStore.detail"
       @close="salesStore.showDetailDialog = false" />
 

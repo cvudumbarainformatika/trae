@@ -290,7 +290,11 @@ const handleKeydown = (event) => {
     case 'Enter':
       // Pilih item yang dipilih
       event.preventDefault()
-      if (selectedIndex.value > -1 && items.length > selectedIndex.value) {
+
+      if (items.length === 1) {
+        onItemSelect(items[0])
+
+      } else if (selectedIndex.value > -1 && items.length > selectedIndex.value) {
         onItemSelect(items[selectedIndex.value])
       }
       break

@@ -22,7 +22,7 @@ const props = defineProps({
   },
   error: {
     type: String,
-    default: ''
+    default: null
   },
   hint: {
     type: String,
@@ -94,60 +94,39 @@ const formattedRupiah = computed(() => {
 
 <template>
   <div class="space-y-1.5">
-    <label
-      v-if="label"
-      class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-    >
+    <label v-if="label" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
       {{ label }}
       <span v-if="required" class="text-red-500 ml-0.5">*</span>
     </label>
 
     <div class="relative">
-      <input
-        ref="inputRef"
-        :type="type"
-        :value="modelValue"
-        @input="handleInput"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        :required="required"
-        :class="[inputClasses, clearable && 'pr-10']"
-      >
+      <input ref="inputRef" :type="type" :value="modelValue" @input="handleInput" :placeholder="placeholder"
+        :disabled="disabled" :required="required"
+        :class="[inputClasses, clearable && 'pr-10 text-gray-700 dark:text-gray-300']">
 
       <div v-if="clearable && modelValue" class="absolute inset-y-0 right-0 flex items-center pr-3">
-        <button
-          type="button"
-          @click="()=> {
-            emit('update:modelValue', '')
-            emit('clear')
-          }"
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
-        >
+        <button type="button" @click="() => {
+          emit('update:modelValue', '')
+          emit('clear')
+        }" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clip-rule="evenodd" />
           </svg>
         </button>
       </div>
     </div>
 
-    <p
-      v-if="error"
-      class="text-sm text-red-500 font-medium"
-    >
+    <p v-if="error" class="text-sm text-red-500 font-medium">
       {{ error }}
     </p>
 
-    <p
-      v-else-if="showRupiahHint && modelValue"
-      class="text-sm text-gray-500 dark:text-gray-400 font-medium"
-    >
+    <p v-else-if="showRupiahHint && modelValue" class="text-sm text-gray-500 dark:text-gray-400 font-medium">
       {{ formattedRupiah }}
     </p>
 
-    <p
-      v-else-if="hint"
-      class="text-sm text-gray-500 dark:text-gray-400"
-    >
+    <p v-else-if="hint" class="text-sm text-gray-500 dark:text-gray-400">
       {{ hint }}
     </p>
   </div>
@@ -162,6 +141,11 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 input[type="number"] {
-  -moz-appearance: textfield; /* Firefox */
+  -moz-appearance: textfield;
+  /* Firefox */
+}
+
+input[type="date"] {
+  color-scheme: dark;
 }
 </style>

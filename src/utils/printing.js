@@ -59,7 +59,14 @@ export function printHtmlElement (element, title = 'Print') {
         border: 1px solid #ddd;
         padding: 8px;
         text-align: left;
+
       }
+
+      th.text-right, td.text-right {
+        text-align: right;
+      }
+
+
 
       th {
         background-color: #f2f2f2;
@@ -93,3 +100,154 @@ export function printHtmlElement (element, title = 'Print') {
     }, 500);
   };
 };
+
+
+
+
+
+
+export function printReceiptElement(element, title = 'Struk Penjualan', onDone = null) {
+  if (!element) {
+    console.warn('printReceiptElement: target element not found.');
+    return;
+  }
+
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.top = '-9999px';
+  iframe.style.left = '-9999px';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.visibility = 'hidden';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentDocument || iframe.contentWindow?.document;
+  if (!doc) return;
+
+  const styles = `
+    <style>
+      @page {
+        size: 80mm;
+        margin: 0;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Courier New', monospace;
+        font-size: 8pt;
+        line-height: 1;
+        color: #000;
+        width: 80mm;
+      }
+
+      .receipt {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+
+      .center {
+        text-align: center;
+      }
+
+      .right {
+        text-align: right;
+      }
+
+      .bold {
+        font-weight: bold;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 8pt;
+      }
+
+      td {
+        padding: 2px 0;
+        word-break: break-word;
+      }
+
+      .item-row {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px dashed #000;
+        margin: 8px 0;
+      }
+      .flex {
+        display: flex;
+      }
+
+      .justify-between {
+        justify-content: space-between;
+      }
+
+      span {
+        word-break: break-word;
+      }
+
+      @media print {
+        html, body {
+          width: 80mm;
+          margin: 0;
+          padding: 0;
+        }
+      }
+
+      body {
+        page-break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      * {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+    </style>
+  `;
+
+  doc.open();
+  doc.write(`
+    <html>
+      <head>
+        <title>${title}</title>
+        ${styles}
+      </head>
+      <body>
+        <div class="receipt">
+          ${element.innerHTML}
+        </div>
+      </body>
+    </html>
+  `);
+  doc.close();
+
+  const handlePrintDone = (event) => {
+    if (event.data?.type === 'PRINT_DONE') {
+      window.removeEventListener('message', handlePrintDone);
+      if (typeof onDone === 'function') onDone();
+
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 500);
+    }
+  };
+  window.addEventListener('message', handlePrintDone);
+
+  iframe.onload = () => {
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
+
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 500);
+  };
+}
+

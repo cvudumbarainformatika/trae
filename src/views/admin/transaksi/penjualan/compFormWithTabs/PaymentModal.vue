@@ -221,6 +221,15 @@ function handleKeydown(e) {
   const index = list.findIndex(el => el === current)
 
   if (e.key === 'Enter' && !e.ctrlKey) {
+
+    const activeElement = document.activeElement
+    const tag = activeElement?.tagName?.toLowerCase()
+
+    if (tag === 'button' && activeElement.type === 'submit') {
+      // Fokus di tombol submit — biarkan default
+      return
+    }
+
     e.preventDefault()
     const next = list[index + 1]
     if (next) next.focus()
@@ -237,6 +246,8 @@ function handleKeydown(e) {
 
   if (e.key === 'Escape') batal()
 }
+
+
 
 function formatCurrency(value) {
   return value.toLocaleString('id-ID')
@@ -287,11 +298,18 @@ function initForm() {
 watch(
   () => form.value.payment_method,
   (val) => {
-    console.log('form.value.payment_method', val);
+    // console.log('form.value.payment_method', val);
 
     nextTick().then(() => {
       if ((val === 'cash' || val === 'qris') && bayarRef.value) {
         bayarRef.value.focus()
+        if (val === 'qris') {
+          form.value.dp = 0
+          form.value.tempo = 0
+          form.value.pembayaran = totalBayar.value
+          console.log('totalBayar', totalBayar.value);
+
+        }
       } else if (val === 'credit' && dpRef.value) {
         dpRef.value?.focus()
       } else {
@@ -308,6 +326,14 @@ watch(
     if (val) {
       nextTick(() => bayarRef.value?.focus())
     }
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.uniqueCode,
+  (val) => {
+    initForm()
   },
   { immediate: true }
 )

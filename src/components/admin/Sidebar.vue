@@ -32,6 +32,10 @@ const submenus = {
     { name: 'SalesReturn', label: 'Return Penjualan', path: '/admin/reports/return-penjualan' },
     { name: 'PurchaseReturn', label: 'Return Pembelian', path: '/admin/reports/return-pembelian' },
     { name: 'LabaRugi', label: 'Laba Rugi', path: '/admin/reports/laba-rugi' }
+  ],
+  'settings': [
+    { name: 'SeetingsUser', label: 'Settings User', path: '/admin/settings/users' },
+    // { name: 'PurchaseReport', label: 'Laporan Pembelian', path: '/admin/reports/purchase-report' },
   ]
 }
 
@@ -156,7 +160,7 @@ defineExpose({
           </button>
         </li>
         <li>
-          <router-link to="/admin/settings"
+          <!-- <router-link to="/admin/settings"
             class="flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
             active-class="text-white bg-blue-600/20 hover:bg-blue-600/30">
             <div class="flex items-center justify-center w-10 h-10">
@@ -166,7 +170,18 @@ defineExpose({
               class="absolute left-full ml-2 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
               Settings
             </div>
-          </router-link>
+          </router-link> -->
+          <button @click="toggleSubmenu('settings')"
+            class="w-full flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
+            :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': isSubmenuActive === 'settings' || activeSubmenu === 'settings' }">
+            <div class="flex items-center justify-center w-10 h-10">
+              <Icon name="settings" class="w-5 h-5" />
+            </div>
+            <div
+              class="absolute left-full ml-2 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
+              Settings
+            </div>
+          </button>
         </li>
       </ul>
       <div class="mt-auto mb-10">

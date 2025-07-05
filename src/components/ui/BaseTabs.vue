@@ -24,6 +24,15 @@ const handleTabClick = (tabId) => {
     emit('update:activeTab', tabId)
   }
 }
+
+const handleClose = (tabId) => {
+
+  if (props.tabs.length === 1) {
+    return
+  }
+
+  emit('removeTab', tabId)
+}
 </script>
 
 <template>
@@ -32,7 +41,7 @@ const handleTabClick = (tabId) => {
     <div class="flex">
       <div class="flex items-center overflow-x-auto">
         <div v-for="tab in tabs" :key="tab.unique_code" @click="handleTabClick(tab.unique_code)" :class="[
-          'p-2 py-1 cursor-pointer rounded-t-lg transition flex items-center gap-2',
+          'px-3 py-2 cursor-pointer rounded-t-lg transition flex items-center gap-2',
           tab.unique_code === activeTab
             ? 'bg-primary-600 border border-transparent text-secondary-900 dark:text-white'
             : 'hover:bg-secondary-700 border border-transparent  text-secondary-900 dark:text-gray-400'
@@ -41,7 +50,7 @@ const handleTabClick = (tabId) => {
           <div class="text-xs">{{ tab.unique_code }}</div>
           <div class="-mr-1">
             <Icon name="x" size="20" class=" hover:bg-primary-800 rounded-full p-1"
-              @click.stop="emit('removeTab', tab.unique_code)" />
+              @click.stop="handleClose(tab.unique_code)" />
           </div>
           <slot name="tab-action" :tab="tab"></slot>
         </div>
@@ -61,6 +70,8 @@ const handleTabClick = (tabId) => {
     </div>
   </div>
 </template>
+
+
 
 <style scoped>
 .fade-enter-active,
