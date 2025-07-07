@@ -1,46 +1,75 @@
 <script setup>
-import { ref, defineComponent, computed, watch } from 'vue'
+import { ref, defineComponent, computed, watch, onMounted } from 'vue'
 import { useThemeStore } from '@/stores/theme'
+import { useMenuStore } from '@/stores/menu'
+import { useAuthStore } from '@/stores/auth'
 import { useRoute } from 'vue-router'
-import { Package, Tag, Users, Receipt, ShoppingBag, RotateCcw, BarChart3, FileText, PieChart, Home, Database, ShoppingCart, Settings, BoxIcon, UserCheck } from 'lucide-vue-next'
+// import { Package, Tag, Users, Receipt, ShoppingBag, RotateCcw, BarChart3, FileText, PieChart, Home, Database, ShoppingCart, Settings, BoxIcon, UserCheck } from 'lucide-vue-next'
 
 const themeStore = useThemeStore()
 const route = useRoute()
 const activeSubmenu = ref(null)
+const storeMenu = useMenuStore()
+const auth = useAuthStore()
 
-const submenus = {
-  'master-data': [
-    { name: 'Products', label: 'Produk', path: '/admin/master-data/products' },
-    { name: 'Categories', label: 'Kategori', path: '/admin/master-data/categories' },
-    { name: 'Satuan', label: 'Satuan', path: '/admin/master-data/satuan' },
-    { name: 'Suppliers', label: 'Supplier', path: '/admin/master-data/suppliers' },
-    { name: 'Customers', label: 'Pelanggan', path: '/admin/master-data/customers' }
-  ],
-  'transaction': [
-    { name: 'PO', label: 'Order Pembelian', path: '/admin/transaksi/po' },
-    { name: 'Purchases', label: 'Pembelian', path: '/admin/transaksi/pembelian' },
-    { name: 'Sales', label: 'Penjualan', path: '/admin/transaksi/penjualan' },
-    { name: 'ReturnPjl ', label: 'Return Penjualan', path: '/admin/transaksi/returnpenjualan' },
-    { name: 'ReturnPbl', label: 'Return Pembelian', path: '/admin/transaksi/returnpembelian' },
-    { name: 'PaymentToSupplier', label: 'Pembayaran Hutang', path: '/admin/transaksi/bayarhutang' },
-    { name: 'CustomerPayment', label: 'Pembayaran Piutang', path: '/admin/transaksi/bayar-piutang' },
-    { name: 'CashFlow', label: 'Arus Kas Kasir', path: '/admin/transaksi/aruskas' },
-  ],
-  'reports': [
-    { name: 'SalesReport', label: 'Laporan Penjualan', path: '/admin/reports/salesreport' },
-    { name: 'PurchaseReport', label: 'Laporan Pembelian', path: '/admin/reports/purchase-report' },
-    { name: 'SalesReturn', label: 'Return Penjualan', path: '/admin/reports/return-penjualan' },
-    { name: 'PurchaseReturn', label: 'Return Pembelian', path: '/admin/reports/return-pembelian' },
-    { name: 'LabaRugi', label: 'Laba Rugi', path: '/admin/reports/laba-rugi' }
-  ],
-  'settings': [
-    { name: 'SeetingsUser', label: 'Settings User', path: '/admin/settings/users' },
-    // { name: 'PurchaseReport', label: 'Laporan Pembelian', path: '/admin/reports/purchase-report' },
-  ]
-}
+
+
+// const submenus = {
+//   'master-data': [
+//     { name: 'Products', label: 'Produk', path: '/admin/master-data/products' },
+//     { name: 'Categories', label: 'Kategori', path: '/admin/master-data/categories' },
+//     { name: 'Satuan', label: 'Satuan', path: '/admin/master-data/satuan' },
+//     { name: 'Suppliers', label: 'Supplier', path: '/admin/master-data/suppliers' },
+//     { name: 'Customers', label: 'Pelanggan', path: '/admin/master-data/customers' }
+//   ],
+//   'transaction': [
+//     { name: 'PO', label: 'Order Pembelian', path: '/admin/transaksi/po' },
+//     { name: 'Purchases', label: 'Pembelian', path: '/admin/transaksi/pembelian' },
+//     { name: 'Sales', label: 'Penjualan', path: '/admin/transaksi/penjualan' },
+//     { name: 'ReturnPjl ', label: 'Return Penjualan', path: '/admin/transaksi/returnpenjualan' },
+//     { name: 'ReturnPbl', label: 'Return Pembelian', path: '/admin/transaksi/returnpembelian' },
+//     { name: 'PaymentToSupplier', label: 'Pembayaran Hutang', path: '/admin/transaksi/bayarhutang' },
+//     { name: 'CustomerPayment', label: 'Pembayaran Piutang', path: '/admin/transaksi/bayar-piutang' },
+//     { name: 'CashFlow', label: 'Arus Kas Kasir', path: '/admin/transaksi/aruskas' },
+//   ],
+//   'reports': [
+//     { name: 'SalesReport', label: 'Laporan Penjualan', path: '/admin/reports/salesreport' },
+//     { name: 'PurchaseReport', label: 'Laporan Pembelian', path: '/admin/reports/purchase-report' },
+//     { name: 'SalesReturn', label: 'Return Penjualan', path: '/admin/reports/return-penjualan' },
+//     { name: 'PurchaseReturn', label: 'Return Pembelian', path: '/admin/reports/return-pembelian' },
+//     { name: 'LabaRugi', label: 'Laba Rugi', path: '/admin/reports/laba-rugi' }
+//   ],
+//   'settings': [
+//     { name: 'SeetingsUser', label: 'Settings User', path: '/admin/settings/users' },
+//     // { name: 'PurchaseReport', label: 'Laporan Pembelian', path: '/admin/reports/purchase-report' },
+//   ]
+// }
+
+const submenus = computed(() => {
+  // console.log('storeMenu.items', storeMenu.items);
+
+  const map = {}
+
+  for (const menu of storeMenu.items) {
+    if (menu.children?.length > 0) {
+      map[menu.name] = menu.children.map(child => ({
+        name: child.name,
+        label: child.label || child.name,
+        path: child.route,
+        icon: child.icon,
+        allowed: child.permission?.split(',').map(r => r.trim().toLowerCase())?.includes(auth.user.role)
+      }))
+    }
+  }
+  // console.log('map', map);
+  // console.log('flatten', storeMenu.flattenedMenus);
+
+  return map
+})
+
 
 const isSubmenuActive = computed(() => {
-  return Object.entries(submenus).find(([key, items]) => {
+  return Object.entries(submenus.value).find(([key, items]) => {
     return items.some(item => route.path.startsWith(item.path))
   })?.[0] || null
 })
@@ -68,22 +97,22 @@ const handleSubmenuItemClick = () => {
   // Only close when clicking outside or toggling the menu button
 }
 
-const getSubmenuIcon = (name) => {
-  const iconMap = {
-    'Products': Package,
-    'Categories': Tag,
-    'Suppliers': Users,
-    'Customers': UserCheck, // Menggunakan ikon UserCheck untuk Customers
-    'Sales': Receipt,
-    'Purchases': ShoppingBag,
-    'PO': ShoppingBag,
-    'Returns': RotateCcw,
-    'Sales Report': BarChart3,
-    'Inventory Report': BoxIcon,
-    'Financial Report': PieChart
-  }
-  return iconMap[name] || FileText
-}
+// const getSubmenuIcon = (name) => {
+//   const iconMap = {
+//     'Products': Package,
+//     'Categories': Tag,
+//     'Suppliers': Users,
+//     'Customers': UserCheck, // Menggunakan ikon UserCheck untuk Customers
+//     'Sales': Receipt,
+//     'Purchases': ShoppingBag,
+//     'PO': ShoppingBag,
+//     'Returns': RotateCcw,
+//     'Sales Report': BarChart3,
+//     'Inventory Report': BoxIcon,
+//     'Financial Report': PieChart
+//   }
+//   return iconMap[name] || FileText
+// }
 
 defineComponent({
   name: 'Sidebar',
@@ -92,6 +121,13 @@ defineComponent({
 
 defineExpose({
   hideSubmenu
+})
+
+
+onMounted(() => {
+  // console.log('auth', auth.user);
+  // console.log('submenu', submenus.value);
+  // console.log('flatten', storeMenu.flattenedMenus);
 })
 </script>
 
@@ -107,7 +143,43 @@ defineExpose({
     <!-- Sidebar Navigation -->
     <nav class="flex-1 p-2 flex flex-col">
       <ul class="space-y-2">
-        <li>
+        <template v-for="menu in storeMenu.items" :key="menu.id">
+          <template v-if="menu.permission?.split(',')?.map(r => r.trim().toLowerCase())?.includes(auth?.user?.role)">
+            <li v-if="menu.children.length === 0">
+              <router-link :to="menu.route"
+                class="flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
+                :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': route.path === menu.route }">
+                <div class="flex items-center justify-center w-10 h-10">
+
+                  <Icon :is="menu.icon" :name="menu.icon" class="w-5 h-5" />
+                </div>
+                <div
+                  class="absolute left-full ml-2 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
+                  {{ menu.label }}
+                </div>
+              </router-link>
+            </li>
+
+            <li v-else>
+              <button @click="toggleSubmenu(menu.name)"
+                class="w-full flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
+                :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': isSubmenuActive === menu.name }">
+                <div class="flex items-center justify-center w-10 h-10">
+
+                  <Icon :is="menu.icon" :name="menu.icon" class="w-5 h-5" />
+                </div>
+                <div
+                  class="absolute left-full ml-2 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
+                  {{ menu.label }}
+                </div>
+              </button>
+            </li>
+          </template>
+
+        </template>
+
+
+        <!-- <li>
           <router-link to="/admin"
             class="flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
             :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': route.path === '/admin' }">
@@ -160,17 +232,7 @@ defineExpose({
           </button>
         </li>
         <li>
-          <!-- <router-link to="/admin/settings"
-            class="flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
-            active-class="text-white bg-blue-600/20 hover:bg-blue-600/30">
-            <div class="flex items-center justify-center w-10 h-10">
-              <Settings class="w-5 h-5" />
-            </div>
-            <div
-              class="absolute left-full ml-2 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
-              Settings
-            </div>
-          </router-link> -->
+
           <button @click="toggleSubmenu('settings')"
             class="w-full flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"
             :class="{ 'text-white bg-blue-600/20 hover:bg-blue-600/30': isSubmenuActive === 'settings' || activeSubmenu === 'settings' }">
@@ -182,7 +244,7 @@ defineExpose({
               Settings
             </div>
           </button>
-        </li>
+        </li> -->
       </ul>
       <div class="mt-auto mb-10">
         <router-link to="/admin/profile"
@@ -193,7 +255,7 @@ defineExpose({
           </div>
           <div
             class="absolute left-full ml-2 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
-            Settings
+            Profile
           </div>
         </router-link>
       </div>
@@ -205,15 +267,18 @@ defineExpose({
       style="animation: slideIn 0.2s ease-out;">
       <div class="px-2 py-2 h-full overflow-y-auto">
         <div class="text-sm font-bold text-gray-300 uppercase tracking-wider px-3 mb-4">
-          {{ activeSubmenu.replace('-', '') }}
+          {{ activeSubmenu.replace('-', ' ') }}
         </div>
         <div class="space-y-1">
-          <router-link v-for="item in submenus[activeSubmenu]" :key="item.path" :to="item.path"
-            class="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors rounded-md"
-            :class="{ 'bg-blue-600/20 text-white': route.path === item.path }">
-            <component :is="getSubmenuIcon(item.name)" class="w-4 h-4 mr-2" />
-            {{ item.label }}
-          </router-link>
+          <template v-for="item in submenus[activeSubmenu]" :key="item.path">
+            <router-link v-if="item.allowed" :to="item.path"
+              class="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors rounded-md"
+              :class="{ 'bg-blue-600/20 text-white': route.path === item.path }">
+              <!-- <component :is="getSubmenuIcon(item.name)" class="w-4 h-4 mr-2" /> -->
+              <Icon :name="item.icon" class="w-4 h-4 mr-2" />
+              {{ item.label }}
+            </router-link>
+          </template>
         </div>
       </div>
     </div>

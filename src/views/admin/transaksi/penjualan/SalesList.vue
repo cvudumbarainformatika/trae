@@ -71,6 +71,7 @@
 import { ref, onMounted, watch, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSalesStore } from '@/stores/transaksi/penjualan/index'
+import { useAuthStore } from '@/stores/auth'
 import { toLocalDateString, getMonthStartDate, getMonthEndDate } from '@/utils/dateHelper'
 // import SalesTable from './SalesTable.vue'
 // import BaseButton from '@/components/ui/BaseButton.vue'
@@ -79,15 +80,23 @@ import { toLocalDateString, getMonthStartDate, getMonthEndDate } from '@/utils/d
 // import Icon from '@/components/ui/Icon.vue'
 import { storeToRefs } from 'pinia'
 
+
 const SalesTable = defineAsyncComponent(() => import('./SalesTable.vue'))
 const DialogDetail = defineAsyncComponent(() => import('./compFormWithTabs/DialogDetail.vue'))
 
 const router = useRouter()
 const salesStore = useSalesStore()
+const authStore = useAuthStore()
 const { params, sales } = storeToRefs(salesStore)
 // const params = ref({ q: '', status: 'semua' })
 
 onMounted(() => {
+
+  if (authStore.user?.role === 'cashier') {
+    goToKasir()
+  }
+
+
   salesStore.params.start_date = dateRange.value.start_date
   salesStore.params.end_date = dateRange.value.end_date
 

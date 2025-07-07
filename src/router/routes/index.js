@@ -14,7 +14,7 @@ import PurchaseForm from '@/views/admin/transaksi/pembelian/PurchaseForm.vue'
 const routes = [
   { path: '/', redirect: '/login' },
   {
-    path: '/about',
+    path: '/not-authorized',
     name: 'about',
     component: () => import('../../views/About.vue')
   },
@@ -27,13 +27,6 @@ const routes = [
     path: '/admin',
     component: () => import('../../layouts/AdminLayout.vue'),
     meta: { requiresAuth: true },
-    // beforeEnter: (to, from, next) => {
-    //   if (!auth.token) {
-    //     next('/login')
-    //   } else {
-    //     next()
-    //   }
-    // },
     children: [
       {
         path: '',
@@ -259,6 +252,7 @@ const routes = [
 
     ]
   }
+
 ]
 
 export default routes
