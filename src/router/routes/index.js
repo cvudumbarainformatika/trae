@@ -1,7 +1,7 @@
 import {
   supplier,
   product,
-  users
+  users, akses,company,stock
 } from '../modules'
 // Tambahkan import untuk komponen pembelian
 import PurchaseIndex from '@/views/admin/transaksi/pembelian/IndexPage.vue'
@@ -248,7 +248,7 @@ const routes = [
 
 
       // settings
-      users
+      users, akses,company, stock
 
     ]
   }

@@ -1,23 +1,30 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
+import { getMonthStartDate, getMonthEndDate } from '../../../utils/dateHelper'
+import {useNotification } from '@/composables/useNotification'
 import { api } from '@/services/api'
 
-export const useReturnPenjualanStore = defineStore('return-penjualan-store', {
+export const useStockStore = defineStore('stock-store', {
   state: () => ({
     items: [],
     meta: null,
+    header:{
+      title: 'Manajemen Stock',
+      subtitle: 'Pengaturan Mutasi & Stock Products',
+      placeholderSearch: 'Cari Berdasarkan Rak, Category ...'
+    },
     params: {
       page: 1,
-      per_page: 10,
+      per_page: 20,
       sort_by: 'created_at',
       sort_direction: 'desc',
       q: '',
       status: 'semua',
-      start_date: null,
-      end_date: null
+      start_date: getMonthStartDate(),
+      end_date: getMonthEndDate()
     },
     pagination: {
       page: 1,
-      itemsPerPage: 10,
+      itemsPerPage: 20,
       totalItems: 0
     },
     loading: false,
@@ -25,7 +32,9 @@ export const useReturnPenjualanStore = defineStore('return-penjualan-store', {
     showCreateDialog: false,
     item: null,
     showDetailDialog: false,
-    detail: null
+    detail: null,
+    productMutations: null,
+    productMutationMeta: null
   }),
 
   getters: {
@@ -46,13 +55,24 @@ export const useReturnPenjualanStore = defineStore('return-penjualan-store', {
     async fetchData() {
       this.loading = true
       try {
-        const { data } = await api.get('/api/v1/return-penjualan', {
+        const { data } = await api.get('/api/v1/products', {
           params: this.params
         })
 
-        // console.log('return_penjualan', data);
+        // console.log('stock product', data);
 
         this.items = data?.data || []
+        if (this.items.length > 0) {
+          this.items = this.items.map((item) => ({
+            ...item,
+            stock_fisik: item.stok_fisik ?? item.stock_akhir ?? 0,
+            selisih: (item.stok_fisik ?? item.stock_akhir ?? 0) - item.stock_akhir
+          }))
+        }
+
+        console.log('items', this.items);
+
+
         this.pagination.totalItems = parseInt(data?.meta?.total) || 0
         this.meta = data?.meta || null
         return this.items
@@ -65,11 +85,17 @@ export const useReturnPenjualanStore = defineStore('return-penjualan-store', {
       }
     },
 
-    async fetchSaleById(id) {
+    async fetchStockById(id, params) {
       this.loading = true
       try {
-        const { data } = await api.get(`/api/v1/sales/${id}`)
-        this.selectedSale = data
+        const { data } = await api.get(`/api/v1/products/mutations/${id}`, {
+          params
+        })
+
+        // console.log('data', data);
+
+        this.productMutations = data.data
+        this.productMutationMeta = data?.meta || null
         return data
       } catch (error) {
         this.error = error.response?.data?.message || `Failed to fetch sale #${id}`
@@ -80,20 +106,32 @@ export const useReturnPenjualanStore = defineStore('return-penjualan-store', {
       }
     },
 
-    async deleteSale(id) {
+    async savePenyesuaian(item) {
+      // console.log('item penyesuaian', item);
+
       this.loading = true
       try {
-        await api.delete(`/api/v1/sales/${id}`)
-        this.sales = this.sales.filter(sale => sale.id !== id)
-        return true
+        const { data } = await api.post(`/api/v1/products/stock-opname`, item)
+        return data
       } catch (error) {
-        this.error = error.response?.data?.message || `Failed to delete sale #${id}`
-        console.error('Error deleting sale:', error)
+        this.error = error.response?.data?.message || `Failed to fetch sale #${id}`
+        console.error('Error fetching sale:', error)
+
+        const { notify } = useNotification()
+        notify({
+          title: 'Error !',
+          message: `Maaf Terjadi Kesalahan Simpan Barang ${item?.name || '-'}`,
+          type: 'error'
+        })
+
         throw error
       } finally {
         this.loading = false
       }
     },
+
+
+
 
     showDetail(item) {
       this.selectedSale = item
@@ -114,14 +152,14 @@ export const useReturnPenjualanStore = defineStore('return-penjualan-store', {
       this.params.q = query
       this.params.page = 1
       this.pagination.page = 1
-      this.fetchData()
+      this.fetchSales()
     },
 
     setStatusFilter(status) {
       this.params.status = status
       this.params.page = 1
       this.pagination.page = 1
-      this.fetchData()
+      this.fetchSales()
     },
 
     setDateRange(startDate, endDate) {
@@ -129,7 +167,7 @@ export const useReturnPenjualanStore = defineStore('return-penjualan-store', {
       this.params.end_date = endDate
       this.params.page = 1
       this.pagination.page = 1
-      this.fetchData()
+      this.fetchSales()
     },
 
     handlePageChange(page) {
@@ -147,5 +185,5 @@ export const useReturnPenjualanStore = defineStore('return-penjualan-store', {
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useReturnPenjualanStore, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useStockStore, import.meta.hot))
 }

@@ -57,7 +57,7 @@ const submenus = computed(() => {
         label: child.label || child.name,
         path: child.route,
         icon: child.icon,
-        allowed: child.permission?.split(',').map(r => r.trim().toLowerCase())?.includes(auth.user.role)
+        allowed: !auth?.user?.role === 'root' ? child.permission?.split(',').map(r => r.trim().toLowerCase())?.includes(auth.user.role) : true
       }))
     }
   }
@@ -73,6 +73,8 @@ const isSubmenuActive = computed(() => {
     return items.some(item => route.path.startsWith(item.path))
   })?.[0] || null
 })
+
+
 
 // Watch for route changes to update active submenu
 watch(() => route.path, () => {
@@ -97,22 +99,7 @@ const handleSubmenuItemClick = () => {
   // Only close when clicking outside or toggling the menu button
 }
 
-// const getSubmenuIcon = (name) => {
-//   const iconMap = {
-//     'Products': Package,
-//     'Categories': Tag,
-//     'Suppliers': Users,
-//     'Customers': UserCheck, // Menggunakan ikon UserCheck untuk Customers
-//     'Sales': Receipt,
-//     'Purchases': ShoppingBag,
-//     'PO': ShoppingBag,
-//     'Returns': RotateCcw,
-//     'Sales Report': BarChart3,
-//     'Inventory Report': BoxIcon,
-//     'Financial Report': PieChart
-//   }
-//   return iconMap[name] || FileText
-// }
+
 
 defineComponent({
   name: 'Sidebar',
@@ -129,6 +116,16 @@ onMounted(() => {
   // console.log('submenu', submenus.value);
   // console.log('flatten', storeMenu.flattenedMenus);
 })
+
+const hasAccess = (menu) => {
+  if (!auth?.user?.role === 'root') {
+    return menu.permission?.split(',')?.map(r => r.trim().toLowerCase())?.includes(auth?.user?.role)
+
+  }
+
+  return menu
+
+}
 </script>
 
 <template>
@@ -144,7 +141,7 @@ onMounted(() => {
     <nav class="flex-1 p-2 flex flex-col">
       <ul class="space-y-2">
         <template v-for="menu in storeMenu.items" :key="menu.id">
-          <template v-if="menu.permission?.split(',')?.map(r => r.trim().toLowerCase())?.includes(auth?.user?.role)">
+          <template v-if="hasAccess(menu)">
             <li v-if="menu.children.length === 0">
               <router-link :to="menu.route"
                 class="flex items-center justify-center h-10 rounded-lg text-gray-400 hover:bg-gray-700/50 hover:text-white group relative transition-all duration-200"

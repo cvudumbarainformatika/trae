@@ -24,7 +24,7 @@ export function formatTimeIndo(dateInput) {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
-  })
+  })?.replace('.', ':')
 }
 
 // Format rentang tanggal bahasa Indonesia

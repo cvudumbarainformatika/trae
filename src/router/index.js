@@ -16,6 +16,7 @@ const router = createRouter({
 function hasAccess(menuItem, userRole) {
   // console.log('menuItem', menuItem);
 
+
   if (!menuItem.permission) return true
   const allowed = menuItem.permission.split(',').map(p => p.trim().toLowerCase())
   // console.log('allowed', allowed);
@@ -53,7 +54,7 @@ router.beforeEach(async (to, from, next) => {
   console.log('[ROUTER] matched menu:', matchedMenu);
   console.log('[ROUTER] all menu:', allMenus);
 
-  if (matchedMenu && !hasAccess(matchedMenu, userRole)) {
+  if (matchedMenu && !hasAccess(matchedMenu, userRole) && userRole !== 'root') {
     // Coba cari menu pertama yang boleh diakses
     const firstAllowed = allMenus.find(m => hasAccess(m, userRole))
     console.log('[ROUTER] first allowed:', firstAllowed);

@@ -1,10 +1,15 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { api } from '@/services/api'
 
-export const useReturnPembelianStore = defineStore('return-pembelian-store', {
+export const useCompanyStore = defineStore('company-store', {
   state: () => ({
-    items: [],
+    item: null,
     meta: null,
+    header:{
+      title: 'Setting Company',
+      subtitle: 'Pengaturan Aplikasi Toko (Bio)',
+      placeholderSearch: ''
+    },
     params: {
       page: 1,
       per_page: 10,
@@ -25,8 +30,18 @@ export const useReturnPembelianStore = defineStore('return-pembelian-store', {
     showCreateDialog: false,
     item: null,
     showDetailDialog: false,
-    detail: null
+    detail: null,
+    form:{
+      id: null,
+      name: null,
+      email: null,
+      phone: null,
+      address: null,
+      logo: null,
+    }
   }),
+
+  persist: true,
 
   getters: {
     paginationInfo: (state) => {
@@ -39,26 +54,41 @@ export const useReturnPembelianStore = defineStore('return-pembelian-store', {
     },
     filteredItems: (state) => {
       return state.items
-    }
+    },
+
   },
 
   actions: {
     async fetchData() {
       this.loading = true
       try {
-        const { data } = await api.get('/api/v1/return-pembelian', {
-          params: this.params
-        })
+        const { data } = await api.get('/api/v1/settings/company')
 
-        // console.log('return_penjualan', data);
+        // console.log('company', data);
 
-        this.items = data?.data || []
-        this.pagination.totalItems = parseInt(data?.meta?.total) || 0
-        this.meta = data?.meta || null
+        this.item = data
+        this.form = { ...data }
+
+        return this.item
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Failed to fetch company'
+        console.error('Error fetching company:', error)
+        return []
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async saveData() {
+      this.loading = true
+      try {
+        const { data } = await api.put(`/api/v1/settings/company`, this.form)
+        this.items = data
+        this.form = { ...data.data }
         return this.items
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch sales'
-        console.error('Error fetching sales:', error)
+        console.error('Error fetching company:', error)
         return []
       } finally {
         this.loading = false
@@ -67,10 +97,8 @@ export const useReturnPembelianStore = defineStore('return-pembelian-store', {
 
 
 
-
-
     showDetail(item) {
-      this.item = item
+      this.selectedSale = item
       this.showDetailDialog = true
     },
 
@@ -81,21 +109,21 @@ export const useReturnPembelianStore = defineStore('return-pembelian-store', {
     setPage(page) {
       this.pagination.page = page
       this.params.page = page
-      this.fetchData()
+      this.fetchSales()
     },
 
     setSearchQuery(query) {
       this.params.q = query
       this.params.page = 1
       this.pagination.page = 1
-      this.fetchData()
+      this.fetchSales()
     },
 
     setStatusFilter(status) {
       this.params.status = status
       this.params.page = 1
       this.pagination.page = 1
-      this.fetchData()
+      this.fetchSales()
     },
 
     setDateRange(startDate, endDate) {
@@ -103,7 +131,7 @@ export const useReturnPembelianStore = defineStore('return-pembelian-store', {
       this.params.end_date = endDate
       this.params.page = 1
       this.pagination.page = 1
-      this.fetchData()
+      this.fetchSales()
     },
 
     handlePageChange(page) {
@@ -114,11 +142,12 @@ export const useReturnPembelianStore = defineStore('return-pembelian-store', {
         ...this.pagination,
         page
       }
-      this.params.page = page
+      // this.params.page = page
+      this.setPage(page)
     }
   }
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useReturnPembelianStore, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useCompanyStore, import.meta.hot))
 }
