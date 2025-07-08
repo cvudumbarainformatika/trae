@@ -3,9 +3,9 @@
     class="fixed inset-0 bg-white text-black z-50 w-[280px] print:w-full  print-area">
     <div ref="printAreaRef" class="p-1 font-mono w-full print:w-full">
       <div class="text-center mb-[5px]">
-        <div class="font-bold center bold">TOKO MAJU JAYA</div>
-        <div class="center">Jl. Merdeka No.123, Jakarta</div>
-        <div class="center">Telp: 021-12345678</div>
+        <div class="font-bold center bold">{{ bio?.item?.name || 'NAMA TOKO' }}</div>
+        <div class="center">{{ bio?.item?.address || 'ALAMAT TOKO' }}</div>
+        <div class="center">Telp: {{ bio?.item?.phone || '-' }}</div>
         <hr class="border-dashed border-gray-400">
       </div>
 
@@ -80,8 +80,14 @@
 <script setup>
 import { ref, computed, watchEffect, nextTick, onMounted } from 'vue'
 import { formatDateIndo, formatTimeIndo } from '@/utils/dateHelper'
+import { useCompanyStore } from '@/stores/settings/company'
 import { formatRupiah } from '@/utils/uangHelper'
 import { printHtmlElement } from '@/utils/printing';
+
+const bio = useCompanyStore()
+const format = (value) => {
+  return formatRupiah(value)
+}
 
 const props = defineProps({
   data: {

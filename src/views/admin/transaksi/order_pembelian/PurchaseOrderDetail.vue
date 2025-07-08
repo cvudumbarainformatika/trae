@@ -282,9 +282,9 @@
       <div class="print-info">
         <div class="print-company">
           <h2>Dari:</h2>
-          <div>Nama Toko Anda</div>
-          <div>Alamat Toko Anda</div>
-          <div>Email & Telepon Toko</div>
+          <div>{{ bio?.item?.name || 'NAMA TOKO' }}</div>
+          <div>{{ bio?.item?.address || 'ALAMAT TOKO' }}</div>
+          <div>Telp : {{ bio?.item?.phone || '-' }}</div>
         </div>
 
         <div class="print-supplier">
@@ -421,9 +421,11 @@ import Icon from '@/components/ui/Icon.vue'
 import { api } from '@/services/api'
 // import html2pdf from 'html2pdf.js/dist/html2pdf.bundle.min.js'
 import { usePurchaseOrderStore } from '@/stores/transaksi/order_pembelian'
+import { useCompanyStore } from '@/stores/settings/company'
 
 const router = useRouter()
 const purchaseOrderStore = usePurchaseOrderStore()
+const bio = useCompanyStore()
 
 const props = defineProps({
   modelValue: {
