@@ -1,6 +1,6 @@
 import {
-  supplier,
-  product,
+  supplier,product,
+  stockopname,
   users, akses,company,stock
 } from '../modules'
 // Tambahkan import untuk komponen pembelian
@@ -190,6 +190,7 @@ const routes = [
 
 
       // reports
+      stockopname,
       {
         path: 'reports/salesreport',
         component: () => import('../../views/admin/reports/sales_report/IndexPage.vue'),

@@ -2,6 +2,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { getMonthStartDate, getMonthEndDate } from '../../../utils/dateHelper'
 import {useNotification } from '@/composables/useNotification'
 import { api } from '@/services/api'
+import { parse } from '@vue/compiler-dom'
 
 export const useStockStore = defineStore('stock-store', {
   state: () => ({
@@ -66,7 +67,8 @@ export const useStockStore = defineStore('stock-store', {
           this.items = this.items.map((item) => ({
             ...item,
             stock_fisik: item.stok_fisik ?? item.stock_akhir ?? 0,
-            selisih: (item.stok_fisik ?? item.stock_akhir ?? 0) - item.stock_akhir
+            selisih: (item.stok_fisik ?? item.stock_akhir ?? 0) - item.stock_akhir,
+            isEdited: false
           }))
         }
 
@@ -106,12 +108,17 @@ export const useStockStore = defineStore('stock-store', {
       }
     },
 
-    async savePenyesuaian(item) {
+    async savePenyesuaian(item, index) {
       // console.log('item penyesuaian', item);
 
       this.loading = true
       try {
         const { data } = await api.post(`/api/v1/products/stock-opname`, item)
+
+        // this.items[index].stock_fisik = data.stock_fisik
+        // this.items[index].stock_akhir = data.stock_sistem
+        // this.items[index].selisih = data.selisih
+        this.items[index].isEdited = false
         return data
       } catch (error) {
         this.error = error.response?.data?.message || `Failed to fetch sale #${id}`
@@ -128,6 +135,19 @@ export const useStockStore = defineStore('stock-store', {
       } finally {
         this.loading = false
       }
+    },
+
+    canceled(item, index) {
+      console.log('canceled', item);
+      const selisih = item.selisih
+      const oldStockFisik = parseInt(item.stock_fisik) - selisih
+      const oldStockSistem = item.stock_akhir
+      const oldSelisih = oldStockFisik - oldStockSistem
+
+      this.items[index].stock_fisik = oldStockFisik
+      this.items[index].stock_akhir = oldStockSistem
+      this.items[index].selisih = oldSelisih
+      this.items[index].isEdited = false
     },
 
 

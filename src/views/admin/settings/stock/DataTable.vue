@@ -47,7 +47,7 @@
                 <td
                   class="border border-gray-800 dark:border-gray-500 p-3  text-right text-gray-700 dark:text-gray-300 flex justify-end">
                   <base-input v-model="item.stock_fisik" type="number" style="width: 100px"
-                    @update:modelValue="updateSelisih(index)" :debounce="500" />
+                    @update:modelValue="val => val !== null && val !== '' && updateSelisih(index)" :debounce="500" />
                 </td>
                 <td
                   class="border border-gray-800 dark:border-gray-500 p-3  text-right text-gray-700 dark:text-gray-300">
@@ -55,8 +55,19 @@
                     item?.selisih }}</td>
                 <td
                   class="border border-gray-800 dark:border-gray-500 p-3  text-right text-gray-700 dark:text-gray-300">
-                  <div class="flex justify-end gap-2">
-                    <Icon size="14" name="eye" class="cursor-pointer" @click="$emit('detail', item)" />
+                  <div class="flex items-center justify-end gap-2">
+                    <button v-if="item?.isEdited" class="bg-blue-500 hover:bg-blue-600 text-white p-1 rounded"
+                      @click="emit('update:modelValue', item, index)">
+                      <Icon size="16" name="hard-drive-download" class="cursor-pointer" />
+                    </button>
+                    <button v-if="item?.isEdited" class="bg-red-500 hover:bg-red-600 text-white p-1 rounded"
+                      @click="emit('cancel', item, index)">
+                      <Icon size="16" name="ban" class="cursor-pointer" />
+                    </button>
+                    <button class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 p-1 rounded"
+                      @click="emit('detail', item)">
+                      <Icon size="16" name="eye" class="cursor-pointer" />
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -93,14 +104,16 @@ const props = defineProps({
 
 })
 
-const emit = defineEmits(['update:modelValue', 'detail'])
+const emit = defineEmits(['update:modelValue', 'detail', 'cancel'])
 
 function updateSelisih(index) {
   const item = props.data[index]
+  if (item.stock_fisik === null || item.stock_fisik === '') return
   // console.log('item', item);
 
   item.selisih = item.stock_fisik - item.stock_akhir
-  emit('update:modelValue', item)
+  // emit('update:modelValue', item)
+  item.isEdited = true
 }
 
 // watch(
