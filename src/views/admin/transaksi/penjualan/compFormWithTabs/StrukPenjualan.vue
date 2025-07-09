@@ -85,9 +85,9 @@ import { formatRupiah } from '@/utils/uangHelper'
 import { printHtmlElement } from '@/utils/printing';
 
 const bio = useCompanyStore()
-const format = (value) => {
-  return formatRupiah(value)
-}
+// const format = (value) => {
+//   return formatRupiah(value)
+// }
 
 const props = defineProps({
   data: {
@@ -138,10 +138,10 @@ onMounted(() => {
 
 
 
-const format = (val) => new Intl.NumberFormat('id-ID', {
-  minimumFractionDigits: 0
-}).format(val)
-</script>
+// const format = (val) => new Intl.NumberFormat('id-ID', {
+//   minimumFractionDigits: 0
+// }).format(val)
+// </script>
 
 
 <style scoped>
