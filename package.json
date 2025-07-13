@@ -10,7 +10,8 @@
     "icon-check": "node scripts/icon-check.js",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
     "format": "prettier --write \"src/**/*.{js,vue}\"",
-    "component-check": "node scripts/component-check.js"
+    "component-check": "node scripts/component-check.js",
+    "deploy": "git fetch origin && git checkout deploy && git merge main --no-edit && git push origin deploy && git checkout main"
   },
   "husky": {
     "hooks": {
