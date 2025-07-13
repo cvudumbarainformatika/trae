@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install & Build
         run: |
@@ -42,9 +42,3 @@ jobs:
         with:
           tag_name: latest
           files: spa-build.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Trigger webhook di server
-        run: |
-          curl -X POST "https://panelb.xenter.my.id/hook?access_key=Jlajy2eyH3BysC6DCSCkgGk0MXrOBMzaJETh5hPheivYoo6P"
