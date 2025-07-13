@@ -39,7 +39,7 @@
 
 <script setup>
 import { ref, defineAsyncComponent, onMounted, onBeforeUnmount } from 'vue';
-import { useSalesFormWitTabsStore } from '../../../../stores/transaksi/penjualan/formwithtabs';
+import { useSalesFormWitTabsStore } from '@/stores/transaksi/penjualan/formwithtabs';
 import { printReceiptElement } from '@/utils/printing';
 import { storeToRefs } from 'pinia';
 

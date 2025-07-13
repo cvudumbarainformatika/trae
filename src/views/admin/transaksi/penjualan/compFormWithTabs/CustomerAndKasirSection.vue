@@ -74,7 +74,7 @@
 
 <script setup>
 import { defineAsyncComponent, ref, computed, onMounted, onUnmounted } from 'vue';
-import { useSalesFormWitTabsStore } from '@/stores/transaksi/penjualan/formWithTabs';
+import { useSalesFormWitTabsStore } from '@/stores/transaksi/penjualan/formwithtabs';
 import { useCustomerStore } from '@/stores/admin/customer';
 import Icon from '@/components/ui/Icon.vue';
 
