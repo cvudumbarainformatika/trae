@@ -54,7 +54,7 @@ const selectedIndex = ref(-1)
 // Initialize searchQuery with the selected option's label
 const initializeSearchQuery = () => {
   if (props.modelValue) {
-    const selectedOption = props.options.find(option => {
+    const selectedOption = props.options?.find(option => {
       const value = typeof option === 'object' ? option[props.optionValue] : option
       return value === props.modelValue
     })
@@ -158,83 +158,49 @@ const handleClear = () => {
 
 <template>
   <div class="space-y-1.5">
-    <label
-      v-if="label"
-      class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-    >
+    <label v-if="label" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
       {{ label }}
       <span v-if="required" class="text-red-500 ml-0.5">*</span>
     </label>
-    
+
     <div class="relative">
-      <input
-        type="text"
-        :value="searchQuery"
-        @input="handleInput"
-        @keydown="handleKeydown"
-        @focus="handleFocus"
-        @blur="handleBlur"
-        :disabled="disabled"
-        :required="required"
-        :placeholder="placeholder"
-        :class="selectClasses"
-      />
-      
+      <input type="text" :value="searchQuery" @input="handleInput" @keydown="handleKeydown" @focus="handleFocus"
+        @blur="handleBlur" :disabled="disabled" :required="required" :placeholder="placeholder"
+        :class="selectClasses" />
+
       <div v-if="clearable && modelValue" class="absolute inset-y-0 right-0 flex items-center pr-2">
-        <button
-          type="button"
-          @click="handleClear"
-          class="p-1 text-gray-400 hover:text-gray-500 focus:outline-none"
-        >
-          <svg
-            class="h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fill-rule="evenodd"
+        <button type="button" @click="handleClear" class="p-1 text-gray-400 hover:text-gray-500 focus:outline-none">
+          <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
               d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </button>
       </div>
-      <button
-          v-if="clearable && modelValue"
-          type="button"
-          @click="handleClear"
-          class="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-          </svg>
-        </button>
+      <button v-if="clearable && modelValue" type="button" @click="handleClear"
+        class="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd" />
+        </svg>
+      </button>
 
-      <div
-        v-if="isOpen && filteredOptions.length > 0"
-        class="absolute z-50 w-full mt-1 bg-white dark:bg-dark-700 rounded-lg border border-gray-300 dark:border-gray-600 shadow-lg max-h-60 overflow-auto"
-      >
-        <div
-          v-for="(option, index) in filteredOptions"
-          :key="typeof option === 'object' ? option[optionValue] : option"
-          @mousedown="handleSelect(option)"
-          :class="[
+      <div v-if="isOpen && filteredOptions.length > 0"
+        class="absolute z-50 w-full mt-1 bg-white dark:bg-dark-700 rounded-lg border border-gray-300 dark:border-gray-600 shadow-lg max-h-60 overflow-auto">
+        <div v-for="(option, index) in filteredOptions" :key="typeof option === 'object' ? option[optionValue] : option"
+          @mousedown="handleSelect(option)" :class="[
             'px-4 py-2 cursor-pointer text-sm',
             'hover:bg-gray-100 dark:hover:bg-dark-600',
             selectedIndex === index ? 'bg-gray-100 dark:bg-dark-600' : '',
             'text-gray-900 dark:text-white'
-          ]"
-        >
+          ]">
           {{ typeof option === 'object' ? option[optionLabel] : option }}
         </div>
       </div>
     </div>
 
-    <p
-      v-if="error"
-      class="text-sm text-red-500 font-medium"
-    >
+    <p v-if="error" class="text-sm text-red-500 font-medium">
       {{ error }}
     </p>
   </div>

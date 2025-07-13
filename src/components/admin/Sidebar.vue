@@ -14,37 +14,6 @@ const auth = useAuthStore()
 
 
 
-// const submenus = {
-//   'master-data': [
-//     { name: 'Products', label: 'Produk', path: '/admin/master-data/products' },
-//     { name: 'Categories', label: 'Kategori', path: '/admin/master-data/categories' },
-//     { name: 'Satuan', label: 'Satuan', path: '/admin/master-data/satuan' },
-//     { name: 'Suppliers', label: 'Supplier', path: '/admin/master-data/suppliers' },
-//     { name: 'Customers', label: 'Pelanggan', path: '/admin/master-data/customers' }
-//   ],
-//   'transaction': [
-//     { name: 'PO', label: 'Order Pembelian', path: '/admin/transaksi/po' },
-//     { name: 'Purchases', label: 'Pembelian', path: '/admin/transaksi/pembelian' },
-//     { name: 'Sales', label: 'Penjualan', path: '/admin/transaksi/penjualan' },
-//     { name: 'ReturnPjl ', label: 'Return Penjualan', path: '/admin/transaksi/returnpenjualan' },
-//     { name: 'ReturnPbl', label: 'Return Pembelian', path: '/admin/transaksi/returnpembelian' },
-//     { name: 'PaymentToSupplier', label: 'Pembayaran Hutang', path: '/admin/transaksi/bayarhutang' },
-//     { name: 'CustomerPayment', label: 'Pembayaran Piutang', path: '/admin/transaksi/bayar-piutang' },
-//     { name: 'CashFlow', label: 'Arus Kas Kasir', path: '/admin/transaksi/aruskas' },
-//   ],
-//   'reports': [
-//     { name: 'SalesReport', label: 'Laporan Penjualan', path: '/admin/reports/salesreport' },
-//     { name: 'PurchaseReport', label: 'Laporan Pembelian', path: '/admin/reports/purchase-report' },
-//     { name: 'SalesReturn', label: 'Return Penjualan', path: '/admin/reports/return-penjualan' },
-//     { name: 'PurchaseReturn', label: 'Return Pembelian', path: '/admin/reports/return-pembelian' },
-//     { name: 'LabaRugi', label: 'Laba Rugi', path: '/admin/reports/laba-rugi' }
-//   ],
-//   'settings': [
-//     { name: 'SeetingsUser', label: 'Settings User', path: '/admin/settings/users' },
-//     // { name: 'PurchaseReport', label: 'Laporan Pembelian', path: '/admin/reports/purchase-report' },
-//   ]
-// }
-
 const submenus = computed(() => {
   // console.log('storeMenu.items', storeMenu.items);
 
@@ -57,7 +26,9 @@ const submenus = computed(() => {
         label: child.label || child.name,
         path: child.route,
         icon: child.icon,
-        allowed: !auth?.user?.role === 'root' ? child.permission?.split(',').map(r => r.trim().toLowerCase())?.includes(auth.user.role) : true
+        allowed: !auth?.user?.role === 'root'
+          ? child.permission?.split(',')?.map(r => r.trim()?.toLowerCase())?.includes(auth?.user?.role)
+          : true
       }))
     }
   }

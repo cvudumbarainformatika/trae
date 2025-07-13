@@ -51,8 +51,11 @@ router.beforeEach(async (to, from, next) => {
   // Permission check
   const allMenus = menuStore.flatten
   const matchedMenu = allMenus.find(m => m.route === to.path)
-  console.log('[ROUTER] matched menu:', matchedMenu);
-  console.log('[ROUTER] all menu:', allMenus);
+  if (!matchedMenu) {
+    console.warn('[ROUTER] Tidak ditemukan menu yang cocok dengan path:', to?.path)
+    // Bisa kasih fallback permission atau redirect
+  }
+  // console.log('[ROUTER] all menu:', allMenus);
 
   if (matchedMenu && !hasAccess(matchedMenu, userRole) && userRole !== 'root') {
     // Coba cari menu pertama yang boleh diakses

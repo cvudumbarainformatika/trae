@@ -188,7 +188,7 @@ const periods = [
 
 // Computed untuk label periode yang dipilih
 const selectedPeriodLabel = computed(() => {
-  const period = periods.find(p => p.value === selectedPeriod.value)
+  const period = periods?.find(p => p.value === selectedPeriod.value) || null
   return period ? period.label : 'Pilih Periode'
 })
 

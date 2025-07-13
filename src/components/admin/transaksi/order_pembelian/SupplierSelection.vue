@@ -160,9 +160,7 @@ const dueDateModel = computed({
   set: (value) => emit('update:dueDate', value)
 })
 
-// const selectedSupplier = computed(() => {
-//   return props.suppliers.find(s => s.id === props.supplierId) || null
-// })
+
 
 // Methods
 const selectSupplier = (supplier) => {
