@@ -69,6 +69,7 @@ const submenus = computed(() => {
 
 
 const isSubmenuActive = computed(() => {
+  if (!submenus.value || typeof submenus.value !== 'object') return null
   return Object.entries(submenus.value).find(([key, items]) => {
     return items.some(item => route.path.startsWith(item.path))
   })?.[0] || null
