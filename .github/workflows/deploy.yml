@@ -27,7 +27,7 @@ jobs:
         run: |
           npm install
           npm run build
-          zip -r spa-build.zip dist/spa
+          zip -r spa-build.zip dist
 
       - name: Buat atau perbarui tag 'latest'
         run: |
