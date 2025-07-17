@@ -15,7 +15,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex h-screen bg-gray-100 dark:bg-dark-900 overflow-hidden">
+  <div class="flex h-screen bg-stone-200 dark:bg-dark-900 overflow-hidden">
     <!-- Sidebar -->
     <Sidebar ref="sidebarRef" class="w-16 h-full flex-shrink-0" />
 
