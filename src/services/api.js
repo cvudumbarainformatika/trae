@@ -60,7 +60,8 @@ api.interceptors.response.use(
       // Handle authentication errors
       if (error.response.status === 401) {
         // Clear token and redirect to login
-        localStorage.removeItem('token')
+        const auth = useAuthStore()
+        auth.logout()
         // window.location.href = '/login'
       }
     } else if (error.request) {

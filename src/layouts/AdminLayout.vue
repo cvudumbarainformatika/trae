@@ -2,14 +2,14 @@
 import { ref, onMounted } from 'vue'
 import Sidebar from '@/components/admin/Sidebar.vue'
 
-// import { useThemeStore } from '@/stores/theme'
-// const themeStore = useThemeStore()
+import { useThemeStore } from '@/stores/theme'
+const themeStore = useThemeStore()
 
 const sidebarRef = ref(null)
 
 onMounted(() => {
   // console.log('sidebarRef', sidebarRef.value);
-
+  themeStore.isDark = true
 })
 
 </script>
