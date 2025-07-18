@@ -5,6 +5,8 @@ export const useDashboardStore = defineStore('dashboard', {
   state: () => ({
     penjualan: null,
     pembelian: null,
+
+    cartPenjualan: null,
     activity: [],
     loading: false,
 
@@ -19,9 +21,22 @@ export const useDashboardStore = defineStore('dashboard', {
       this.loading = true
       try {
         const response = await api.get('api/v1/dashboard/penjualan')
-        console.log('response', response);
+        // console.log('response', response);
 
         this.penjualan = response?.data
+      } catch (error) {
+        console.error(error)
+      } finally {
+        this.loading = false
+      }
+    },
+    async fetchCartPenjualan() {
+      this.loading = true
+      try {
+        const response = await api.get('api/v1/dashboard/cart-penjualan')
+        console.log('response', response);
+
+        this.cartPenjualan = response?.data
       } catch (error) {
         console.error(error)
       } finally {
@@ -32,7 +47,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.loading = true
       try {
         const response = await api.get('api/v1/dashboard/pembelian')
-        console.log('response', response);
+        // console.log('response', response);
 
         this.pembelian = response?.data
       } catch (error) {
@@ -45,7 +60,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.loading = true
       try {
         const response = await api.get('api/v1/dashboard/activity')
-        console.log('response', response);
+        // console.log('response', response);
 
         this.activity = response?.data
       } catch (error) {

@@ -48,7 +48,8 @@ onMounted(() => {
   Promise.all([
     store.fetchPenjualan(),
     store.fetchPembelian(),
-    store.fetchActivity()
+    store.fetchActivity(),
+    store.fetchCartPenjualan(),
   ])
 
   const index = Math.floor(Math.random() * bgClasses.length)
@@ -127,10 +128,10 @@ onMounted(() => {
         <Card title="Sales Overview">
           <div class="h-64">
             <Line :data="{
-              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+              labels: store?.cartPenjualan?.labels || [],
               datasets: [{
-                label: 'Sales',
-                data: [65, 59, 80, 81, 56, 55],
+                label: store?.cartPenjualan?.datasets[0]?.label || '',
+                data: store?.cartPenjualan?.datasets[0]?.data || [],
                 borderColor: '#3B82F6',
                 tension: 0.1
               }]
