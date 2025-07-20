@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const baseURL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL
-  : (location.hostname === 'yaumi.local'
+  : (location.hostname !== 'toko.yaumi.my.id'
       ? 'http://yaumi.local:8182'
       : 'https://api.yaumi.my.id')
 
