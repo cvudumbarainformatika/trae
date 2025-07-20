@@ -1,9 +1,15 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
+const baseURL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL
+  : (location.hostname === 'yaumi.local'
+      ? 'http://yaumi.local:8182'
+      : 'https://api.yaumi.my.id')
+
 // Create axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://yaumi.local:8182' || 'https://api.yaumi.my.id',
+  baseURL: baseURL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
