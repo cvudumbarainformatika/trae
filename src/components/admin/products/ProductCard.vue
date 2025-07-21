@@ -59,8 +59,8 @@ const stockStatusClass = computed(() => {
         <div class="flex justify-between items-center mb-2">
           <div class="space-y-1 w-full">
             <div class="flex items-center justify-between w-full">
-              <div class="text-xl font-bold text-primary-600 dark:text-primary-400">
-                {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(product.hargajual) }}
+              <div class="text-md font-bold text-primary-600 dark:text-primary-400">
+                {{ new Intl.NumberFormat('id-ID').format(product.hargajual) }}
               </div>
               <div class="">
                 <span
@@ -78,10 +78,10 @@ const stockStatusClass = computed(() => {
             </div> -->
             <div class="flex items-center justify-between w-full">
               <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Stock : {{ product.stock_akhir }}
+                St : {{ product.stock_akhir }}
               </div>
               <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Min Stock : {{ product.minstock }}
+                MS : {{ product.minstock }}
               </div>
             </div>
           </div>

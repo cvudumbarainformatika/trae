@@ -22,7 +22,9 @@ onMounted(() => {
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-hidden flex justify-center" @click="sidebarRef.hideSubmenu">
       <div class="h-ful overflow-y-auto w-full max-w-[1280px] min-w-[320px] mx-auto">
+        <!-- <div class="scale-[0.9] origin-top transform"> -->
         <router-view></router-view>
+        <!-- </div> -->
       </div>
     </main>
   </div>
