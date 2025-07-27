@@ -10,36 +10,41 @@
               <div>
                 <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1 flex items-center">
                   <Icon name="User" class="w-4 h-4 mr-1.5 text-indigo-500 dark:text-indigo-400" />
-                  {{ item?.customer_name }}
+                  {{ item?.tipe === 'out' ? 'Pengeluaran' : 'Pemasukan' }}, Kas {{ item?.kas?.nama }}
                 </h3>
                 <div class="flex flex-wrap items-center text-xs text-gray-500 dark:text-gray-400 gap-x-3">
                   <div class="flex items-center">
                     <Icon name="Calendar" class="w-3.5 h-3.5 mr-1" />
-                    <span>{{ new Date(item.tanggal).toLocaleDateString() }}</span>
+                    <span>{{ new Date(item.tanggal).toLocaleDateString() }} | </span>
                   </div>
-                  <!-- <div class="flex items-center">
-                    <Icon name="ShoppingCart" class="w-3.5 h-3.5 mr-2" />
-                    <span>{{ item.items?.length || 0 }} items</span>
-                  </div> -->
+                  <div class="flex items-center">
+                    <Icon name="user" class="w-3.5 h-3.5 mr-2" />
+                    <span>{{ item.kasir?.name || '-' }} </span>
+                  </div>
+
                 </div>
               </div>
               <div class="text-right">
                 <div class="text-xl font-bold text-gray-900 dark:text-white">
-                  {{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item?.total || 0) }}
+                  {{ new Intl.NumberFormat('id-ID').format(item?.jumlah || 0) }}
                 </div>
               </div>
             </div>
             <div class="flex justify-between items-center mt-2">
               <div class="flex gap-x-4 items-center text-gray-500 dark:text-gray-400">
-                <div class="flex space-x-1 items-center">
+                <!-- <div class="flex space-x-1 items-center">
                   <Icon name="Receipt" class="w-4 h-4" />
-                  <div class="text-base">{{ item.unique_code || `INV-${item.id}` }}</div>
-                </div>
+                  <div class="text-base">{{ item.user?.name }}</div>
+                </div> -->
               </div>
-              <div class="flex items-center gap-3">
-                <BaseButton size="sm" color="primary" @click="$emit('detail', item)">
+              <div class="flex items-center gap-2">
+                <!-- <BaseButton size="sm" color="primary" @click="$emit('detail', item)">
                   Detail
-                </BaseButton>
+                </BaseButton> -->
+                <div class="flex space-x-1 items-center text-gray-900 dark:text-white">
+                  <Icon name="Receipt" class="w-4 h-4" />
+                  <div class="text-base">{{ item.user?.name }}</div>
+                </div>
               </div>
             </div>
           </div>

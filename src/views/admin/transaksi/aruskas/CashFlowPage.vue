@@ -57,11 +57,9 @@ const storeUsers = useUsersStore()
 
 
 onMounted(() => {
-  storeUsers.role = 'kasir'
+  storeUsers.role = 'cashier'
   Promise.all([
-    storeKas.fetchData()
-
-    ,
+    storeKas.fetchData(),
     store.fetchData(),
     storeUsers.fetchData()
   ])

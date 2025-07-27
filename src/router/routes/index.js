@@ -246,6 +246,17 @@ const routes = [
           },
         ]
       },
+      {
+        path: 'reports/rekap-kasir',
+        component: () => import('../../views/admin/reports/rekapkasir/IndexPage.vue'),
+        children: [
+          {
+            path: '',
+            name: 'rekap-kasir-report',
+            component: () => import('../../views/admin/reports/rekapkasir/ReportPage.vue')
+          },
+        ]
+      },
 
 
       // settings

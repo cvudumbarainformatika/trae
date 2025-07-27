@@ -30,7 +30,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Supplier Info -->
         <div class="p-4 bg-white dark:bg-secondary-800 rounded-xl shadow-sm">
-          <h3 class="text-sm font-medium text-secondary-500 dark:text-secondary-400 mb-2">Supplier</h3>
+          <h3 class="text-sm font-medium text-secondary-500 dark:text-secondary-400 ">Supplier</h3>
           <div class="text-secondary-900 dark:text-white font-medium">
             {{ purchase.supplier?.name || '-' }}
           </div>
@@ -39,6 +39,10 @@
           </div>
           <div class="text-sm text-secondary-500 dark:text-secondary-400">
             {{ purchase.supplier?.phone || '-' }}
+          </div>
+          <h3 class="text-sm font-medium text-secondary-500 dark:text-secondary-400 mt-2">Petugas</h3>
+          <div class="text-secondary-900 dark:text-white font-medium">
+            {{ purchase.user_name || '-' }}
           </div>
         </div>
 
@@ -99,7 +103,7 @@
                 </td>
                 <td class="px-4 py-3 text-right text-secondary-700 dark:text-secondary-200">{{
                   formatCurrency(item.subtotal)
-                }}</td>
+                  }}</td>
               </tr>
               <tr v-if="!purchase.items || purchase.items.length === 0">
                 <td colspan="4" class="px-4 py-10 text-center text-secondary-500 dark:text-secondary-400">
@@ -122,13 +126,13 @@
               }}%):</span>
             <span class="font-medium text-secondary-800 dark:text-secondary-100">- {{
               formatCurrency(purchase.discount_amount)
-            }}</span>
+              }}</span>
           </div>
           <div v-if="purchase.tax_amount > 0" class="flex justify-between w-full max-w-xs">
             <span class="text-secondary-600 dark:text-secondary-300">Pajak ({{ purchase.tax_percentage || 0 }}%):</span>
             <span class="font-medium text-secondary-800 dark:text-secondary-100">+ {{
               formatCurrency(purchase.tax_amount)
-            }}</span>
+              }}</span>
           </div>
           <div
             class="flex justify-between w-full max-w-xs mt-1 pt-1 border-t border-secondary-200 dark:border-secondary-700">

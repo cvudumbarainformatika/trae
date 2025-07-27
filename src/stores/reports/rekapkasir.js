@@ -1,11 +1,10 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { getMonthStartDate, getMonthEndDate } from '@/utils/dateHelper'
+import { getMonthStartDate, getMonthEndDate, formatDateIndo } from '@/utils/dateHelper'
 import { api } from '@/services/api'
 
-export const useReportPenjualanStore = defineStore('report-penjualan-store', {
+export const useRekapKasirStore = defineStore('report-rekapkasir-store', {
   state: () => ({
-    items: [],
-    summary:null,
+    data: null,
     meta: null,
     params: {
       page: 1,
@@ -13,9 +12,9 @@ export const useReportPenjualanStore = defineStore('report-penjualan-store', {
       sort_by: 'created_at',
       sort_direction: 'desc',
       q: '',
-      status: 'cash',
+      status: 'semua',
       start_date: getMonthStartDate(),
-      end_date: getMonthEndDate(),
+      end_date: getMonthEndDate()
     },
     dateRange: {
       start_date: getMonthStartDate(),
@@ -45,49 +44,36 @@ export const useReportPenjualanStore = defineStore('report-penjualan-store', {
     },
     filteredItems: (state) => {
       return state.items
-    }
+    },
+    header: (state) => {
+      return {
+        title: 'Laporan Rekap Kas',
+        subtitle: 'Laporan Rekap Kas Kasir dll berdasarkan periode dan pendukung lainnya',
+        periode: `<strong>Periode : </strong> ${formatDateIndo(state.params?.start_date)} - ${formatDateIndo(state.params?.end_date) }`
+      }
+    },
   },
 
   actions: {
     async fetchData() {
       this.loading = true
       try {
-        const { data } = await api.get('/api/v1/reports/sales', {
+        const { data } = await api.get('/api/v1/reports/rekapkasir', {
           params: this.params
         })
 
-        // console.log('resp', data);
+        console.log('resp labarugi', data);
 
-        this.items = data?.data || []
-        this.pagination.totalItems = parseInt(data?.meta?.total) || 0
-        this.meta = data?.meta || null
-        return this.items
+        this.data = data || null
+        // this.pagination.totalItems = parseInt(data?.meta?.total) || 0
+        // this.meta = data?.meta || null
+        return this.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch sales'
         console.error('Error fetching sales:', error)
         return []
       } finally {
         this.loading = false
-      }
-    },
-    async fetchSummary() {
-      try {
-        const { data } = await api.get('/api/v1/reports/sales/summary', {
-          params: this.params
-        })
-
-        // console.log('resp', data);
-
-        this.summary = data || null
-        // this.pagination.totalItems = parseInt(data?.meta?.total) || 0
-        // this.meta = data?.meta || null
-        return this.summary
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to fetch sales'
-        console.error('Error fetching sales:', error)
-        return []
-      } finally {
-        // this.loading = false
       }
     },
     showDetail(item) {
@@ -141,5 +127,5 @@ export const useReportPenjualanStore = defineStore('report-penjualan-store', {
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useReportPenjualanStore, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useRekapKasirStore, import.meta.hot))
 }

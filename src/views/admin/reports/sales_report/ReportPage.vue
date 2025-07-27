@@ -20,12 +20,26 @@
             <Icon name="Search" class="w-5 h-5 text-indigo-400" />
           </div>
           <BaseInput v-model="store.params.q" placeholder="Cari Transksi / Kasir .." type="text" clearable
-            :debounce="500" @update:model-value="store.fetchData" />
+            :debounce="500" @update:model-value="() => {
+              allFetchData()
+            }" />
         </div>
 
         <!-- Filter Periode -->
+        <div class="flex-1 flex no-print">
+          <BaseSelect v-model="store.params.status" clearable :options="[
+            { value: 'cash', label: 'Cash' },
+            { value: 'qris', label: 'QRIS' },
+            { value: 'credit', label: 'Kredit' },
+          ]" @update:model-value="() => {
+            allFetchData()
+          }" />
+        </div>
+        <!-- Filter Periode -->
         <div class="flex-1 flex justify-end no-print">
-          <BaseDateRangeFilter v-model="store.params" @change="store.fetchData" default-period="month" />
+          <BaseDateRangeFilter v-model="store.params" @change="() => {
+            allFetchData()
+          }" default-period="month" />
         </div>
 
 
@@ -71,11 +85,15 @@ const printRef = ref(null)
 
 
 onMounted(() => {
+  allFetchData()
+})
+
+function allFetchData() {
   Promise.all([
     store.fetchData(),
     store.fetchSummary()
   ])
-})
+}
 
 const handlePrint = () => {
   if (printRef.value) {

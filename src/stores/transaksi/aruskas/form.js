@@ -24,7 +24,7 @@ export const useCashFlowFormStore = defineStore('CashFlowFormStore', {
       try {
         // console.log('Updating form to API:', form);
         const response = await api.post('/api/v1/cash-flows', form);
-        console.log('API response:', response);
+        // console.log('API response:', response);
 
 
         await store.fetchData();

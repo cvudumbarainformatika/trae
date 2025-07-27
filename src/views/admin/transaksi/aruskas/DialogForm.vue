@@ -39,7 +39,7 @@
                 <label class="block text-sm text-gray-700 dark:text-gray-300 mb-1">Kasir</label>
                 <select v-model="form.kasir_id" class="w-full border px-3 py-2 rounded mt-1 bg-white dark:bg-gray-900
          text-gray-800 dark:text-white" required>
-                  <option v-for="kasir in kasirList" :key="kasir.id" :value="kasir.id">{{ kasir.nama }}</option>
+                  <option v-for="kasir in kasirList" :key="kasir.id" :value="kasir.id">{{ kasir?.name }}</option>
                 </select>
               </div>
 
@@ -89,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 // import ReturnSummary from './ReturnSummary.vue'
 import { useCashFlowFormStore } from '@/stores/transaksi/aruskas/form'
 import { useKasStore } from '@/stores/admin/kas'
@@ -108,11 +108,11 @@ const selectedKas = computed(() => {
   return kasList.value.find(k => k.id === form.value.kas_id) || null
 })
 
-const kasirList = computed(() => storeUsers.items.filter(u => u.role === 'kasir'))
+const kasirList = computed(() => storeUsers.items)
 
 const form = ref({
   tanggal: new Date().toISOString().slice(0, 10),
-  tipe: 'keluar',
+  tipe: 'out',
   kas_id: 1,
   kasir_id: null,
   jumlah: 0,
@@ -135,5 +135,10 @@ const closeDialog = () => {
   emit('close')
 }
 
+
+onMounted(() => {
+  console.log('storeUsers', storeUsers.items);
+
+})
 
 </script>
