@@ -134,7 +134,7 @@ export function printReceiptElement(element, title = 'Struk Penjualan', onDone =
       body {
         margin: 0;
         padding: 0;
-        font-size: 10pt;
+        font-size: 8pt;
         line-height: 1;
         color: #000;
         width: 80mm;

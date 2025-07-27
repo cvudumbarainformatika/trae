@@ -7,8 +7,8 @@ import { useAuthStore } from '@/stores/auth'
 //       ? 'http://yaumi.local:8182'
 //       : 'https://api.yaumi.my.id')
 const baseURL = (location.hostname !== 'toko.yaumi.my.id'
-      // ? 'http://localhost:8182'
-      ? 'http://yaumi.local:8182'
+      ? 'http://localhost:8182'
+      // ? 'http://yaumi.local:8182'
       : 'https://api.yaumi.my.id')
 
 // Create axios instance

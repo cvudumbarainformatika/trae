@@ -107,7 +107,7 @@ function handleSubmit(val) {
           isiPrint.value = null
         })
         // .then(() => {
-        console.log('print selesai with then');
+        // console.log('print selesai with then', isiPrint.value);
 
         printing.value = false
         isiPrint.value = null

@@ -3,7 +3,7 @@
     class="fixed inset-0 bg-white text-black z-50 w-full print:w-full  print-area">
     <div ref="printAreaRef" class="p-1 font-mono max-w-[80mm] print:w-full">
       <div class="text-center mb-[5px]">
-        <div class="font-bold center bold" style="font-size: 12pt !important">{{ bio?.item?.name || 'NAMA TOKO' }}</div>
+        <div class="font-bold center bold" style="font-size: 10pt !important">{{ bio?.item?.name || 'NAMA TOKO' }}</div>
         <div class="center">{{ bio?.item?.address || 'ALAMAT TOKO' }}</div>
         <div class="center">Telp: {{ bio?.item?.phone || '-' }}</div>
         <hr class="border-dashed border-gray-400">
@@ -11,8 +11,8 @@
 
       <div class="mb-[8px]">
         <div class="flex justify-between">
-          <span style="font-size: 9pt !important">{{ data?.unique_code }}</span>
-          <span style="font-size: 9pt !important">{{ formatDateIndo(data?.created_at) }}</span>
+          <span>{{ data?.unique_code }}</span>
+          <span>{{ formatDateIndo(data?.created_at) }}</span>
         </div>
         <div class="flex justify-between text-[8px]">
           <span> {{ data?.cashier?.name || '-' }}</span>
@@ -104,7 +104,7 @@ const printAreaRef = ref(null)
 defineExpose({ printAreaRef })
 
 onMounted(() => {
-  // console.log('🟢 Komponen Struk ter-mount', bio)
+  console.log('🟢 Komponen Struk ter-mount', props?.data)
 })
 
 </script>
