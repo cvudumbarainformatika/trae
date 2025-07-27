@@ -133,7 +133,7 @@ defineExpose({ printAreaRef })
 // })
 
 onMounted(() => {
-  // console.log('🟢 Komponen Struk ter-mount', printAreaRef.value)
+  // console.log('🟢 Komponen Struk ter-mount', bio)
 })
 
 
