@@ -127,15 +127,14 @@ export function printReceiptElement(element, title = 'Struk Penjualan', onDone =
   const styles = `
     <style>
       @page {
-        size: 80mm auto;
+        size: 60mm auto;
         margin: 0;
       }
 
       body {
         margin: 0;
         padding: 0;
-        font-family: 'Courier New', monospace;
-        font-size: 8pt;
+        font-size: 10pt;
         line-height: 1;
         color: #000;
         width: 80mm;
@@ -194,9 +193,10 @@ export function printReceiptElement(element, title = 'Struk Penjualan', onDone =
 
       @media print {
         html, body {
-          width: 80mm auto;
+          width: 60mm auto;
           margin: 0;
           padding: 0;
+          color: #000;
         }
       }
 

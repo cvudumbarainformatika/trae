@@ -76,6 +76,7 @@
 import { defineAsyncComponent, ref, computed, onMounted, onUnmounted } from 'vue';
 import { useSalesFormWitTabsStore } from '@/stores/transaksi/penjualan/formwithtabs';
 import { useCustomerStore } from '@/stores/admin/customer';
+import { useAuthStore } from '@/stores/auth';
 import Icon from '@/components/ui/Icon.vue';
 
 const CustomerSelection = defineAsyncComponent(() => import('@/components/admin/transaksi/penjualan/CustomerSelection.vue'))
@@ -83,6 +84,7 @@ const CustomerForm = defineAsyncComponent(() => import('@/components/admin/custo
 
 const store = useSalesFormWitTabsStore()
 const customerStore = useCustomerStore()
+const auth = useAuthStore()
 
 const customerSearch = ref('')
 const showCustomerForm = ref(false)
@@ -94,7 +96,7 @@ const salesType = ref('umum')
 const cashier = computed(() => {
   // Replace with actual user data source if available
   return {
-    name: 'Kasir Demo',
+    name: auth?.user?.name || 'Kasir Demo',
     // Add more fields if needed
   }
 })

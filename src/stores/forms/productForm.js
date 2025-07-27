@@ -111,7 +111,7 @@ export const useProductFormStore = defineStore('productForm', {
     },
 
     async submitForm() {
-      console.log('submitForm', this.formData)
+      // console.log('submitForm', this.formData)
 
       this.loading = true
       this.error = null
@@ -119,32 +119,32 @@ export const useProductFormStore = defineStore('productForm', {
       try {
         const formDataToSubmit = new FormData()
 
+        // console.log('formDataToSubmit', formDataToSubmit);
+
+
         // Append all form fields to FormData
-        Object.keys(this.formData).forEach(key => {
-          if (this.formData[key] !== null) {
-            formDataToSubmit.append(key, this.formData[key])
-          }
-        })
+        // Object.keys(this.formData).forEach(key => {
+        //   if (this.formData[key] !== null) {
+        //     formDataToSubmit.append(key, this.formData[key])
+        //   }
+        // })
+
+        // console.log('formDataToSubmit', this.formData);
+
 
         let response
         if (this.isEdit) {
-          response = await api.put(`/api/v1/products/${this.formData.id}`, formDataToSubmit, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          })
+          response = await api.put(`/api/v1/products/${this.formData.id}`, this.formData)
         } else {
-          response = await api.post('/api/v1/products', formDataToSubmit, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          })
+          response = await api.post('/api/v1/products', this.formData)
         }
 
         // this.resetForm()
         const productStore = useProductStore()
         productStore.fetchProducts()
         productStore.setShowProductForm(false)
+
+        console.log('response', response);
 
         return response.data
 

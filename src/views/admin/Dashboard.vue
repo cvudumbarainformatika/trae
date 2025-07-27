@@ -4,6 +4,7 @@ import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 import { useThemeStore } from '../../stores/theme'
 import { formatRupiah } from '../../utils/uangHelper'
+import { formatWaktuLalu } from '../../utils/dateHelper'
 
 import { useDashboardStore } from '../../stores/dashboard'
 const store = useDashboardStore()
@@ -96,7 +97,8 @@ onMounted(() => {
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ item?.user?.name }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ item?.description }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ item?.action }} <i class="text-gray-600">({{
+                formatWaktuLalu(item?.created_at) }}) </i></p>
             </div>
           </div>
 

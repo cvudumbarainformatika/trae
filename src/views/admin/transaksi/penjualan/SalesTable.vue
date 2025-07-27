@@ -25,7 +25,11 @@
                   </div>
                   <div class="flex items-center">
                     <Icon name="ShoppingCart" class="w-3.5 h-3.5 mr-1" />
-                    <span>{{ item.items?.length || 0 }} items</span>
+                    <span>{{ item.items?.length || 0 }} items | </span>
+                  </div>
+                  <div class="flex items-center">
+                    <Icon name="users" class="w-3.5 h-3.5 mr-1" />
+                    <span>{{ item.cashier_name || '-' }}</span>
                   </div>
                 </div>
               </div>

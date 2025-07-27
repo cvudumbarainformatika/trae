@@ -35,10 +35,10 @@
           class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
       <BaseButton @click="params.status = 'cash'" :variant="params.status === 'cash' ? 'primary' : 'ghost'" size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
         :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': params.status === 'cash' }">
         <span class="relative z-10 flex items-center">
-          <span class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>
+          <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
           Tunai
         </span>
         <span
@@ -46,14 +46,24 @@
       </BaseButton>
       <BaseButton @click="params.status = 'credit'" :variant="params.status === 'credit' ? 'primary' : 'ghost'"
         size="sm"
-        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-green-700 transition-all duration-300"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-green-300 dark:hover:border-red-700 transition-all duration-300"
         :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': params.status === 'credit' }">
         <span class="relative z-10 flex items-center">
-          <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+          <span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
           Kredit
         </span>
         <span
-          class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+          class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
+      </BaseButton>
+      <BaseButton @click="params.status = 'qris'" :variant="params.status === 'qris' ? 'yellow' : 'ghost'" size="sm"
+        class="relative overflow-hidden group border border-gray-200 dark:border-gray-700 rounded-full px-6 hover:border-yellow-300 dark:hover:border-yellow-700 transition-all duration-300"
+        :class="{ 'bg-indigo-700 border-indigo-300 dark:border-indigo-700': params.status === 'qris' }">
+        <span class="relative z-10 flex items-center">
+          <span class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>
+          Qris
+        </span>
+        <span
+          class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-emerald-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></span>
       </BaseButton>
     </div>
     <SalesTable :data="sales" @detail="handleDetail" />
