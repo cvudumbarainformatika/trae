@@ -1,7 +1,7 @@
 <template>
   <div ref="printContainer" v-show="isOpen"
     class="fixed inset-0 bg-white text-black z-50 w-full print:w-full  print-area">
-    <div ref="printAreaRef" class="p-1 font-mono max-w-[90mm] print:w-full">
+    <div ref="printAreaRef" class="p-1 w-full print:w-full">
       <div class="text-center mb-[5px]">
         <div class="font-bold center bold" style="font-size: 10pt !important">{{ bio?.item?.name || 'NAMA TOKO' }}</div>
         <div class="center">{{ bio?.item?.address || 'ALAMAT TOKO' }}</div>
