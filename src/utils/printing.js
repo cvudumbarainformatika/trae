@@ -127,7 +127,7 @@ export function printReceiptElement(element, title = 'Struk Penjualan', onDone =
   const styles = `
     <style>
       @page {
-        size: 60mm auto;
+        size: 75mm auto;
         margin: 0;
       }
 
@@ -193,7 +193,7 @@ export function printReceiptElement(element, title = 'Struk Penjualan', onDone =
 
       @media print {
         html, body {
-          width: 60mm auto;
+          width: 75mm auto;
           margin: 0;
           padding: 0;
           color: #000;
