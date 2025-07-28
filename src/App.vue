@@ -7,7 +7,7 @@
 </template>
 
 <script setup>
-import BaseNotification from '@/components/ui/BaseNotification.vue'
+// import BaseNotification from '@/components/ui/BaseNotification.vue'
 import { useMenuStore } from '@/stores/menu'
 import { useCompanyStore } from '@/stores/settings/company'
 import { onMounted, ref } from 'vue'

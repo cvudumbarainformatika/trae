@@ -69,9 +69,9 @@
 </template>
 
 <script setup>
-import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseList from '@/components/ui/BaseList.vue'
-import Icon from '@/components/ui/Icon.vue'
+// import BaseButton from '@/components/ui/BaseButton.vue'
+// import BaseList from '@/components/ui/BaseList.vue'
+// import Icon from '@/components/ui/Icon.vue'
 const props = defineProps({
   data: {
     type: Array,

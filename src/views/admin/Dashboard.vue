@@ -1,27 +1,25 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { Line } from 'vue-chartjs'
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
+import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
+// import { Line } from 'vue-chartjs'
+// import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
+// import LazyLineChart from '@/components/chart/LazyLineCart.vue'
+
 import { useThemeStore } from '../../stores/theme'
 import { formatRupiah } from '../../utils/uangHelper'
 import { formatWaktuLalu } from '../../utils/dateHelper'
 
 import { useDashboardStore } from '../../stores/dashboard'
+
+const LineCart = defineAsyncComponent(() =>
+  import('@/components/chart/LineCart.vue')
+)
+
 const store = useDashboardStore()
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
+
+// ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const themeStore = useThemeStore()
-
-// const stats = ref(
-// [
-//   { title: 'Total Penjualan', value: formatRupiah(store.totalPenjualan), change: '+12%', trend: 'up' },
-//   { title: 'Revenue', value: '$12,345', change: '+8%', trend: 'up' },
-//   { title: 'Active Projects', value: '42', change: '-3%', trend: 'down' },
-//   { title: 'Conversion Rate', value: '3.24%', change: '+2%', trend: 'up' }
-// ]
-
-// )
 
 const stats = computed(() => {
   return [
@@ -57,6 +55,42 @@ onMounted(() => {
 
   randomIndex.value = index
 })
+
+const chartData = computed(() => {
+  const labels = store?.cartPenjualan?.labels || []
+  // console.log('labels', labels);
+
+  const data = store?.cartPenjualan?.datasets[0]?.data || []
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: store?.cartPenjualan?.datasets[0]?.label || 'Penjualan',
+        data,
+        borderColor: '#3B82F6',
+        tension: 0.3,
+        fill: false
+      }
+    ]
+  }
+})
+
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top'
+    },
+    title: {
+      display: true,
+      text: 'Grafik Penjualan'
+    }
+  }
+}
 
 </script>
 
@@ -103,25 +137,6 @@ onMounted(() => {
           </div>
 
 
-
-          <!-- <div class="flex items-center space-x-4">
-            <div class="flex-shrink-0">
-              <div class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center text-white">S</div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Sales report generated</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">4 hours ago</p>
-            </div>
-          </div> -->
-          <!-- <div class="flex items-center space-x-4">
-            <div class="flex-shrink-0">
-              <div class="h-8 w-8 rounded-full bg-purple-500 flex items-center justify-center text-white">P</div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 dark:text-white truncate">New project created</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">6 hours ago</p>
-            </div>
-          </div> -->
         </div>
       </Card>
 
@@ -129,7 +144,7 @@ onMounted(() => {
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="Sales Overview">
           <div class="h-64">
-            <Line :data="{
+            <!-- <Line :data="{
               labels: store?.cartPenjualan?.labels || [],
               datasets: [{
                 label: store?.cartPenjualan?.datasets[0]?.label || '',
@@ -157,7 +172,13 @@ onMounted(() => {
                   grid: { color: '#374151' }
                 }
               }
-            }" />
+            }" /> -->
+            <div v-if="chartData?.labels?.length">
+              <LineCart :chart-data="chartData" :chart-options="chartOptions" />
+            </div>
+            <div v-else class="text-center text-gray-400 text-sm py-8">
+              Belum ada data grafik untuk ditampilkan
+            </div>
           </div>
         </Card>
 

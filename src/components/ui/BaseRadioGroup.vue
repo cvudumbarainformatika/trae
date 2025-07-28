@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import BaseRadio from './BaseRadio.vue'
+// import BaseRadio from './BaseRadio.vue'
 
 const props = defineProps({
   modelValue: {
@@ -61,33 +61,20 @@ const groupClasses = computed(() => {
 
 <template>
   <div class="space-y-1.5">
-    <label
-      v-if="label"
-      class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-    >
+    <label v-if="label" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
       {{ label }}
       <span v-if="required" class="text-red-500 ml-0.5">*</span>
     </label>
 
     <div :class="groupClasses">
-      <BaseRadio
-        v-for="option in options"
-        :key="typeof option === 'object' ? option[optionValue] : option"
-        :id="`${name}-${typeof option === 'object' ? option[optionValue] : option}`"
-        :name="name"
-        :model-value="modelValue"
-        :value="typeof option === 'object' ? option[optionValue] : option"
-        :label="typeof option === 'object' ? option[optionLabel] : option"
-        :disabled="disabled"
-        :required="required"
-        @update:model-value="handleChange"
-      />
+      <BaseRadio v-for="option in options" :key="typeof option === 'object' ? option[optionValue] : option"
+        :id="`${name}-${typeof option === 'object' ? option[optionValue] : option}`" :name="name"
+        :model-value="modelValue" :value="typeof option === 'object' ? option[optionValue] : option"
+        :label="typeof option === 'object' ? option[optionLabel] : option" :disabled="disabled" :required="required"
+        @update:model-value="handleChange" />
     </div>
 
-    <p
-      v-if="error"
-      class="text-sm text-red-500 font-medium mt-1"
-    >
+    <p v-if="error" class="text-sm text-red-500 font-medium mt-1">
       {{ error }}
     </p>
   </div>

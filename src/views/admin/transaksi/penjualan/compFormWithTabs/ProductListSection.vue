@@ -80,7 +80,7 @@
           </tr>
         </tbody>
       </table> -->
-      <div class="space-y-4">
+      <div class="space-y-2">
         <div v-if="!store.isiTab?.items?.length" class="py-8">
           <div class="flex flex-col items-center justify-center">
             <Icon name="ShoppingCart" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
@@ -91,7 +91,7 @@
         <div v-for="(item, index) in store.isiTab?.items" :key="index"
           class="rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700"
           :class="['transition-all', store.existingItemHighlighted === item.product_id ? 'bg-blink animate-pulse' : 'bg-white dark:bg-gray-900 ']">
-          <div class="flex justify-between items-start mb-2 ">
+          <div class="flex justify-between items-start mb-1 ">
             <div>
               <div class="text-sm font-medium text-gray-900 dark:text-white flex items-center">
                 {{ item?.product?.name }}
@@ -157,8 +157,8 @@
 <script setup>
 import { ref, watch } from 'vue'
 import ProductSearch from '@/components/admin/transaksi/penjualan/ProductSearch.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
-import Icon from '@/components/ui/Icon.vue'
+// import BaseInput from '@/components/ui/BaseInput.vue'
+// import Icon from '@/components/ui/Icon.vue'
 import { useSalesFormWitTabsStore } from '@/stores/transaksi/penjualan/formwithtabs'
 import { storeToRefs } from 'pinia'
 

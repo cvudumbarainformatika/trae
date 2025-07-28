@@ -261,9 +261,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import BasePage from '@/components/ui/BasePage.vue'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import Icon from '@/components/ui/Icon.vue'
+// import BasePage from '@/components/ui/BasePage.vue'
+// import BaseButton from '@/components/ui/BaseButton.vue'
+// import Icon from '@/components/ui/Icon.vue'
 import { api } from '@/services/api'
 
 const route = useRoute()

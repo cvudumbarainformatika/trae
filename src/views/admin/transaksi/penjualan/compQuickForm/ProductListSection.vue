@@ -4,30 +4,30 @@
       <Icon name="ShoppingCart" class="w-5 h-5 mr-2 text-primary-500" />
       Daftar Produk
     </h3>
-    <ProductSearch
-      ref="productSearchRef"
-      v-model="productSearch"
-      @add-product="addProduct"
-      @open-scanner="showScanner = true"
-      @products-loaded="onProductsLoaded"
-    />
+    <ProductSearch ref="productSearchRef" v-model="productSearch" @add-product="addProduct"
+      @open-scanner="showScanner = true" @products-loaded="onProductsLoaded" />
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 hidden md:table">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[35%]">
+            <th scope="col"
+              class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[35%]">
               Produk
             </th>
-            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[25%]">
+            <th scope="col"
+              class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[25%]">
               Harga
             </th>
-            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[15%]">
+            <th scope="col"
+              class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[15%]">
               Jumlah
             </th>
-            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[20%]">
+            <th scope="col"
+              class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[20%]">
               Subtotal
             </th>
-            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[5%]">
+            <th scope="col"
+              class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[5%]">
               Aksi
             </th>
           </tr>
@@ -50,15 +50,19 @@
               <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.product?.barcode }}</div>
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right w-[25%]">
-              <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency(getItemPrice(item)) }}</span>
+              <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency(getItemPrice(item))
+                }}</span>
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right w-[15%]">
               <div class="flex items-center justify-end gap-2">
-                <button @click="decreaseQty(index)" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                <button @click="decreaseQty(index)"
+                  class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                   <Icon name="Minus" class="w-4 h-4" />
                 </button>
-                <input type="number" min="1" v-model.number="item.qty" @input="updateItemSubtotal(index)" class="w-12 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" />
-                <button @click="increaseQty(index)" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                <input type="number" min="1" v-model.number="item.qty" @input="updateItemSubtotal(index)"
+                  class="w-12 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" />
+                <button @click="increaseQty(index)"
+                  class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                   <Icon name="Plus" class="w-4 h-4" />
                 </button>
               </div>
@@ -67,11 +71,9 @@
               {{ formatCurrency(item.subtotal) }}
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right text-sm w-[5%]">
-              <button
-                @click="removeItem(index)"
+              <button @click="removeItem(index)"
                 class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                aria-label="Hapus item"
-              >
+                aria-label="Hapus item">
                 <Icon name="Trash" class="w-4 h-4" />
               </button>
             </td>
@@ -86,35 +88,32 @@
             <p class="text-gray-500 dark:text-gray-400">Belum ada produk yang ditambahkan ke daftar penjualan.</p>
           </div>
         </div>
-        <div
-          v-for="(item, index) in store.items"
-          :key="index"
+        <div v-for="(item, index) in store.items" :key="index"
           class="rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700"
-          :class="['transition-all', store.existingItemHighlighted === item.product_id ? 'bg-blink animate-pulse' : 'bg-white dark:bg-gray-900 ']"
-        >
+          :class="['transition-all', store.existingItemHighlighted === item.product_id ? 'bg-blink animate-pulse' : 'bg-white dark:bg-gray-900 ']">
           <div class="flex justify-between items-start mb-2 ">
             <div>
               <div class="text-sm font-medium text-gray-900 dark:text-white flex items-center">
-                {{item?.product?.name}}
+                {{ item?.product?.name }}
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400">{{ item?.product?.barcode }}</div>
             </div>
-            <button
-              @click="removeItem(index)"
-              class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-              aria-label="Hapus item"
-            >
+            <button @click="removeItem(index)"
+              class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" aria-label="Hapus item">
               <Icon name="Trash" class="w-4 h-4" />
             </button>
           </div>
           <div class="flex items-center justify-between gap-3 mt-2">
             <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency(item.price) }}</span>
             <div class="flex items-center gap-2">
-              <button @click="decreaseQty(index)" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+              <button @click="decreaseQty(index)"
+                class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                 <Icon name="Minus" class="w-4 h-4" />
               </button>
-              <input type="number" min="1" v-model.number="item.qty" @input="updateItemSubtotal(index)" class="w-12 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" />
-              <button @click="increaseQty(index)" class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+              <input type="number" min="1" v-model.number="item.qty" @input="updateItemSubtotal(index)"
+                class="w-12 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500" />
+              <button @click="increaseQty(index)"
+                class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                 <Icon name="Plus" class="w-4 h-4" />
               </button>
             </div>
@@ -132,11 +131,7 @@
 
 
     <!-- Delete Confirmation Modal -->
-    <Modal
-      v-model="showDeleteConfirm"
-      title="Konfirmasi Hapus Product"
-      @close="showDeleteConfirm = false"
-    >
+    <Modal v-model="showDeleteConfirm" title="Konfirmasi Hapus Product" @close="showDeleteConfirm = false">
       <div class="p-4">
         <p class="text-gray-700 dark:text-gray-300">
           Benar akan Menghapus product ini dari List Penjualan ?
@@ -149,8 +144,8 @@
         </p>
         <div class="border-b dark:border-gray-700 my-6"></div>
         <div class="flex justify-end space-x-4">
-          <base-button label="Cancel" variant="ghost" @click="cancelDeleteItem"/>
-          <base-button label="Hapus !" variant="danger" @click="confirmDeleteItem"/>
+          <base-button label="Cancel" variant="ghost" @click="cancelDeleteItem" />
+          <base-button label="Hapus !" variant="danger" @click="confirmDeleteItem" />
         </div>
       </div>
     </Modal>
@@ -161,8 +156,8 @@
 <script setup>
 import { ref, watch } from 'vue'
 import ProductSearch from '@/components/admin/transaksi/pembelian/ProductSearch.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
-import Icon from '@/components/ui/Icon.vue'
+// import BaseInput from '@/components/ui/BaseInput.vue'
+// import Icon from '@/components/ui/Icon.vue'
 import { useSalesFormStore } from '@/stores/transaksi/penjualan/form'
 import { storeToRefs } from 'pinia'
 
@@ -220,11 +215,16 @@ watch(store.items, (newItems) => {
 
 <style scoped>
 @keyframes blink-bg {
-  0%, 100% {
-    background-color: #b1ae9b4b; /* blue-300 */
+
+  0%,
+  100% {
+    background-color: #b1ae9b4b;
+    /* blue-300 */
   }
+
   50% {
-    background-color: #000000f2; /* red-400 */
+    background-color: #000000f2;
+    /* red-400 */
   }
 }
 

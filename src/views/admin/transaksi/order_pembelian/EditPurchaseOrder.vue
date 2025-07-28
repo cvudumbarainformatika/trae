@@ -15,12 +15,8 @@
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
 
-      <PurchaseOrderForm
-        v-if="!loading"
-        :purchase-order-id="purchaseOrderId"
-        :edit-mode="true"
-        @success="handleSuccess"
-      />
+      <PurchaseOrderForm v-if="!loading" :purchase-order-id="purchaseOrderId" :edit-mode="true"
+        @success="handleSuccess" />
     </div>
   </BasePage>
 </template>
@@ -28,9 +24,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import BasePage from '@/components/ui/BasePage.vue'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import Icon from '@/components/ui/Icon.vue'
+// import BasePage from '@/components/ui/BasePage.vue'
+// import BaseButton from '@/components/ui/BaseButton.vue'
+// import Icon from '@/components/ui/Icon.vue'
 import PurchaseOrderForm from '@/views/admin/transaksi/order_pembelian/PurchaseOrderForm.vue'
 
 const route = useRoute()

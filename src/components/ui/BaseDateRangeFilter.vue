@@ -122,9 +122,9 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import IconButton from '@/components/ui/IconButton.vue'
-import Icon from '@/components/ui/Icon.vue'
+// import BaseButton from '@/components/ui/BaseButton.vue'
+// import IconButton from '@/components/ui/IconButton.vue'
+// import Icon from '@/components/ui/Icon.vue'
 
 // Tambahkan event listener untuk menutup dialog saat klik di luar
 onMounted(() => {
