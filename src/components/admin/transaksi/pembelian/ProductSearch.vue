@@ -30,8 +30,8 @@
 
 <script setup>
 import { ref, watch, nextTick } from 'vue'
-import SearchDropdown from '@/components/ui/SearchDropdown.vue'
-import Icon from '@/components/ui/Icon.vue'
+// import SearchDropdown from '@/components/ui/SearchDropdown.vue'
+// import Icon from '@/components/ui/Icon.vue'
 
 const props = defineProps({
   modelValue: {
