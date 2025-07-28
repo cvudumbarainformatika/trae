@@ -23,6 +23,7 @@
             :debounce="500" @update:model-value="store.fetchData" />
         </div>
 
+
         <!-- Filter Periode -->
         <div class="flex-1 flex justify-end no-print">
           <BaseDateRangeFilter v-model="store.params" @change="store.fetchData" default-period="month" />
@@ -32,13 +33,16 @@
       </div>
     </template>
 
+    <div v-if="store.loading" class="flex items-center justify-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+    </div>
 
-    <div class="printable-area">
+    <div v-else class="printable-area">
       <DataTable ref="printRef" :data="store.data" :params="store.params" :header="store.header" />
     </div>
-    <BasePagination v-if="store.paginationInfo.totalItems > 0" v-model:current-page="store.pagination.page"
-      :total-items="store.paginationInfo.totalItems" :items-per-page="store.pagination.itemsPerPage"
-      @update:current-page="store.handlePageChange" />
+    <BasePagination v-if="store.paginationInfo.totalItems > 0 && !store.loading"
+      v-model:current-page="store.pagination.page" :total-items="store.paginationInfo.totalItems"
+      :items-per-page="store.pagination.itemsPerPage" @update:current-page="store.handlePageChange" />
 
   </BasePage>
 </template>
@@ -52,6 +56,7 @@ const DataTable = defineAsyncComponent(() => import('./DataTable.vue'))
 
 const store = useLabaRugiStore()
 const printRef = ref(null)
+
 
 onMounted(() => {
   Promise.all([

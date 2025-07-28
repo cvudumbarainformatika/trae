@@ -19,8 +19,22 @@
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
             <Icon name="Search" class="w-5 h-5 text-indigo-400" />
           </div>
-          <BaseInput v-model="store.params.q" placeholder="Cari Transksi / Kasir .." type="text" clearable
+          <BaseInput v-model="store.params.q" placeholder="Cari Transksi / Admin .." type="text" clearable
             :debounce="500" @update:model-value="store.fetchData" />
+        </div>
+
+        <div>
+          <button @click="withDetails = !withDetails"
+            class="relative w-16 h-8 rounded-full transition-colors duration-300 flex items-center px-1 shadow-inner bg-indigo-600"
+            aria-label="Toggle Mode">
+            <div class="w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300"
+              :class="withDetails ? 'translate-x-8' : 'translate-x-0'">
+              <div class="absolute inset-0 flex items-center justify-center text-sm">
+                <!-- <span v-if="!isDark">🌞</span> -->
+                <span>🌙</span>
+              </div>
+            </div>
+          </button>
         </div>
 
         <!-- Filter Periode -->
@@ -32,9 +46,12 @@
       </div>
     </template>
 
+    <div v-if="store.loading" class="flex items-center justify-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+    </div>
 
-    <div class="printable-area">
-      <DataTable ref="printRef" :data="store.items" :params="store.params" />
+    <div v-else class="printable-area">
+      <DataTable ref="printRef" :data="store.items" :params="store.params" :with-details="withDetails" />
     </div>
     <BasePagination v-if="store.paginationInfo.totalItems > 0" v-model:current-page="store.pagination.page"
       :total-items="store.paginationInfo.totalItems" :items-per-page="store.pagination.itemsPerPage"
@@ -60,6 +77,7 @@ const DataTable = defineAsyncComponent(() => import('./DataTable.vue'))
 const store = useReportPembelianStore()
 const printRef = ref(null)
 
+const withDetails = ref(false)
 
 onMounted(() => {
   Promise.all([
