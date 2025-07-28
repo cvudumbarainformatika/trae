@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { getMonthStartDate, getMonthEndDate, formatDateIndo } from '@/utils/dateHelper'
+import { getMonthStartDate, getMonthEndDate, formatDateIndo, getToday } from '@/utils/dateHelper'
 import { api } from '@/services/api'
 
 export const useRekapKasirStore = defineStore('report-rekapkasir-store', {
@@ -13,7 +13,7 @@ export const useRekapKasirStore = defineStore('report-rekapkasir-store', {
       sort_direction: 'desc',
       q: '',
       status: 'semua',
-      start_date: getMonthStartDate(),
+      start_date: getToday(),
       end_date: getMonthEndDate()
     },
     dateRange: {
@@ -47,7 +47,7 @@ export const useRekapKasirStore = defineStore('report-rekapkasir-store', {
     },
     header: (state) => {
       return {
-        title: 'Laporan Rekap Kas',
+        title: 'Laporan Keuangan Kas (Harian)',
         subtitle: 'Laporan Rekap Kas Kasir dll berdasarkan periode dan pendukung lainnya',
         periode: `<strong>Periode : </strong> ${formatDateIndo(state.params?.start_date)} - ${formatDateIndo(state.params?.end_date) }`
       }
@@ -62,7 +62,7 @@ export const useRekapKasirStore = defineStore('report-rekapkasir-store', {
           params: this.params
         })
 
-        console.log('resp labarugi', data);
+        console.log('resp rekapkasir', data);
 
         this.data = data || null
         // this.pagination.totalItems = parseInt(data?.meta?.total) || 0

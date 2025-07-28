@@ -47,7 +47,7 @@ export const useLabaRugiStore = defineStore('report-labarugi-store', {
     },
     header: (state) => {
       return {
-        title: 'Laporan Keuangan',
+        title: 'Laporan Laba Rugi',
         subtitle: 'Laporan Laba Rugi berdasarkan periode dan pendukung lainnya',
         periode: `<strong>Periode : </strong> ${formatDateIndo(state.params?.start_date)} - ${formatDateIndo(state.params?.end_date) }`
       }
@@ -62,7 +62,7 @@ export const useLabaRugiStore = defineStore('report-labarugi-store', {
           params: this.params
         })
 
-        console.log('resp labarugi', data);
+        // console.log('resp labarugi', data);
 
         this.data = data || null
         // this.pagination.totalItems = parseInt(data?.meta?.total) || 0

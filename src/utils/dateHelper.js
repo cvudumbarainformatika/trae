@@ -59,6 +59,10 @@ export function getMonthEndDate() {
   const now = new Date()
   return toLocalDateString(new Date(now.getFullYear(), now.getMonth() + 1, 0))
 }
+export function getToday() {
+  const now = new Date()
+  return toLocalDateString(now)
+}
 
 export function formatWaktuLalu(dateInput) {
   const now = new Date()

@@ -17,57 +17,63 @@
         <tbody>
           <!-- PENDAPATAN -->
           <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
-            <td colspan="2" class="p-2 border">Pendapatan</td>
+            <td colspan="2" class="p-2 border">DEBET</td>
+          </tr>
+          <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+            <td colspan="2" class="p-2 border">Penjualan</td>
           </tr>
           <tr>
-            <td class="p-2 border">Penjualan Tunai</td>
-            <td class="p-2 border text-right">{{ formatRupiah(data.pendapatan.penjualan_tunai) }}</td>
+            <td class="p-2 border"> <span class="ml-4">- Penjualan Tunai</span></td>
+            <td class="p-2 border text-right">{{ formatRupiah(data?.penjualan?.penjualan_tunai || 0) }}
+            </td>
           </tr>
-          <tr>
-            <td class="p-2 border">Penjualan Kredit</td>
-            <td class="p-2 border text-right">{{ formatRupiah(data.pendapatan.penjualan_kredit) }}</td>
+          <!-- DEBET -->
+
+          <template v-if="data?.operasional?.masuk?.items?.length">
+            <tr v-for="d in data?.operasional?.masuk?.items">
+              <td class="p-2 border"> <span class="ml-4">- {{ d?.keterangan }}</span></td>
+              <td class="p-2 border text-right">{{ formatRupiah(d?.jumlah || 0) }}
+              </td>
+            </tr>
+            <tr class="font-semibold">
+              <td class="p-2 border">TOTAL DEBET</td>
+              <td class="p-2 border text-right">{{ formatRupiah(data?.operasional?.masuk?.total) }}</td>
+            </tr>
+          </template>
+          <template v-else>
+
+            <tr class="font-semibold">
+              <td class="p-2 border">TOTAL DEBET</td>
+              <td class="p-2 border text-right">0</td>
+            </tr>
+          </template>
+
+          <!-- KREDIT -->
+          <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+            <td colspan="2" class="p-2 border">KREDIT</td>
           </tr>
+          <template v-if="data?.operasional?.keluar?.items?.length">
+            <tr v-for="d in data?.operasional?.keluar?.items">
+              <td class="p-2 border"> <span class="ml-4">- {{ d?.keterangan }}</span></td>
+              <td class="p-2 border text-right">{{ formatRupiah(d?.jumlah || 0) }}
+              </td>
+            </tr>
+            <tr class="font-semibold">
+              <td class="p-2 border">TOTAL KREDIT</td>
+              <td class="p-2 border text-right">{{ formatRupiah(data?.operasional?.keluar?.total) }}</td>
+            </tr>
+          </template>
+          <template v-else>
+
+            <tr class="font-semibold">
+              <td class="p-2 border">TOTAL KREDIT</td>
+              <td class="p-2 border text-right">0</td>
+            </tr>
+          </template>
+          <!-- TOTAL -->
           <tr class="font-semibold">
-            <td class="p-2 border">Total Penjualan</td>
-            <td class="p-2 border text-right">{{ formatRupiah(data.pendapatan.total_penjualan) }}</td>
-          </tr>
-          <tr>
-            <td class="p-2 border">Retur Penjualan</td>
-            <td class="p-2 border text-right text-red-500"> {{ formatRupiah(data.pendapatan.retur_penjualan) }}</td>
-          </tr>
-          <tr class="font-bold bg-green-50 dark:bg-green-900">
-            <td class="p-2 border">Pendapatan Bersih</td>
-            <td class="p-2 border text-right text-green-600 dark:text-green-300">{{
-              formatRupiah(data.pendapatan.pendapatan_bersih) }}</td>
-          </tr>
-
-          <!-- HPP -->
-          <tr class="bg-gray-100 dark:bg-gray-800 font-semibold mt-4">
-            <td colspan="2" class="p-2 border">Harga Pokok Penjualan</td>
-          </tr>
-          <tr>
-            <td class="p-2 border">Total HPP</td>
-            <td class="p-2 border text-right text-red-500"> {{ formatRupiah(data.hpp.hpp) }}</td>
-          </tr>
-          <tr class="font-bold bg-yellow-50 dark:bg-yellow-900">
-            <td class="p-2 border">Laba Kotor</td>
-            <td class="p-2 border text-right text-yellow-600 dark:text-yellow-300">{{ formatRupiah(data.hpp.laba_kotor)
-              }}</td>
-          </tr>
-
-          <!-- Biaya Operasional -->
-          <tr class="bg-gray-100 dark:bg-gray-800 font-semibold mt-4">
-            <td colspan="2" class="p-2 border">Biaya Operasional</td>
-          </tr>
-          <tr>
-            <td class="p-2 border">Total Biaya</td>
-            <td class="p-2 border text-right text-red-500"> {{ formatRupiah(data.operasional.biaya_operasional) }}</td>
-          </tr>
-
-          <!-- LABA BERSIH -->
-          <tr class="font-bold bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
-            <td class="p-2 border">Laba Bersih</td>
-            <td class="p-2 border text-right">{{ formatRupiah(data.laba_bersih) }}</td>
+            <td class="p-2 border">TOTAL REKAP</td>
+            <td class="p-2 border text-right">{{ formatRupiah(data?.total_semua || 0) }}</td>
           </tr>
         </tbody>
       </table>
@@ -100,6 +106,11 @@ const props = defineProps({
   }
 
 })
+
+
+function summary(data) {
+  return data?.reduce((sum, item) => sum + parseFloat(item.jumlah), 0)
+}
 
 </script>
 

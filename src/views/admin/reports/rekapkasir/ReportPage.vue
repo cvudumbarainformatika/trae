@@ -16,24 +16,33 @@
       <div class="flex items-center justify-between gap-2 w-full no-print">
         <!-- Search Input (dengan lebar yang cukup) -->
         <div class="relative rounded-full shadow-lg min-w-[300px]">
-          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+          <!-- <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
             <Icon name="Search" class="w-5 h-5 text-indigo-400" />
           </div>
           <BaseInput v-model="store.params.q" placeholder="Cari Transksi / Kasir .." type="text" clearable
-            :debounce="500" @update:model-value="store.fetchData" />
+            :debounce="500" @update:model-value="store.fetchData" /> -->
+
+          <select v-model="store.params.q" class="w-full border px-3 py-2 rounded mt-1 bg-white dark:bg-gray-900
+         text-gray-800 dark:text-white" required @update:model-value="store.fetchData">
+            <option value="">Semua Kasir</option>
+            <option v-for="kasir in kasirList" :key="kasir.id" :value="kasir.id">{{ kasir?.name }}</option>
+          </select>
         </div>
 
         <!-- Filter Periode -->
         <div class="flex-1 flex justify-end no-print">
-          <BaseDateRangeFilter v-model="store.params" @change="store.fetchData" default-period="month" />
+          <!-- <BaseDateRangeFilter v-model="store.params" @change="store.fetchData" default-period="month" /> -->
+          <BaseDatePicker v-model="store.params.start_date" @change="store.fetchData" />
         </div>
 
 
       </div>
     </template>
 
-
-    <div class="printable-area">
+    <div v-if="store.loading" class="flex items-center justify-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+    </div>
+    <div v-else class="printable-area">
       <DataTable ref="printRef" :data="store.data" :params="store.params" :header="store.header" />
     </div>
     <BasePagination v-if="store.paginationInfo.totalItems > 0" v-model:current-page="store.pagination.page"
@@ -44,17 +53,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineAsyncComponent } from 'vue'
+import { ref, onMounted, defineAsyncComponent, computed } from 'vue'
 import { useRekapKasirStore } from '@/stores/reports/rekapkasir'
+import { useUsersStore } from '@/stores/admin/users'
 import { printHtmlElement } from '@/utils/printing';
 
 const DataTable = defineAsyncComponent(() => import('./DataTable.vue'))
 
 const store = useRekapKasirStore()
+const storeUsers = useUsersStore()
 const printRef = ref(null)
 
+const kasirList = computed(() => storeUsers.items)
+
 onMounted(() => {
+  storeUsers.role = 'cashier'
   Promise.all([
+    storeUsers.fetchData(),
     store.fetchData(),
   ])
 })
