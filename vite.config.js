@@ -10,6 +10,11 @@ export default defineConfig({
     vue(),
 
     compression(), // gzip default
+    // Brotli compression
+    compression({
+      algorithm: 'brotliCompress',
+      ext: '.br'
+    }),
     visualizer({
       open: true,
       gzipSize: true,
