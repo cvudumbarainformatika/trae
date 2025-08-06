@@ -9,6 +9,12 @@ import UIPlugin from './plugins/ui'
 import { useThemeStore } from './stores/theme'
 import { htmlSafe } from './directives/htmlSafe'
 
+
+
+// localStorage.removeItem('auth-store')
+localStorage.removeItem('salesFormWitTabs')
+
+
 const app = createApp(App)
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)

@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { formatRupiah } from '@/utils/uangHelper'
 import Card from '@/components/ui/Card.vue'
 import IconButton from '@/components/ui/IconButton.vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -65,12 +66,14 @@ const formatCurrency = (value) => {
               Product
             </th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
-              Category
+              Details
             </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase text-right">
               Price
             </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase text-rigt">
               Stock
             </th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
@@ -106,12 +109,20 @@ const formatCurrency = (value) => {
               </div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap">
-              <div data-field="category.name" class="lg:truncate">{{ product.category?.name }}</div>
+              <div data-field="category.name" class="lg:truncate">{{ product.category?.name || '-' }}</div>
+              <div class="lg:truncate"> Rak {{ product.rak || '-' }}</div>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white lg:whitespace-nowrap">
-              <div class="truncate">{{ formatCurrency(product.hargajual) }}</div>
+            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white lg:whitespace-nowrap text-right">
+              <div class="truncate"> <span class="text-gray-400">BL :</span> {{ formatRupiah(product?.hargabeli) }}
+              </div>
+              <div class="truncate"><span class="text-gray-400">UMUM :</span> {{ formatRupiah(product?.hargajual) }}
+              </div>
+              <div class="truncate"><span class="text-gray-400">CUST :</span> {{ formatRupiah(product?.hargajualcust) }}
+              </div>
+              <div class="truncate"><span class="text-gray-400">ANTAR :</span> {{ formatRupiah(product?.hargajualantar)
+                }}</div>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap">
+            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap text-right">
               <div class="truncate">{{ product.stock_akhir }}</div>
             </td>
             <td class="px-6 py-4 lg:whitespace-nowrap">

@@ -3,9 +3,13 @@ import { ref, onMounted } from 'vue'
 import Sidebar from '@/components/admin/Sidebar.vue'
 
 import { useThemeStore } from '@/stores/theme'
+import { useInactivityLogout } from './useInactivityLogout'
 const themeStore = useThemeStore()
 
 const sidebarRef = ref(null)
+
+
+useInactivityLogout()
 
 onMounted(() => {
   // console.log('sidebarRef', sidebarRef.value);

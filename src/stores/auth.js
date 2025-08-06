@@ -47,6 +47,11 @@ export const useAuthStore = defineStore('auth-store', {
       }
     },
 
+    resetForm() {
+      this.form.email = ''
+      this.form.password = ''
+    },
+
     async logout() {
       this.loading = true
 

@@ -19,13 +19,13 @@
             <label class="block text-indigo-100 text-sm mb-1">Username</label>
             <input type="text" v-model="form.email"
               class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
-              placeholder="you@example.com" required />
+              placeholder="you@example.com" autocomplete="off" required />
           </div>
           <div>
             <label class="block text-indigo-100 text-sm mb-1">Password</label>
             <input type="password" v-model="form.password"
               class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
-              placeholder="••••••••" required />
+              placeholder="••••••••" autocomplete="new-password" required />
           </div>
           <!-- <button type="submit"
             class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-300">
@@ -72,6 +72,7 @@ const { form, loading, isError } = storeToRefs(store)
 const { login } = store
 
 onMounted(() => {
+  store.resetForm()
   isError.value = false
   loading.value = false
 })
