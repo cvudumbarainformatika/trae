@@ -32,6 +32,10 @@
     </template>
 
     <DataTable :data="store.items" @detail="handleDetail" />
+
+    <BasePagination v-model:current-page="store.pagination.page" :total-items="store.paginationInfo.totalItems"
+      :items-per-page="store.pagination.itemsPerPage" @update:current-page="store.handlePageChange" />
+
     <div v-if="store.showCreateDialog">
       <DialogForm v-model="store.showCreateDialog" @close="store.showCreateDialog = false" />
     </div>
@@ -125,4 +129,6 @@ const submitPembayaran = (data) => {
   console.log('Data pembayaran:', data)
   // Kirim ke backend
 }
+
+
 </script>

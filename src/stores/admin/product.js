@@ -45,7 +45,7 @@ export const useProductStore = defineStore('product', {
     },
     pagination: {
       currentPage: 1,
-      itemsPerPage: 12,
+      itemsPerPage: 15,
       total: 0,
       maxVisiblePages: 5
     },
