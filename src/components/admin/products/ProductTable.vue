@@ -33,11 +33,10 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkScreenSize)
 })
 
-const getStockStatusClass = (product) => {
-  if (product.stock <= 0) {
+const getStockStatusClass = (status) => {
+  if (status === 'out-of-stock') {
     return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-  }
-  if (product.stock <= product.minstock) {
+  } else if (status === 'low-stock') {
     return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
   }
   return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
@@ -68,12 +67,11 @@ const formatCurrency = (value) => {
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Details
             </th>
-            <th scope="col"
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase text-right">
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
               Price
             </th>
             <th scope="col"
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase text-rigt">
+              class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
               Stock
             </th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase ">
@@ -126,7 +124,8 @@ const formatCurrency = (value) => {
               <div class="truncate">{{ product.stock_akhir }}</div>
             </td>
             <td class="px-6 py-4 lg:whitespace-nowrap">
-              <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(product)]">
+              <span
+                :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(getStockStatus(product))]">
                 {{ getStockStatus(product) }}
               </span>
             </td>
@@ -165,7 +164,7 @@ const formatCurrency = (value) => {
             </div>
           </div>
           <div class="mt-4 flex items-center justify-between">
-            <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(product)]">
+            <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(getStockStatus(product))]">
               {{ getStockStatus(product) }} ({{ product.currentStock }})
             </span>
 

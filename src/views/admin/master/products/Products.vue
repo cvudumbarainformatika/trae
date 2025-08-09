@@ -236,8 +236,7 @@ const setViewMode = (mode) => {
         <!-- Products Content -->
         <div class="flex-1 overflow-auto relative ">
           <!-- Grid View -->
-          <div v-if="viewMode === 'grid'"
-            class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-16">
+          <div v-if="viewMode === 'grid'" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5  gap-4 mb-16">
             <template v-if="getPageItems?.length > 0">
               <ProductCard v-for="(product, i) in getPageItems" :key="product?.id" :product="product"
                 :search-query="searchQuery" v-html-safe="{
