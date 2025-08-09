@@ -115,6 +115,7 @@ export const useReportPembelianStore = defineStore('report-pembelian-store', {
         page
       }
       this.params.page = page
+      this.fetchData()
     }
   }
 })

@@ -111,6 +111,7 @@ export const useCashFlowStore = defineStore('cash-flow-store', {
         page
       }
       this.params.page = page
+      this.fetchData()
     }
   }
 })

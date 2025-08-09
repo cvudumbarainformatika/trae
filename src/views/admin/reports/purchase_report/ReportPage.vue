@@ -50,12 +50,13 @@
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
     </div>
 
-    <div v-else class="printable-area">
-      <DataTable ref="printRef" :data="store.items" :params="store.params" :with-details="withDetails" />
-    </div>
-    <BasePagination v-if="store.paginationInfo.totalItems > 0" v-model:current-page="store.pagination.page"
-      :total-items="store.paginationInfo.totalItems" :items-per-page="store.pagination.itemsPerPage"
-      @update:current-page="store.handlePageChange" />
+    <!-- <div v-else class="printable-area"> -->
+    <DataTable v-else class="printable-area" ref="printRef" :data="store.items" :params="store.params"
+      :with-details="withDetails" />
+    <!-- </div> -->
+    <BasePagination v-if="store.paginationInfo.totalItems > 0 && !store.loading"
+      v-model:current-page="store.pagination.page" :total-items="store.paginationInfo.totalItems"
+      :items-per-page="store.pagination.itemsPerPage" @update:current-page="store.handlePageChange" />
 
 
     <!-- <DataTable :data="store.items" @detail="store.showDetailDialog = true" />

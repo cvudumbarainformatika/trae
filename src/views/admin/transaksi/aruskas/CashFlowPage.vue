@@ -35,6 +35,9 @@
 
     <DataTable :data="store.items" @detail="store.showDetailDialog = true" />
 
+    <BasePagination v-model:current-page="store.pagination.page" :total-items="store.paginationInfo.totalItems"
+      :items-per-page="store.pagination.itemsPerPage" @update:current-page="store.handlePageChange" />
+
     <div v-if="store.showCreateDialog">
       <DialogForm v-model="store.showCreateDialog" @close="store.showCreateDialog = false" />
     </div>

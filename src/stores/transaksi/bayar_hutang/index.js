@@ -7,7 +7,7 @@ export const useBayarHutangStore = defineStore('bayar-hutang-store', {
     meta: null,
     params: {
       page: 1,
-      per_page: 5,
+      per_page: 10,
       sort_by: 'created_at',
       sort_direction: 'desc',
       q: '',
@@ -17,7 +17,7 @@ export const useBayarHutangStore = defineStore('bayar-hutang-store', {
     },
     pagination: {
       page: 1,
-      itemsPerPage: 5,
+      itemsPerPage: 10,
       totalItems: 0
     },
     loading: false,

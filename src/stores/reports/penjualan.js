@@ -136,6 +136,7 @@ export const useReportPenjualanStore = defineStore('report-penjualan-store', {
         page
       }
       this.params.page = page
+      this.fetchData()
     }
   }
 })

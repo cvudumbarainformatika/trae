@@ -29,13 +29,15 @@
       </div>
     </template> -->
 
-
-    <div class="printable-area">
-      <DataTable ref="printRef" :data="store.items" :params="store.params" />
+    <div v-if="store.loading" class="flex items-center justify-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
     </div>
-    <BasePagination v-if="store.paginationInfo.totalItems > 0" v-model:current-page="store.pagination.page"
-      :total-items="store.paginationInfo.totalItems" :items-per-page="store.pagination.itemsPerPage"
-      @update:current-page="store.handlePageChange" />
+    <!-- <div class="printable-area"> -->
+    <DataTable v-if="!store.loading" ref="printRef" :data="store.items" :params="store.params" />
+    <!-- </div> -->
+    <BasePagination v-if="store.paginationInfo.totalItems > 0 && !store.loading"
+      v-model:current-page="store.pagination.page" :total-items="store.paginationInfo.totalItems"
+      :items-per-page="store.pagination.itemsPerPage" @update:current-page="store.handlePageChange" />
 
   </BasePage>
 </template>

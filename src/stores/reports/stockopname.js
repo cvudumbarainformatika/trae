@@ -116,6 +116,7 @@ export const useStockOpnameStore = defineStore('stock-opname-store', {
         page
       }
       this.params.page = page
+      this.fetchData()
     }
   }
 })

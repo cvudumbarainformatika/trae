@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex-1 overflow-auto relative">
     <div v-if="data.length" class="relative w-full
         bg-white dark:bg-gray-900 text-black dark:text-white print:bg-white print:text-black
         p-4 printable-area

@@ -46,19 +46,24 @@
       </div>
     </template>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="box in summaryBoxes" :key="box.label"
         class="bg-white dark:bg-gray-800 rounded-xl shadow p-2 flex flex-col justify-between">
         <div class="text-sm text-gray-500 dark:text-gray-400">{{ box?.label }}</div>
         <div class="text-lg font-bold text-gray-900 dark:text-white mt-1">{{ formatRupiah(box?.value) }}</div>
       </div>
     </div>
-    <div class="printable-area">
-      <DataTable ref="printRef" :data="store.items" :params="store.params" :summary="store.summary" />
+
+    <div v-if="store.loading" class="flex items-center justify-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
     </div>
-    <BasePagination v-if="store.paginationInfo.totalItems > 0" v-model:current-page="store.pagination.page"
-      :total-items="store.paginationInfo.totalItems" :items-per-page="store.pagination.itemsPerPage"
-      @update:current-page="store.handlePageChange" />
+    <!-- <div class="printable-area"> -->
+    <DataTable v-else class="printable-area" ref="printRef" :data="store.items" :params="store.params"
+      :summary="store.summary" />
+    <!-- </div> -->
+    <BasePagination v-if="store.paginationInfo.totalItems > 0 && !store.loading"
+      v-model:current-page="store.pagination.page" :total-items="store.paginationInfo.totalItems"
+      :items-per-page="store.pagination.itemsPerPage" @update:current-page="store.handlePageChange" />
 
   </BasePage>
 </template>
