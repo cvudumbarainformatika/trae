@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+    <!-- <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
       <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4 flex items-center">
         <Icon name="Calculator" class="mr-2 text-primary-500" /> INFO PENJUALAN
       </h3>
@@ -16,7 +16,7 @@
           <div class=" text-xs text-primary-600 dark:text-primary-400 tracking-widest">[F2] Pembayaran</div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-2">
       <h3 class="text-lg font-medium text-secondary-900 dark:text-white mb-4 flex items-center">

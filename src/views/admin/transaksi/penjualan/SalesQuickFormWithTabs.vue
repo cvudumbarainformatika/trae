@@ -2,33 +2,41 @@
   <!-- Tabs Wrapper -->
   <div class="h-full">
     <base-tabs :tabs="tabs" :active-tab="activeTab" @update:active-tab="(val) => {
-      // console.log('val', val);
-
       activeTab = val
     }" @remove-tab="(val) => removeTab(val)" @add-tab="store.generateTabBaru">
 
       <!-- Tab Content -->
       <template #tab-content>
-        <div :key="activeTab" class="flex flex-col space-y-4 md:flex-row gap-4 px-4">
+        <!-- <div :key="activeTab" class="flex flex-col space-y-4 md:flex-row gap-4 px-4">
           <div class="w-full md:w-1/4 rounded shadow space-y-4 mt-4">
-            <CustomerAndKasirSection :key="activeTab" />
+            <CustomerAndKasirSection />
           </div>
-          <!-- Grid Produk -->
           <div class="w-full md:w-2/4 rounded shadow space-y-4">
-            <ProductListSection :key="activeTab" ref="productListSectionRef" />
+            <ProductListSection ref="productListSectionRef" />
           </div>
-          <!-- Grid summary -->
           <div class="w-full md:w-1/4 space-y-4 rounded shadow">
             <RiwayatPenjualan />
-            <!-- <button class="bg-white p-4 text-secondary-900 " @click="store.simpanPenjualan">Coba
-              simpanPenjualan</button> -->
+          </div>
+        </div> -->
+
+        <div :key="activeTab" class="grid grid-cols-12 gap-4 p-4">
+          <div class="col-span-2 rounded shadow space-y-4">
+            <CustomerAndKasirSection ref="customerAndKasirSectionRef" />
+          </div>
+          <div class="col-span-7 rounded shadow space-y-4">
+            <ProductListSection ref="productListSectionRef" :isi-tab="isiTab" />
+          </div>
+          <div class="col-span-3 rounded shadow space-y-4">
+            <!-- <RiwayatPenjualan ref="riwayatPenjualanRef" /> -->
+            <!-- <CustomerAndKasirSection ref="customerAndKasirSectionRef" /> -->
+            <InfoPenjualan ref="infoPenjualanRef" />
           </div>
         </div>
       </template>
     </base-tabs>
 
     <PaymentModal :show="isPaymentOpen" :items="isiTab?.items || []" :customer-id="isiTab?.customer_id || null"
-      :unique-code="activeTab" @submit="handleSubmit" @close="isPaymentOpen = false" :item="isiTab"
+      :unique-code="activeTab" @submit="handleSubmit" @close="handleClosePaymentModal" :item="isiTab"
       :loading="loadingSimpan" />
 
     <StrukPenjualan ref="printRef" v-model="printing" :data="isiPrint" />
@@ -38,19 +46,20 @@
 </template>
 
 <script setup>
-import { ref, defineAsyncComponent, onMounted, onBeforeUnmount } from 'vue';
+import { ref, defineAsyncComponent, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useSalesFormWitTabsStore } from '@/stores/transaksi/penjualan/formwithtabs';
 import { printReceiptElement } from '@/utils/printing';
 import { storeToRefs } from 'pinia';
 
 // import Icon from '@/components/ui/Icon.vue';
-
+import ProductListSection from './compFormWithTabs/ProductListSection.vue';
+import InfoPenjualan from './compFormWithTabs/InfoPenjualan.vue';
 
 
 
 const CustomerAndKasirSection = defineAsyncComponent(() => import('./compFormWithTabs/CustomerAndKasirSection.vue'));
-const RiwayatPenjualan = defineAsyncComponent(() => import('./compFormWithTabs/RiwayatPenjualan.vue'));
-const ProductListSection = defineAsyncComponent(() => import('./compFormWithTabs/ProductListSection.vue'));
+// const RiwayatPenjualan = defineAsyncComponent(() => import('./compFormWithTabs/RiwayatPenjualan.vue'));
+// const ProductListSection = defineAsyncComponent(() => import('./compFormWithTabs/ProductListSection.vue'));
 const PaymentModal = defineAsyncComponent(() => import('./compFormWithTabs/PaymentModal.vue'));
 const StrukPenjualan = defineAsyncComponent(() => import('./compFormWithTabs/StrukPenjualan.vue'));
 const printRef = ref(null)
@@ -63,14 +72,14 @@ const { initTabs, removeTab, handlePayment } = store
 const productListSectionRef = ref(null)
 
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
+  console.log('Ref setelah render di sales quick form:', productListSectionRef.value);
+  productListSectionRef?.value?.focus?.()
 
-  // console.log('onMounted', productListSectionRef.value);
-
-  setTimeout(() => {
-    productListSectionRef.value?.focus()
-  }, 100)
-  // productListSectionRef?.focus
+  // setTimeout(() => { // delay 1 frame biar child pasti siap
+  //   productListSectionRef?.value?.focus()
+  // }, 50)
 
 
   initTabs()
@@ -105,6 +114,7 @@ function handleSubmit(val) {
 
           printing.value = false
           isiPrint.value = null
+          productListSectionRef?.value?.focus?.()
         })
         // .then(() => {
         // console.log('print selesai with then', isiPrint.value);
@@ -115,6 +125,11 @@ function handleSubmit(val) {
 
       }
     })
+}
+
+function handleClosePaymentModal() {
+  isPaymentOpen.value = false
+  productListSectionRef?.value?.focus?.()
 }
 
 

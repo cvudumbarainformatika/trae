@@ -12,7 +12,7 @@ import { htmlSafe } from './directives/htmlSafe'
 
 
 // localStorage.removeItem('auth-store')
-localStorage.removeItem('salesFormWitTabs')
+// localStorage.removeItem('salesFormWitTabs')
 
 
 const app = createApp(App)

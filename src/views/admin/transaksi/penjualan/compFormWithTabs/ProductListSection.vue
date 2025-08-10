@@ -1,13 +1,15 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm py-4 px-4">
     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
-      <Icon name="ShoppingCart" class="w-5 h-5 mr-2 text-primary-500" />
-      DAFTAR PRODUK
+      <Icon name="ShoppingCart" class="w-6 h-6 mr-4 text-primary-500" />
+      DAFTAR PRODUK HARGA {{ store?.isiTab?.category === 'umum' ? 'UMUM' :
+        store?.isiTab?.category === 'pelanggan' ? 'MEMBER' : 'ANTAR' }}
     </h3>
-    <ProductSearch ref="productSearchRef" v-model="productSearch" @add-product="addProduct"
-      @open-scanner="showScanner = true" @products-loaded="onProductsLoaded" :add-not-found-product="false" />
+    <ProductSearch ref="productSearchRef" v-model="productSearch" @add-product="handleAddProduct"
+      @open-scanner="showScanner = true" @products-loaded="onProductsLoaded" :add-not-found-product="false"
+      :isi-tab="store?.isiTab" />
     <div class="overflow-x-auto">
-      <!-- <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 hidden md:table">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 ">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
             <th scope="col"
@@ -18,12 +20,10 @@
               class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[25%]">
               Harga
             </th>
-            <th scope="col"
-              class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[15%]">
+            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
               Jumlah
             </th>
-            <th scope="col"
-              class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[20%]">
+            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
               Subtotal
             </th>
             <th scope="col"
@@ -32,17 +32,18 @@
             </th>
           </tr>
         </thead>
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 md:hidden">
-          <tr v-if="store.isiTab.items?.length === 0">
-            <td colspan="5" class="px-3 py-8">
+        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+          <tr v-if="store?.isiTab?.items?.length === 0">
+            <td colspan="5" class="px-6 py-8">
               <div class="flex flex-col items-center justify-center">
-                <Icon name="ShoppingCart" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+                <Icon name="ShoppingCart" class="w-20 h-20 text-gray-300 dark:text-gray-600 mb-4" />
                 <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Belum Ada Produk</h3>
                 <p class="text-gray-500 dark:text-gray-400">Belum ada produk yang ditambahkan ke daftar penjualan.</p>
               </div>
             </td>
           </tr>
-          <tr v-for="(item, index) in store.isiTab.items" :key="index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <tr v-for="(item, index) in store?.isiTab?.items" :key="index"
+            class="hover:bg-gray-50 dark:hover:bg-gray-950">
             <td class="px-3 py-4 whitespace-nowrap w-[35%]">
               <div class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ item.product?.name }}
@@ -50,7 +51,8 @@
               <div class="text-xs text-gray-500 dark:text-gray-400">{{ item.product?.barcode }}</div>
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right w-[25%]">
-              <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ formatCurrency(getItemPrice(item))
+              <span class="text-sm font-semibold text-gray-900 dark:text-white">{{
+                formatRupiah(getItemPrice(item?.product))
                 }}</span>
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right w-[15%]">
@@ -68,19 +70,19 @@
               </div>
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white w-[20%]">
-              {{ formatCurrency(item.subtotal) }}
+              {{ formatRupiah(item?.subtotal) }}
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right text-sm w-[5%]">
               <button @click="removeItem(index)"
                 class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                 aria-label="Hapus item">
-                <Icon name="Trash" class="w-4 h-4" />
+                <Icon name="Trash" class="w-5 h-5" />
               </button>
             </td>
           </tr>
         </tbody>
-      </table> -->
-      <div class="space-y-2">
+      </table>
+      <!-- <div class="space-y-2">
         <div v-if="!store.isiTab?.items?.length" class="py-8">
           <div class="flex flex-col items-center justify-center">
             <Icon name="ShoppingCart" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
@@ -123,7 +125,7 @@
             <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(item?.subtotal) }}</span>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
 
 
@@ -131,22 +133,22 @@
 
 
     <!-- Delete Confirmation Modal -->
-    <Modal v-model="isiTab.showDeleteConfirm" title="Konfirmasi Hapus Product"
-      @close="isiTab.showDeleteConfirm = false">
+    <Modal v-model="store.isiTab.showDeleteConfirm" title="Konfirmasi Hapus Product" @close="handleCancelDeleteItem"
+      persistent>
       <div class="p-4">
         <p class="text-gray-700 dark:text-gray-300">
           Benar akan Menghapus product ini dari List Penjualan ?
         </p>
         <p class="font-semibold text-primary-300 dark:text-primary-300">
-          {{ isiTab.items[isiTab.itemIndexOnDelete]?.product?.name }}
+          {{ store?.isiTab?.items[store?.isiTab?.itemIndexOnDelete]?.product?.name }}
         </p>
         <p class="text-gray-700 dark:text-gray-300 mb-4">
           Jika Iya product ini akan terhapus dari list penjualan.
         </p>
         <div class="border-b dark:border-gray-700 my-6"></div>
         <div class="flex justify-end space-x-4">
-          <base-button label="Cancel" variant="ghost" @click="cancelDeleteItem" />
-          <base-button label="Hapus !" variant="danger" @click="confirmDeleteItem" />
+          <base-button label="Cancel" variant="ghost" @click="handleCancelDeleteItem" />
+          <base-button label="Hapus !" variant="danger" @click="handleDeleteItem" />
         </div>
       </div>
     </Modal>
@@ -155,12 +157,16 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import ProductSearch from '@/components/admin/transaksi/penjualan/ProductSearch.vue'
+import { ref, watch, nextTick, onMounted } from 'vue'
+import ProductSearch from './ProductSearch.vue'
 // import BaseInput from '@/components/ui/BaseInput.vue'
 // import Icon from '@/components/ui/Icon.vue'
 import { useSalesFormWitTabsStore } from '@/stores/transaksi/penjualan/formwithtabs'
 import { storeToRefs } from 'pinia'
+
+import { formatRupiah } from '@/utils/uangHelper'
+
+
 
 const productSearchRef = ref(null)
 const productSearch = ref('')
@@ -168,50 +174,73 @@ const store = useSalesFormWitTabsStore()
 
 defineExpose({
   focus: () => {
-    if (productSearchRef.value) {
-      productSearchRef.value.focus()
-    }
+    productSearchRef?.value?.focus?.()
   }
+})
+
+onMounted(async () => {
+  await nextTick()
+  // console.log('Ref setelah render di product list:', productSearchRef.value);
+
+  productSearchRef.value?.focus()
 })
 
 
 const { increaseQty, decreaseQty, removeItem, updateItemSubtotal, confirmDeleteItem, cancelDeleteItem } = store
-const { isiTab } = storeToRefs(store)
+// const { isiTab } = storeToRefs(store)
 
-function addProduct(product) {
+
+const handleDeleteItem = (index) => {
+  confirmDeleteItem()
+  productSearchRef?.value?.focus?.()
+}
+
+const handleCancelDeleteItem = () => {
+  cancelDeleteItem()
+  productSearchRef?.value?.focus?.()
+}
+
+
+function handleAddProduct(product, qty) {
   // Normalisasi data sebelum masuk ke store.items
+
+
+  // console.log('🔥 addProduct dipanggil', qty, performance.now())
+
+
   const item = {
-    product_id: product.id ?? product.product_id ?? null,
+    product_id: product?.id ?? product?.product_id ?? null,
     product: product,
-    harga_modal: StringToNumber(product.hargabeli) ?? 0,
-    qty: 1,
+    harga_modal: StringToNumber(product?.hargabeli) ?? 0,
+    qty,
     price: getItemPrice(product),
-    subtotal: getItemPrice(product) * 1,
+    subtotal: getItemPrice(product) * qty,
   }
+
+  console.log('item', item);
+
   store.addItem(item)
 }
 function onProductsLoaded(products) {
   // Optional: handle after products loaded
 }
-function formatCurrency(value) {
-  // console.log(value);
 
-  const num = typeof value === 'string' ? parseFloat(value) : value
-  if (isNaN(num)) return '-'
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(num)
-}
 const showScanner = ref(false)
 
 
 function getItemPrice(item) {
-  console.log('item', item.hargajual, item.hargajualcust, store.isiTab);
+  // console.log('item', item, store.isiTab);
 
   if (store.isiTab.category === 'umum') {
-    return StringToNumber(item.hargajual) ?? 0
+    return StringToNumber(item?.hargajual) ?? 0
   } else if (store.isiTab.category === 'pelanggan') {
-    return StringToNumber(item.hargajualcust) ?? 0
+    return StringToNumber(item?.hargajualcust) ?? 0
+  } else if (store.isiTab.category === 'antar') {
+    return StringToNumber(item?.hargajualantar) ?? 0
+  } else {
+
+    return StringToNumber(item?.hargajual) ?? 0
   }
-  // return item.price
 }
 
 function StringToNumber(value) {

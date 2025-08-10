@@ -2,12 +2,15 @@
   <div v-if="show" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
     @keydown="handleKeydown" tabindex="0" ref="modalRef">
     <div class="bg-gray-800 p-4 rounded-xl w-full max-w-xl text-white space-y-6 animate-slide-up">
-      <div class="p-8 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
 
         <form @submit.prevent="submit" class="space-y-4">
           <!-- Metode Pembayaran -->
           <div>
-            <label class="block mb-2 font-semibold">Metode Pembayaran</label>
+            <label class="block font-semibold">METODE PEMBAYARAN</label>
+            <!-- Separator -->
+            <hr class="border-gray-600 my-2" />
+
             <div class="flex gap-4">
               <label class="flex items-center gap-2">
                 <input type="radio" v-model="form.payment_method" value="cash" name="payment" />
@@ -30,7 +33,7 @@
           <!-- Diskon dan Pajak -->
           <div class="flex gap-4">
             <div class="flex-1">
-              <label class="block mb-1">
+              <label class="block">
                 Diskon <span class="text-xs text-gray-400"> (Rp. {{ formatCurrency(form.discount) }})</span>
               </label>
               <input v-model="formattedDiscount" @input="onCurrencyInput('discount', $event)" ref="diskonRef"
@@ -38,7 +41,7 @@
                 placeholder="0" />
             </div>
             <div class="flex-1">
-              <label class="block mb-1">
+              <label class="block">
                 Pajak <span class="text-xs text-gray-400"> ({{ form.tax }}%)</span>
               </label>
               <input v-model="form.tax" ref="pajakRef" type="number"
@@ -48,12 +51,12 @@
           </div>
 
           <!-- Separator -->
-          <hr class="border-gray-600" />
+          <!-- <hr class="border-gray-600" /> -->
 
 
 
           <!-- Pembayaran / DP / Kembali -->
-          <div class="space-y-2">
+          <div class="space-y-1">
             <div v-if="form.payment_method === 'cash' || form.payment_method === 'qris'">
               <label class="block mb-1">Pembayaran</label>
               <input v-model="formattedPembayaran" @input="onCurrencyInput('pembayaran', $event)" ref="bayarRef"
@@ -99,11 +102,12 @@
             <div class="text-lg font-bold">Total Semua : <span class="text-emerald-400">Rp. {{
               formatCurrency(totalBayar) }}</span></div>
             <!-- Separator -->
-            <hr class="border-gray-600" />
+            <hr class="border-gray-600 mt-2" />
             <div v-if="form.payment_method !== 'credit'">
               <div class="text-lg font-bold mt-4">Total Bayar : <span class="text-emerald-400">Rp. {{
                 formattedPembayaran }}</span></div>
-              <div v-if="kembali > 0" class="text-lg font-bold mt-4">Kembalian : <span class="text-emerald-400"> Rp. {{
+              <hr class="border-gray-600 mt-4" />
+              <div v-if="kembali > 0" class="text-2xl font-bold mt-4">Kembali : <span class="text-red-500"> Rp. {{
                 formatCurrency(kembali)
                   }}</span></div>
             </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
-    <BaseInput v-model="searchQuery" :placeholder="placeholder" class="pr-10" :debounce="debounce"
-      @update:model-value="onSearch" @keydown="handleKeydown" ref="inputRef">
+    <BaseInput ref="searchRef" v-model="searchQuery" :placeholder="placeholder" class="pr-4" :debounce="debounce"
+      @update:model-value="onSearch" @keydown="handleKeydown" @ready="handleReady">
       <template #append>
         <i :class="[isLoading ? 'ri-loader-4-line animate-spin' : 'ri-search-line', 'text-secondary-400']"></i>
       </template>
@@ -12,7 +12,7 @@
       enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150"
       leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
       <div v-if="showResults"
-        class="absolute z-10 mt-1 w-full bg-white dark:bg-dark-700 rounded-md shadow-lg max-h-60 overflow-auto border border-secondary-200 dark:border-secondary-700">
+        class="absolute z-10 mt-1 w-full bg-white dark:bg-dark-700 rounded-md shadow-lg max-h-80 overflow-auto border border-secondary-200 dark:border-secondary-700">
         <div v-if="isLoading" class="p-4 text-center text-secondary-500 dark:text-secondary-400">
           <div class="flex justify-center items-center space-x-2">
             <i class="ri-loader-4-line animate-spin text-xl"></i>
@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, nextTick } from 'vue'
+import { ref, watch, computed, nextTick, onMounted } from 'vue'
 // import BaseInput from '@/components/ui/BaseInput.vue'
 import { api } from '@/services/api'
 
@@ -126,7 +126,7 @@ const emit = defineEmits(['update:modelValue', 'search', 'select', 'add-new', 'i
 
 const searchQuery = ref(props.modelValue)
 const showResults = ref(false)
-const inputRef = ref(null)
+const searchRef = ref(null)
 const internalLoading = ref(false)
 const internalItems = ref([])
 // Tambahkan state untuk melacak item yang dipilih
@@ -143,6 +143,12 @@ const isLoading = computed(() => {
   return props.useApi ? internalLoading.value : props.loading
 })
 
+
+const handleReady = () => {
+  focus()
+}
+
+
 // Watch for external changes to modelValue
 watch(() => props.modelValue, (newValue) => {
   searchQuery.value = newValue
@@ -152,14 +158,14 @@ watch(() => props.modelValue, (newValue) => {
 watch(searchQuery, (newValue) => {
   emit('update:modelValue', newValue)
   if (!newValue) {
-    showResults.value = false
+    // showResults.value = false
   }
 })
 
 // Watch for changes in items to ensure smooth transitions
 watch(() => props.items, () => {
   if (searchQuery.value.length >= props.minSearchLength) {
-    showResults.value = true
+    // showResults.value = true
   }
 }, { deep: true })
 
@@ -235,18 +241,18 @@ const getItemLabel = (item) => {
 
 // Fungsi untuk memfokuskan input
 const focus = () => {
-  if (inputRef.value && inputRef.value.$el) {
-    // Jika inputRef adalah komponen (BaseInput), coba akses elemen input di dalamnya
-    const inputElement = inputRef.value.$el.querySelector('input')
+  if (searchRef.value && searchRef.value.$el) {
+    // Jika searchRef adalah komponen (BaseInput), coba akses elemen input di dalamnya
+    const inputElement = searchRef?.value?.$el.querySelector('input')
     if (inputElement) {
-      inputElement.focus()
+      inputElement?.focus()
       return
     }
   }
 
-  // Fallback: coba fokus langsung jika inputRef adalah elemen DOM
-  if (inputRef.value && typeof inputRef.value.focus === 'function') {
-    inputRef.value.focus()
+  // Fallback: coba fokus langsung jika searchRef adalah elemen DOM
+  if (searchRef.value && typeof searchRef.value.focus === 'function') {
+    searchRef.value.focus()
   }
 }
 
@@ -258,11 +264,14 @@ const closeDropdown = () => {
 // Tambahkan handler keyboard
 const handleKeydown = (event) => {
   // Jika dropdown tidak ditampilkan dan tombol panah bawah ditekan, tampilkan dropdown
+
+
   if (!showResults.value) {
     if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      event.stopPropagation()
       if (searchQuery.value.length >= props.minSearchLength) {
         showResults.value = true
-        event.preventDefault()
       }
     }
     return
@@ -274,6 +283,7 @@ const handleKeydown = (event) => {
     case 'ArrowDown':
       // Navigasi ke bawah
       event.preventDefault()
+      event.stopPropagation()
       if (items.length > 0) {
         selectedIndex.value = (selectedIndex.value + 1) % items.length
         scrollToSelectedItem()
@@ -282,6 +292,7 @@ const handleKeydown = (event) => {
     case 'ArrowUp':
       // Navigasi ke atas
       event.preventDefault()
+      event.stopPropagation()
       if (items.length > 0) {
         selectedIndex.value = selectedIndex.value <= 0 ? items.length - 1 : selectedIndex.value - 1
         scrollToSelectedItem()
@@ -290,6 +301,7 @@ const handleKeydown = (event) => {
     case 'Enter':
       // Pilih item yang dipilih
       event.preventDefault()
+      event.stopPropagation()
 
       if (items.length === 1) {
         onItemSelect(items[0])
@@ -318,8 +330,11 @@ const scrollToSelectedItem = () => {
 }
 
 // Reset selectedIndex saat hasil pencarian berubah
-watch(displayItems, () => {
+watch(displayItems, (newVal, oldVal) => {
   selectedIndex.value = -1
+  // if (!showResults.value || !oldVal.length) {
+  //   selectedIndex.value = -1
+  // }
 })
 
 // Reset selectedIndex saat dropdown ditutup

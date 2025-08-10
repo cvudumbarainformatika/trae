@@ -121,10 +121,6 @@ export const useSalesFormWitTabsStore = defineStore('salesFormWitTabs', {
         // console.log('tab > 0');
         this.activeTab = this.tabs[this.tabs.length - 1].unique_code
       }
-      // else {
-      //   // console.log('tab = 0');
-      //   this.generateTabBaru()
-      // }
     },
 
 
@@ -145,7 +141,7 @@ export const useSalesFormWitTabsStore = defineStore('salesFormWitTabs', {
 
         return
       }
-      this.isiTab.items.push(item)
+      this.isiTab.items.unshift(item)
     },
     updateItem(index, item) {
       this.isiTab.items[index] = item
@@ -188,6 +184,12 @@ export const useSalesFormWitTabsStore = defineStore('salesFormWitTabs', {
         item.subtotal = (item.price || 0) * item.qty
         this.updateItem(index, item)
       }
+    },
+
+    updateItemSubtotal(index) {
+      const item = this.isiTab.items[index];
+      item.subtotal = (item.price || 0) * (item.qty || 1);
+      this.updateItem(index, item);
     },
 
     simpanPenjualan() {

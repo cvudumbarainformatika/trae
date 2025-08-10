@@ -62,10 +62,15 @@ export const useAuthStore = defineStore('auth-store', {
       // } catch (error) {
       //   console.error('Logout error:', error)
       // } finally {
+
+
         this.loading = false
         this.user = null
         this.token = null
         this.isAuthenticated = false
+
+        localStorage?.removeItem('auth-store')
+        localStorage?.removeItem('salesFormWitTabs')
       // }
 
 

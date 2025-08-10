@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 const inputRef = ref(null)
 
@@ -50,7 +50,12 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'clear'])
+const emit = defineEmits(['update:modelValue', 'clear', 'ready'])
+defineExpose({ inputRef })
+
+onMounted(() => {
+  emit('ready') // kasih tahu parent kalau input sudah siap
+})
 
 const inputClasses = computed(() => {
   return [
@@ -101,7 +106,7 @@ const formattedRupiah = computed(() => {
 
     <div class="relative">
       <input ref="inputRef" :type="type" :value="modelValue" @input="handleInput" :placeholder="placeholder"
-        :disabled="disabled" :required="required"
+        :disabled="disabled" :required="required" v-bind="$attrs"
         :class="[inputClasses, clearable && 'pr-10 text-gray-700 dark:text-gray-300']">
 
       <div v-if="clearable && modelValue" class="absolute inset-y-0 right-0 flex items-center pr-3">
