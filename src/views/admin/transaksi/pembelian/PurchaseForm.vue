@@ -168,7 +168,11 @@
                   </th>
                   <th scope="col"
                     class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[15%]">
-                    Jumlah
+                    Jml Toko
+                  </th>
+                  <th scope="col"
+                    class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[15%]">
+                    Jml Gudang
                   </th>
                   <th scope="col"
                     class="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-[20%]">
@@ -203,6 +207,10 @@
                   </td>
                   <td class="px-3 py-4 whitespace-nowrap text-right w-[15%]">
                     <BaseInput v-model.number="item.quantity" type="number" min="1" class="w-full text-right"
+                      @input="store.updateItemSubtotal(index)" />
+                  </td>
+                  <td class="px-3 py-4 whitespace-nowrap text-right w-[15%]">
+                    <BaseInput v-model.number="item.quantityGudang" type="number" min="1" class="w-full text-right"
                       @input="store.updateItemSubtotal(index)" />
                   </td>
                   <td class="px-3 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white w-[20%]">
@@ -263,15 +271,20 @@
                       @input="store.updateItemSubtotal(index)" />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Jumlah</label>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Jml Toko</label>
                     <BaseInput v-model.number="item.quantity" type="number" min="1" class="w-full text-right"
+                      @input="store.updateItemSubtotal(index)" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Jml Gudang</label>
+                    <BaseInput v-model.number="item.quantityGudang" type="number" min="1" class="w-full text-right"
                       @input="store.updateItemSubtotal(index)" />
                   </div>
                 </div>
 
                 <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
                   <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Subtotal:</span>
-                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(item.subtotal)
+                  <span class="text-sm font-medium text-gray-900 dark:text-white">{{ formatCurrency(item?.subtotal)
                     }}</span>
                 </div>
               </div>
@@ -295,7 +308,7 @@
             <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
               <div class="flex justify-between text-sm">
                 <span class="text-gray-600 dark:text-gray-400">Total Item:</span>
-                <span class="text-gray-900 dark:text-white font-medium">{{ store.calculateTotalQuantity() }}</span>
+                <span class="text-gray-900 dark:text-white font-medium">{{ store.calculateTotalItem() }}</span>
               </div>
               <div class="flex justify-between text-sm">
                 <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
@@ -610,7 +623,7 @@ const handleSubmit = async () => {
     }
 
     // Jika validasi berhasil, submit form
-    console.log('Form valid, submitting...')
+    // console.log('Form valid, submitting...')
     const response = await store.submitForm()
 
     notify({
@@ -791,7 +804,7 @@ const handleBarcodeScan = (barcode) => {
 // Handler untuk event items-loaded
 const onProductsLoaded = (products) => {
   // Jika hanya ada satu produk dan itu hasil dari scan barcode, tambahkan langsung
-  if (products && products.length === 1 && productSearch.value.length > 5) {
+  if (products && products.length === 1 && productSearch.value.length > 2) {
     store.addProduct(products[0])
     productSearch.value = ''
   }
@@ -828,7 +841,7 @@ const handleProductSelect = (product) => {
 // Lifecycle hooks
 onMounted(async () => {
 
-  console.log('route', route.params.id);
+  // console.log('route', route.params.id);
 
 
   // Cek apakah ada parameter purchaseOrderId di URL

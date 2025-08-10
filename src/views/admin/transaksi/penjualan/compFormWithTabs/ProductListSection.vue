@@ -53,7 +53,7 @@
             <td class="px-3 py-4 whitespace-nowrap text-right w-[25%]">
               <span class="text-sm font-semibold text-gray-900 dark:text-white">{{
                 formatRupiah(getItemPrice(item?.product))
-                }}</span>
+              }}</span>
             </td>
             <td class="px-3 py-4 whitespace-nowrap text-right w-[15%]">
               <div class="flex items-center justify-end gap-2">
@@ -217,7 +217,7 @@ function handleAddProduct(product, qty) {
     subtotal: getItemPrice(product) * qty,
   }
 
-  console.log('item', item);
+  // console.log('item', item);
 
   store.addItem(item)
 }

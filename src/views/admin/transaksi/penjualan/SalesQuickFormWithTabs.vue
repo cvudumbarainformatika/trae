@@ -124,18 +124,25 @@ function handleSubmit(val) {
   handlePayment(val)
     .then(() => {
       if (printRef.value?.printAreaRef) {
-        printReceiptElement(printRef.value.printAreaRef, () => {
+        printReceiptElement(printRef.value.printAreaRef, async () => {
           console.log('print selesai');
 
           printing.value = false
           isiPrint.value = null
-          productListSectionRef?.value?.focus?.()
+          // pastikan render sudah selesai
+          await nextTick()
+          setTimeout(() => {
+            productListSectionRef?.value?.focus?.()
+          }, 50)
         })
         // .then(() => {
         // console.log('print selesai with then', isiPrint.value);
 
         printing.value = false
         isiPrint.value = null
+        setTimeout(() => {
+          productListSectionRef?.value?.focus?.()
+        }, 50)
         // })
 
       }

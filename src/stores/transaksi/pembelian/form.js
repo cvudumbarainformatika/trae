@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore, acceptHMRUpdate } from 'pinia'
 import { api } from '@/services/api'
 
 export const usePurchaseFormStore = defineStore('purchaseForm', {
@@ -76,19 +76,22 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
 
     // Method untuk menambahkan produk
     addProduct(product) {
+
+      // console.log('🔥 addProduct dipanggil', product);
       if (!product || !product.id) return;
 
       const newItem = {
         product_id: product.id,
         product: product,
         quantity: 1,
+        quantityGudang: 0,
         price: product.hargabeli || 0,
         subtotal: product.hargabeli || 0,
         is_additional: this.form.purchase_order_id ? true : false // Tandai sebagai item tambahan jika dari PO
       };
 
       // Cek apakah produk sudah ada di daftar
-      const existingIndex = this.form.items.findIndex(item => item.product_id === product.id);
+      const existingIndex = this.form.items.findIndex(item => item?.product_id === product?.id);
 
       if (existingIndex >= 0) {
         // Update quantity jika sudah ada
@@ -96,8 +99,10 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
         this.updateItemSubtotal(existingIndex);
       } else {
         // Tambahkan item baru
-        this.form.items.push(newItem);
+        this.form.items.unshift(newItem);
       }
+
+      // console.log('🔥 item dipanggil', this.form.items);
 
       this.isDirty = true;
     },
@@ -105,7 +110,7 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
     // Method untuk memperbarui subtotal item
     updateItemSubtotal(index) {
       const item = this.form.items[index];
-      item.subtotal = item.price * item.quantity;
+      item.subtotal = item.price * (item.quantity + item.quantityGudang);
     },
 
     // Method untuk menghapus item
@@ -162,9 +167,9 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       this.validationErrors = []
 
       if (shouldKeepPurchaseOrderId) {
-        console.log('Form reset, purchase_order_id preserved:', this.form.purchase_order_id)
+        // console.log('Form reset, purchase_order_id preserved:', this.form.purchase_order_id)
       } else {
-        console.log('Form reset, purchase_order_id cleared')
+        // console.log('Form reset, purchase_order_id cleared')
       }
     },
 
@@ -174,12 +179,16 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       return this.form.items.reduce((total, item) => {
         const price = parseFloat(item.price || 0)
         const quantity = parseFloat(item.quantity || 0)
-        return total + (price * quantity)
+        const gudang = parseFloat(item.quantityGudang || 0)
+        return total + (price * (quantity + gudang))
       }, 0)
     },
 
     calculateTotalQuantity() {
-      return this.form.items.reduce((total, item) => total + (item.quantity || 0), 0)
+      return this.form.items.reduce((total, item) => total + ((item.quantity || 0) + (item.quantityGudang || 0)), 0)
+    },
+    calculateTotalItem() {
+      return this.form?.items?.length || 0
     },
 
     calculateGrandTotal() {
@@ -336,6 +345,7 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
             const itemData = {
               product_id: item.product_id,
               qty: item.quantity, // Ubah dari quantity menjadi qty sesuai ekspektasi backend
+              qty_gudang: item.quantityGudang,
               price: item.price
             }
 
@@ -548,7 +558,7 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
           is_additional: false // Tandai sebagai item dari PO
         }));
 
-        console.log('Loaded PO data, purchase_order_id set to:', this.form.purchase_order_id);
+        // console.log('Loaded PO data, purchase_order_id set to:', this.form.purchase_order_id);
 
         this.isDirty = false;
         return true;
@@ -564,7 +574,7 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
     clearPurchaseOrderId() {
       this.form.purchase_order_id = null
       this.purchaseOrderData = null
-      console.log('purchase_order_id cleared')
+      // console.log('purchase_order_id cleared')
     },
 
     // Ensure correct data types before submitting
@@ -584,3 +594,8 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
     }
   }
 })
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(usePurchaseFormStore, import.meta.hot))
+
+}

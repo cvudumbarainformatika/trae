@@ -266,7 +266,7 @@ function onCurrencyInput(field, event) {
 }
 
 function submit() {
-  console.log('submit', form.value);
+  // console.log('submit', form.value);
 
   emit('submit', { ...form.value, total: totalBayar.value, kembali: kembali.value })
   // emit('close')
@@ -283,7 +283,7 @@ function triggerShake() {
 }
 
 onMounted(() => {
-  console.log('props', props.item);
+  // console.log('props', props.item);
   initForm()
 
   nextTick(() => bayarRef.value?.focus())
@@ -311,7 +311,7 @@ watch(
           form.value.dp = 0
           form.value.tempo = 0
           form.value.pembayaran = totalBayar.value
-          console.log('totalBayar', totalBayar.value);
+          // console.log('totalBayar', totalBayar.value);
 
         }
       } else if (val === 'credit' && dpRef.value) {

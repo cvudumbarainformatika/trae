@@ -71,6 +71,10 @@ export const useAuthStore = defineStore('auth-store', {
 
         localStorage?.removeItem('auth-store')
         localStorage?.removeItem('salesFormWitTabs')
+        localStorage?.removeItem('company-store')
+        localStorage?.removeItem('order')
+        localStorage?.removeItem('penerimaan')
+        localStorage?.removeItem('satuan')
       // }
 
 
