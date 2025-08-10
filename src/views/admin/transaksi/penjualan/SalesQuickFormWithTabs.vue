@@ -27,9 +27,9 @@
             <ProductListSection ref="productListSectionRef" :isi-tab="isiTab" />
           </div>
           <div class="col-span-3 rounded shadow space-y-4">
-            <!-- <RiwayatPenjualan ref="riwayatPenjualanRef" /> -->
             <!-- <CustomerAndKasirSection ref="customerAndKasirSectionRef" /> -->
             <InfoPenjualan ref="infoPenjualanRef" />
+            <RiwayatPenjualan ref="riwayatPenjualanRef" />
           </div>
         </div>
       </template>
@@ -58,7 +58,7 @@ import InfoPenjualan from './compFormWithTabs/InfoPenjualan.vue';
 
 
 const CustomerAndKasirSection = defineAsyncComponent(() => import('./compFormWithTabs/CustomerAndKasirSection.vue'));
-// const RiwayatPenjualan = defineAsyncComponent(() => import('./compFormWithTabs/RiwayatPenjualan.vue'));
+const RiwayatPenjualan = defineAsyncComponent(() => import('./compFormWithTabs/RiwayatPenjualan.vue'));
 // const ProductListSection = defineAsyncComponent(() => import('./compFormWithTabs/ProductListSection.vue'));
 const PaymentModal = defineAsyncComponent(() => import('./compFormWithTabs/PaymentModal.vue'));
 const StrukPenjualan = defineAsyncComponent(() => import('./compFormWithTabs/StrukPenjualan.vue'));
@@ -102,7 +102,22 @@ function handleKeydown(e) {
     e.preventDefault() // Hindari efek default browser
     store.simpanPenjualan()
     // }
-  }
+  } else if (e.ctrlKey) {
+    if (e.key === '1') {
+      e.preventDefault()
+      // console.log('cc', store.isiTab);
+      store.isiTab.category = 'umum'
+      // jenisPenjualan.value = 'umum'
+    }
+    if (e.key === '2') {
+      e.preventDefault()
+      store.isiTab.category = 'pelanggan'
+    }
+    if (e.key === '3') {
+      e.preventDefault()
+      store.isiTab.category = 'antar'
+    }
+  }// F3
 }
 
 function handleSubmit(val) {

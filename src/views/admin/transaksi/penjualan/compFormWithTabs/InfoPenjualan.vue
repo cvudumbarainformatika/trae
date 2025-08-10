@@ -24,9 +24,12 @@
           </span>
         </div>
         <div
-          class="justify-center p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
+          class="justify-center p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm space-y-2">
           <div class=" text-xs text-primary-600 dark:text-primary-400 tracking-widest">[F1] Tab Penjualan Baru</div>
           <div class=" text-xs text-primary-600 dark:text-primary-400 tracking-widest">[F2] Pembayaran</div>
+          <div class=" text-xs text-primary-600 dark:text-primary-400 tracking-widest">[CTRL + 1] Penjualan Umum</div>
+          <div class=" text-xs text-primary-600 dark:text-primary-400 tracking-widest">[CTRL + 2] Penjualan Member</div>
+          <div class=" text-xs text-primary-600 dark:text-primary-400 tracking-widest">[CTRL + 3] Penjualan Antar</div>
         </div>
       </div>
     </div>
