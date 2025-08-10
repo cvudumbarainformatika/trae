@@ -472,6 +472,7 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
 
     // Set from page
     setFromPage(from) {
+      // console.log('Setting from page:', from)
       this.fromPage = from
     },
 
@@ -506,6 +507,7 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
           product: item.product,
           price: item.price,
           quantity: item.received_quantity || item.quantity,
+          quantityGudang: 0,
           subtotal: (item.price * (item.received_quantity || item.quantity)),
           purchase_order_item_id: item.id, // Tambahkan purchase_order_item_id
           is_additional: false // Item dari PO bukan item tambahan
