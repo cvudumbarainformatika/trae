@@ -10,13 +10,28 @@ import ProductTable from '@/components/admin/products/ProductTable.vue'
 import { useCategoryStore } from '@/stores/admin/category'
 import { useNotification } from '@/composables/useNotification'
 
+
+const props = defineProps({
+  mode: {
+    type: String,
+    default: null
+  }
+})
+
+
 // Store initialization
 const productStore = useProductStore()
 const form = useProductFormStore()
 const satuanStore = useSatuanStore()
 const categoryStore = useCategoryStore()
 
+
+
+
 onMounted(() => {
+  // jika mode diganti gudang || null(toko), maka reset mode
+  productStore.setMode(props.mode)
+
   Promise.all([
     satuanStore.fetchSatuans(),
     productStore.resetFilters(),
@@ -24,6 +39,14 @@ onMounted(() => {
     productStore.fetchProducts()
   ])
 })
+
+watch(() => props.mode, (newMode) => {
+  console.log('newMode', newMode);
+
+  // if (newMode) {
+  productStore.setMode(newMode)
+  // }
+}, { immediate: true }, { deep: true })
 
 // Computed properties from store
 const viewMode = computed(() => productStore.viewMode)
@@ -100,7 +123,7 @@ const setViewMode = (mode) => {
 </script>
 
 <template>
-  <BasePage title="Product Management">
+  <BasePage :title="mode === 'gudang' ? 'Data Produk Gudang' : 'Management Produk Toko'">
 
     <!-- Filters and Search Section -->
     <div class="flex-1 flex overflow-hidden w-full space-y-4 relative">
@@ -238,7 +261,7 @@ const setViewMode = (mode) => {
           <!-- Grid View -->
           <div v-if="viewMode === 'grid'" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5  gap-4 mb-16">
             <template v-if="getPageItems?.length > 0">
-              <ProductCard v-for="(product, i) in getPageItems" :key="product?.id" :product="product"
+              <ProductCard v-for="(product, i) in getPageItems" :key="product?.id" :product="product" :mode="mode"
                 :search-query="searchQuery" v-html-safe="{
                   data: {
                     name: product.name,
@@ -268,7 +291,7 @@ const setViewMode = (mode) => {
           <!-- Table View -->
           <div v-else class="w-full">
             <template v-if="getPageItems?.length > 0">
-              <ProductTable :products="getPageItems" :search-query="searchQuery" @edit="handleEditProduct"
+              <ProductTable :products="getPageItems" :mode="mode" :search-query="searchQuery" @edit="handleEditProduct"
                 @delete="showDeleteConfirm" />
             </template>
             <NoData v-else title="Belum Ada Data Product" description="Tidak ditemukan data pada system kami"

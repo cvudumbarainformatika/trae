@@ -9,14 +9,19 @@ const props = defineProps({
   product: {
     type: Object,
     required: true
+  },
+  mode: {
+    type: String,
+    default: null
   }
 })
 
 const emit = defineEmits(['edit', 'delete'])
 
 const stockStatus = computed(() => {
-  if (props.product.stock_akhir <= 0) return 'out-of-stock'
-  if (props.product.stock_akhir <= props.product.minstock && props.product.stock_akhir > 0) return 'low-stock'
+  const stock = props.mode === 'gudang' ? props.product.stock_akhir_gudang : props.product.stock_akhir
+  if (stock <= 0) return 'out-of-stock'
+  if (stock <= props.product.minstock && stock > 0) return 'low-stock'
   return 'in-stock'
 })
 
@@ -78,10 +83,10 @@ const stockStatusClass = computed(() => {
             </div> -->
             <div class="flex items-center justify-between w-full">
               <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                St : {{ product.stock_akhir }}
+                St : {{ mode === 'gudang' ? product?.stock_akhir_gudang || 0 : product?.stock_akhir || 0 }}
               </div>
               <div class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                MS : {{ product.minstock }}
+                MS : {{ product?.minstock }}
               </div>
             </div>
           </div>

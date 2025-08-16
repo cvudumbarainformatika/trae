@@ -9,8 +9,14 @@ import users from './settings/user'
 import akses from './settings/akses'
 import company from './settings/company'
 import stock from './settings/stock'
+
+
+import products from './gudangs/products'
+
 export {
   supplier, product,
   stockopname,
-  users,akses, company, stock
+  users,akses, company, stock,
+
+  products
 }

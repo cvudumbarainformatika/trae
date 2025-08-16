@@ -25,6 +25,7 @@ export const useProductStore = defineStore('product', {
         max: null
       },
       status: 'all',
+      mode: null,
       category_id: null,
       satuan_id: null,
       sort_by: null,
@@ -120,6 +121,9 @@ export const useProductStore = defineStore('product', {
   actions: {
     setViewMode(mode) {
       this.viewMode = mode
+    },
+    setMode(mode) {
+      this.filters.mode = mode
     },
 
     setFilter(name,value) {

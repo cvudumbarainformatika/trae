@@ -14,6 +14,10 @@ const props = defineProps({
   searchQuery: {
     type: String,
     default: ''
+  },
+  mode: {
+    type: String,
+    default: null
   }
 })
 
@@ -43,8 +47,9 @@ const getStockStatusClass = (status) => {
 }
 
 const getStockStatus = (product) => {
-  if (product.stock_akhir <= 0) return 'out-of-stock'
-  if (product.stock_akhir <= product.minstock && product.stock_akhir > 0) return 'low-stock'
+  const stock = props.mode === 'gudang' ? product?.stock_akhir_gudang || 0 : product?.stock_akhir || 0
+  if (stock <= 0) return 'out-of-stock'
+  if (stock <= product.minstock && stock > 0) return 'low-stock'
   return 'in-stock'
 }
 
@@ -121,7 +126,8 @@ const formatCurrency = (value) => {
                 }}</div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap text-right">
-              <div class="truncate">{{ product.stock_akhir }}</div>
+              <div class="truncate">{{ mode === 'gudang' ? product?.stock_akhir_gudang || 0 : product?.stock_akhir || 0
+                }}</div>
             </td>
             <td class="px-6 py-4 lg:whitespace-nowrap">
               <span
@@ -160,12 +166,12 @@ const formatCurrency = (value) => {
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ product.category }}</p>
             </div>
             <div class="inline-flex items-center text-sm font-semibold text-gray-900 dark:text-white">
-              {{ formatCurrency(product.regularPrice) }}
+              {{ formatCurrency(product?.regularPrice) }}
             </div>
           </div>
           <div class="mt-4 flex items-center justify-between">
             <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(getStockStatus(product))]">
-              {{ getStockStatus(product) }} ({{ product.currentStock }})
+              {{ getStockStatus(product) }} ({{ product?.currentStock }})
             </span>
 
 
