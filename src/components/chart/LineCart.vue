@@ -26,7 +26,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="w-full h-64">
+  <div class="w-full h-80">
     <Line :data="chartData" :options="chartOptions" />
   </div>
 </template>

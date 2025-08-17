@@ -7,6 +7,8 @@ export function useInactivityLogout(timeout = 1 * 60 * 60 * 1000) { // default: 
 
   const router = useRouter()
 
+
+
   const resetTimer = () => {
     // console.log('reset timer');
 
@@ -22,6 +24,14 @@ export function useInactivityLogout(timeout = 1 * 60 * 60 * 1000) { // default: 
   const events = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart']
 
   const setup = () => {
+
+    // const auth = useAuthStore()
+
+    // if (!auth.token) {
+    //   router.push('/login')
+    // }
+
+
     events.forEach(event => {
       window.addEventListener(event, resetTimer)
     })

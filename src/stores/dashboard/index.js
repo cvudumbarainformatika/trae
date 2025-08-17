@@ -7,6 +7,10 @@ export const useDashboardStore = defineStore('dashboard', {
     pembelian: null,
 
     cartPenjualan: null,
+    cartPembelian: null,
+    topProductSales: null,
+    datasetSalesDaily: null,
+    datasetPurchasesWeekly: null,
     activity: [],
     loading: false,
 
@@ -43,6 +47,19 @@ export const useDashboardStore = defineStore('dashboard', {
         this.loading = false
       }
     },
+    async fetchCartPembelian() {
+      this.loading = true
+      try {
+        const response = await api.get('api/v1/dashboard/cart-pembelian')
+        console.log('response', response);
+
+        this.cartPembelian = response?.data
+      } catch (error) {
+        console.error(error)
+      } finally {
+        this.loading = false
+      }
+    },
     async fetchPembelian() {
       this.loading = true
       try {
@@ -50,6 +67,46 @@ export const useDashboardStore = defineStore('dashboard', {
         // console.log('response', response);
 
         this.pembelian = response?.data
+      } catch (error) {
+        console.error(error)
+      } finally {
+        this.loading = false
+      }
+    },
+    async fetchTopProductSales() {
+      this.loading = true
+      try {
+        const response = await api.get('api/v1/dashboard/top-product-sales')
+        // console.log('response', response);
+
+        this.topProductSales = response?.data
+      } catch (error) {
+        console.error(error)
+      } finally {
+        this.loading = false
+      }
+    },
+    async fetchSalesDaily() {
+      this.loading = true
+      try {
+        const response = await api.get('api/v1/dashboard/metrics/sales-daily')
+        // console.log('fetchSalesDaily', response);
+
+        this.datasetSalesDaily = response?.data
+      } catch (error) {
+        console.error(error)
+      } finally {
+        this.loading = false
+      }
+    },
+    async fetchPurchasesWeekly() {
+      this.loading = true
+      try {
+        const response = await api.get('api/v1/dashboard/metrics/purchases-weekly')
+        console.log('fetchPurchasesWeekly', response);
+
+        // this.topProductSales = response?.data
+        this.datasetPurchasesWeekly = response?.data
       } catch (error) {
         console.error(error)
       } finally {
@@ -68,7 +125,9 @@ export const useDashboardStore = defineStore('dashboard', {
       } finally {
         this.loading = false
       }
-    }
+    },
+
+
   }
 })
 

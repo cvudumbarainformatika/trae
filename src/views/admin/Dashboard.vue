@@ -1,8 +1,5 @@
 <script setup>
 import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
-// import { Line } from 'vue-chartjs'
-// import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
-// import LazyLineChart from '@/components/chart/LazyLineCart.vue'
 
 import { useThemeStore } from '../../stores/theme'
 import { formatRupiah } from '../../utils/uangHelper'
@@ -13,11 +10,15 @@ import { useDashboardStore } from '../../stores/dashboard'
 const LineCart = defineAsyncComponent(() =>
   import('@/components/chart/LineCart.vue')
 )
+const BarChart = defineAsyncComponent(() =>
+  import('@/components/chart/BarCart.vue')
+)
+
+const DoughnutCart = defineAsyncComponent(() =>
+  import('@/components/chart/DoughnutCart.vue')
+)
 
 const store = useDashboardStore()
-
-
-// ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const themeStore = useThemeStore()
 
@@ -44,12 +45,33 @@ const bgClasses = [
 const randomIndex = ref(0)
 
 onMounted(() => {
+
+
+
   Promise.all([
     store.fetchPenjualan(),
     store.fetchPembelian(),
     store.fetchActivity(),
     store.fetchCartPenjualan(),
+    store.fetchCartPembelian(),
+    store.fetchTopProductSales()
+      .then(() => {
+        // console.log('fetch done');
+        topProductsData.value.labels = store.topProductSales?.map(p => p?.name)
+        topProductsData.value.datasets[0].data = store.topProductSales?.map(p => p?.total_qty)
+        // console.log('topProductsData', topProductsData.value);
+
+
+        const top5 = store?.topProductSales?.slice(0, 5) || [] // 🔥 ambil hanya 5 pertama
+        doughnutData.value.labels = top5?.map(p => p?.name)
+        doughnutData.value.datasets[0].data = top5?.map(p => p?.total_qty)
+
+      })
+    ,
+    store.fetchSalesDaily(),
+    store.fetchPurchasesWeekly()
   ])
+
 
   const index = Math.floor(Math.random() * bgClasses.length)
 
@@ -76,6 +98,26 @@ const chartData = computed(() => {
   }
 })
 
+const chartDataPembelian = computed(() => {
+  const labels = store?.cartPembelian?.labels || []
+  // console.log('labels', labels);
+
+  const data = store?.cartPembelian?.datasets[0]?.data || []
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: store?.cartPembelian?.datasets[0]?.label || 'Pembelian',
+        data,
+        borderColor: 'oklch(70.5% 0.213 47.604)',
+        tension: 0.3,
+        fill: false
+      }
+    ]
+  }
+})
+
 
 const chartOptions = {
   responsive: true,
@@ -92,6 +134,65 @@ const chartOptions = {
   }
 }
 
+
+const chartPembelianOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top'
+    },
+    title: {
+      display: true,
+      text: 'Grafik Pembelian'
+    }
+  }
+}
+
+
+const topProductsData = ref({
+  labels: [],
+  datasets: [
+    {
+      label: 'Jumlah Terjual',
+      data: [],
+      backgroundColor: [
+        '#3b82f6', // biru
+        '#22c55e', // hijau
+        '#ef4444', // merah
+        '#f59e0b', // kuning
+        '#8b5cf6', // ungu
+        '#14b8a6',  // teal
+        'oklch(55.4% 0.046 257.417)',  // gray
+        'oklch(55.4% 0.046 257.417)',  // gray
+        'oklch(55.4% 0.046 257.417)',  // gray
+        'oklch(55.4% 0.046 257.417)',  // gray
+      ],
+    }
+  ]
+})
+
+const doughnutData = ref({
+  labels: [],
+  datasets: [
+    {
+      label: 'Penjualan',
+      data: [],
+      backgroundColor: [
+        '#3b82f6', // biru
+        '#22c55e', // hijau
+        '#ef4444', // merah
+        '#f59e0b', // kuning
+        '#8b5cf6', // ungu
+        '#14b8a6'  // teal
+      ],
+      borderWidth: 1
+    }
+  ]
+})
+
+
 </script>
 
 <template>
@@ -104,7 +205,7 @@ const chartOptions = {
       </BaseButton>
     </div>
 
-    <div class="flex-1 h-full space-y-4 overflow-y-auto">
+    <div class="flex-1 h-full space-y-6 overflow-y-auto">
       <!-- Stats Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card v-for="(stat, index) in stats" :key="index">
@@ -118,61 +219,13 @@ const chartOptions = {
         </Card>
       </div>
 
-      <!-- Recent Activity -->
-      <Card class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Activity</h2>
-        <div class="space-y-4">
-          <div v-for="item in store.activity" :key="item.id" class="flex items-center space-x-4">
-            <div class="flex-shrink-0">
-              <div class="h-8 w-8 rounded-full flex items-center justify-center text-white"
-                :class="[bgClasses[Math.floor(Math.random() * store.activity.length)]]">
-                {{ item?.user?.name?.charAt(0) || 'A' }}
-              </div>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ item?.user?.name }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ item?.action }} <i class="text-gray-600">({{
-                formatWaktuLalu(item?.created_at) }}) </i></p>
-            </div>
-          </div>
 
-
-        </div>
-      </Card>
 
       <!-- Charts Section -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="Sales Overview">
-          <div class="h-64">
-            <!-- <Line :data="{
-              labels: store?.cartPenjualan?.labels || [],
-              datasets: [{
-                label: store?.cartPenjualan?.datasets[0]?.label || '',
-                data: store?.cartPenjualan?.datasets[0]?.data || [],
-                borderColor: '#3B82F6',
-                tension: 0.1
-              }]
-            }" :options="{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  labels: {
-                    color: '#9CA3AF'
-                  }
-                }
-              },
-              scales: {
-                y: {
-                  ticks: { color: '#9CA3AF' },
-                  grid: { color: '#374151' }
-                },
-                x: {
-                  ticks: { color: '#9CA3AF' },
-                  grid: { color: '#374151' }
-                }
-              }
-            }" /> -->
+        <Card title="Grafik Penjualan per Bulan">
+          <div class="h-80">
+
             <div v-if="chartData?.labels?.length">
               <LineCart :chart-data="chartData" :chart-options="chartOptions" />
             </div>
@@ -181,32 +234,101 @@ const chartOptions = {
             </div>
           </div>
         </Card>
+        <Card title="Grafik Pembelian per Bulan">
+          <div class="h-80">
 
-        <Card title="Tasks">
-          <div class="space-y-3">
-            <div class="flex items-center">
-              <input type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600">
-              <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Review new orders</span>
-              <span class="ml-auto text-xs text-gray-500">Today</span>
+            <div v-if="chartDataPembelian?.labels?.length">
+              <LineCart :chart-data="chartDataPembelian" :chart-options="chartPembelianOptions" />
             </div>
-            <div class="flex items-center">
-              <input type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600" checked>
-              <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Update inventory</span>
-              <span class="ml-auto text-xs text-gray-500">Yesterday</span>
-            </div>
-            <div class="flex items-center">
-              <input type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600">
-              <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Prepare monthly report</span>
-              <span class="ml-auto text-xs text-gray-500">Tomorrow</span>
-            </div>
-            <div class="flex items-center">
-              <input type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600">
-              <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">Contact suppliers</span>
-              <span class="ml-auto text-xs text-gray-500">Next week</span>
+            <div v-else class="text-center text-gray-400 text-sm py-8">
+              Belum ada data grafik untuk ditampilkan
             </div>
           </div>
         </Card>
+
+
       </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Recent Activity -->
+        <Card class="col-span-1 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Activity</h2>
+          <div class="space-y-4">
+            <div v-for="item in store.activity" :key="item.id" class="flex items-center space-x-4">
+              <div class="flex-shrink-0">
+                <div class="h-8 w-8 rounded-full flex items-center justify-center text-white"
+                  :class="[bgClasses[Math.floor(Math.random() * store.activity.length)]]">
+                  {{ item?.user?.name?.charAt(0) || 'A' }}
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ item?.user?.name }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ item?.action }} <i class="text-gray-600">({{
+                  formatWaktuLalu(item?.created_at) }}) </i></p>
+              </div>
+            </div>
+
+
+          </div>
+        </Card>
+
+
+        <Card title="Top 10 Products Terlaris Bulan Ini">
+          <div class="h-96">
+
+            <div v-if="topProductsData?.labels?.length">
+              <BarChart :chart-data="topProductsData" />
+            </div>
+            <div v-else class="text-center text-gray-400 text-sm py-8">
+              Belum ada data untuk ditampilkan
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Top 5 Products Terlaris Bulan Ini">
+          <div class="h-96">
+
+            <div v-if="doughnutData?.labels?.length">
+              <DoughnutCart :chart-data="doughnutData" />
+            </div>
+            <div v-else class="text-center text-gray-400 text-sm py-8">
+              Belum ada data untuk ditampilkan
+            </div>
+          </div>
+        </Card>
+
+      </div>
+
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card title="Grafik Penjualan Harian (12 Hari terakhir)">
+          <div class="h-80">
+
+            <div v-if="store.datasetSalesDaily?.labels?.length">
+              <LineCart :chart-data="store.datasetSalesDaily" :chart-options="chartOptions" />
+            </div>
+            <div v-else class="text-center text-gray-400 text-sm py-8">
+              Belum ada data grafik untuk ditampilkan
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Grafik Pembelian Harian (12 Hari terakhir)">
+          <div class="h-80">
+
+            <div v-if="store.datasetPurchasesWeekly?.labels?.length">
+              <LineCart :chart-data="store.datasetPurchasesWeekly" :chart-options="chartPembelianOptions" />
+            </div>
+            <div v-else class="text-center text-gray-400 text-sm py-8">
+              Belum ada data grafik untuk ditampilkan
+            </div>
+          </div>
+        </Card>
+
+
+      </div>
+
     </div>
   </div>
 </template>
