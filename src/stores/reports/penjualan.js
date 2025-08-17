@@ -23,7 +23,7 @@ export const useReportPenjualanStore = defineStore('report-penjualan-store', {
     },
     pagination: {
       page: 1,
-      itemsPerPage: 10,
+      itemsPerPage: 20,
       totalItems: 0
     },
     loading: false,

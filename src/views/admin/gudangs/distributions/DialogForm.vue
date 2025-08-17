@@ -81,6 +81,7 @@
 
 import { ref, computed, onMounted, onUnmounted, watch, nextTick, defineAsyncComponent } from 'vue'
 import { useDistributionGudangStore } from '@/stores/gudangs/distributions'
+import { useNotification } from '@/composables/useNotification'
 
 
 const ProductList = defineAsyncComponent(() => import('./ProductList.vue'))
@@ -90,6 +91,7 @@ const store = useDistributionGudangStore()
 
 const emit = defineEmits(['close'])
 
+const { notify } = useNotification()
 
 
 const productSearch = ref('')

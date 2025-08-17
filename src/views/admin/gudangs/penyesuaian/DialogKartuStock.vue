@@ -34,7 +34,7 @@
                 <th class="text-right border p-3 ">Stock Akhir</th>
               </tr>
             </thead>
-            <tbody class="overflow-y-scroll">
+            <tbody class=" overflow-y-scroll">
               <template v-for="item in store?.productMutations" :key="item.id">
 
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
@@ -75,11 +75,11 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useStockStore } from '@/stores/settings/stock'
+import { useStockGudangStore } from '@/stores/gudangs/penyesuaian'
 import { formatDateIndo, formatTimeIndo, getMonthStartDate, getMonthEndDate } from '@/utils/dateHelper'
 
 
-const store = useStockStore()
+const store = useStockGudangStore()
 
 const props = defineProps({
   data: {
@@ -98,7 +98,7 @@ const params = ref({
 })
 
 onMounted(() => {
-  console.log('props', props.data);
+  // console.log('props', props.data);
   params.value.start_date = getMonthStartDate()
   params.value.end_date = getMonthEndDate()
 

@@ -1,12 +1,12 @@
 import {
   // master
   supplier,product,
-  stockopname,
+  stockopname, stockopnamegudang, perubahanhargabeli,
 
   // settings
   users, akses,company,stock,
   // gudangs
-  products, distributions
+  products, distributions, penyesuaian
 } from '../modules'
 // Tambahkan import untuk komponen pembelian
 import PurchaseIndex from '@/views/admin/transaksi/pembelian/IndexPage.vue'
@@ -195,7 +195,7 @@ const routes = [
 
 
       // reports
-      stockopname,
+      stockopname, stockopnamegudang, perubahanhargabeli,
       {
         path: 'reports/salesreport',
         component: () => import('../../views/admin/reports/sales_report/IndexPage.vue'),
@@ -266,7 +266,7 @@ const routes = [
 
 
       // gudangs
-      products, distributions,
+      products, distributions, penyesuaian,
 
 
       // settings

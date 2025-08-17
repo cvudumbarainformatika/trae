@@ -24,7 +24,7 @@ export const useReportReturnPenjualanStore = defineStore('report-return-penjuala
     },
     pagination: {
       page: 1,
-      itemsPerPage: 10,
+      itemsPerPage: 20,
       totalItems: 0
     },
     loading: false,

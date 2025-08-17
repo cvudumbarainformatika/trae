@@ -44,13 +44,13 @@
 
 <script setup>
 import { ref, onMounted, defineAsyncComponent, computed } from 'vue'
-import { useStockOpnameStore } from '@/stores/reports/stockopname'
+import { useStockOpnameGudangStore } from '@/stores/reports/stockopnamegudang'
 import { formatRupiah } from '@/utils/uangHelper'
 import { printHtmlElement } from '@/utils/printing';
 
 const DataTable = defineAsyncComponent(() => import('./DataTable.vue'))
 
-const store = useStockOpnameStore()
+const store = useStockOpnameGudangStore()
 
 
 const printRef = ref(null)

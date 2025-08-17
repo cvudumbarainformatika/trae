@@ -2,7 +2,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { getMonthStartDate, getMonthEndDate } from '@/utils/dateHelper'
 import { api } from '@/services/api'
 
-export const useReportPembelianStore = defineStore('report-pembelian-store', {
+export const usePerubahanHargaBeliStore = defineStore('perubahan-harga-beli-store', {
   state: () => ({
     items: [],
     meta: null,
@@ -51,7 +51,7 @@ export const useReportPembelianStore = defineStore('report-pembelian-store', {
     async fetchData() {
       this.loading = true
       try {
-        const { data } = await api.get('/api/v1/reports/pembelian', {
+        const { data } = await api.get('/api/v1/reports/perubahan-harga-beli', {
           params: this.params
         })
 
@@ -69,6 +69,7 @@ export const useReportPembelianStore = defineStore('report-pembelian-store', {
         this.loading = false
       }
     },
+
     showDetail(item) {
       this.item = item
       this.showDetailDialog = true
@@ -121,5 +122,5 @@ export const useReportPembelianStore = defineStore('report-pembelian-store', {
 })
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useReportPembelianStore, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(usePerubahanHargaBeliStore, import.meta.hot))
 }

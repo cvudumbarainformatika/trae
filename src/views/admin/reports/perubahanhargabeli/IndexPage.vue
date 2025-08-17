@@ -1,5 +1,5 @@
 <template>
-  <BasePage title="Laporan Stok Opname" subtitle="Laporan Stok Opname berdasarkan periode">
+  <BasePage title="Laporan Perubahan Harga Beli" subtitle="Laporan Stok Opname berdasarkan periode">
 
     <template #actions>
       <div class="flex items-center gap-2 no-print">
@@ -44,13 +44,13 @@
 
 <script setup>
 import { ref, onMounted, defineAsyncComponent, computed } from 'vue'
-import { useStockOpnameStore } from '@/stores/reports/stockopname'
+import { usePerubahanHargaBeliStore } from '@/stores/reports/perubahanhargabeli'
 import { formatRupiah } from '@/utils/uangHelper'
 import { printHtmlElement } from '@/utils/printing';
 
 const DataTable = defineAsyncComponent(() => import('./DataTable.vue'))
 
-const store = useStockOpnameStore()
+const store = usePerubahanHargaBeliStore()
 
 
 const printRef = ref(null)
