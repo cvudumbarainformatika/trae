@@ -6,7 +6,7 @@
       ">
 
       <div class="">
-        <div class="text-xl font-medium">Laporan Stok Opname</div>
+        <div class="text-xl font-medium">Laporan Perubahan Harga Beli</div>
         <div><strong>Periode:</strong> {{ formatDateIndo(params.start_date) }} - {{ formatDateIndo(params.end_date) }}
         </div>
       </div>
@@ -31,7 +31,8 @@
             <td class="border p-2">{{ formatDateIndo(item.created_at) }}</td>
             <td class="border p-2">{{ item.product_name || '-' }}</td>
             <td class="border p-2 text-right">{{ formatRupiah(parseFloat(item?.hargabeli_lama || 0)) }}</td>
-            <td class="border p-2 text-right">{{ formatRupiah(parseFloat(item?.hargabeli_baru || 0)) }}</td>
+            <td class="border p-2 text-right" :class="naik(item) ? 'text-red-500' : 'text-green-500'">{{
+              formatRupiah(parseFloat(item?.hargabeli_baru || 0)) }}</td>
             <!-- <td class="border p-2 text-right">{{ parseFloat(item?.selisih || 0) }}</td> -->
             <td class="border p-2">{{ item.user_name }}</td>
           </tr>
@@ -63,6 +64,10 @@ const props = defineProps({
   }
 
 })
+
+const naik = (item) => {
+  return parseFloat(item?.hargabeli_lama) < parseFloat(item?.hargabeli_baru)
+}
 
 
 
