@@ -12,11 +12,12 @@ import stock from './settings/stock'
 
 
 import products from './gudangs/products'
+import distributions from './gudangs/distributions'
 
 export {
   supplier, product,
   stockopname,
   users,akses, company, stock,
 
-  products
+  products, distributions
 }
