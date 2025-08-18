@@ -15,7 +15,7 @@
     <template #search>
       <div class="flex items-center justify-between gap-2 w-full no-print">
         <!-- Search Input (dengan lebar yang cukup) -->
-        <div class="relative rounded-full shadow-lg min-w-[300px]">
+        <div class="relative rounded-full shadow-lg max-w-[360px]">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
             <Icon name="Search" class="w-5 h-5 text-indigo-400" />
           </div>
@@ -46,7 +46,7 @@
       </div>
     </template>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="box in summaryBoxes" :key="box.label"
         class="bg-white dark:bg-gray-800 rounded-xl shadow p-2 flex flex-col justify-between">
         <div class="text-sm text-gray-500 dark:text-gray-400">{{ box?.label }}</div>

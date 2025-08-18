@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import Sidebar from '@/components/admin/Sidebar.vue'
+import BottomBar from '@/components/admin/BottomBar.vue'
 
 import { useThemeStore } from '@/stores/theme'
 import { useInactivityLogout } from './useInactivityLogout'
@@ -21,11 +22,11 @@ onMounted(() => {
 <template>
   <div class="flex h-screen bg-stone-200 dark:bg-dark-900 overflow-hidden">
     <!-- Sidebar -->
-    <Sidebar ref="sidebarRef" class="w-16 h-full flex-shrink-0" />
-
+    <Sidebar ref="sidebarRef" class="hidden md:flex w-16 h-full flex-shrink-0" />
+    <BottomBar />
     <!-- Main Content -->
-    <main class="flex-1 p-8 overflow-hidden flex justify-center" @click="sidebarRef.hideSubmenu">
-      <div class="h-ful overflow-y-auto w-full max-w-[1280px] min-w-[320px] mx-auto">
+    <main class="flex-1 p-4 pb-20 md:p-6 md:pb-6 overflow-hidden flex justify-center" @click="sidebarRef.hideSubmenu">
+      <div class="h-ful overflow-y-auto w-full max-w-[1280px] min-w-[320px] mx-auto ">
         <!-- <div class="scale-[0.9] origin-top transform"> -->
         <router-view></router-view>
         <!-- </div> -->

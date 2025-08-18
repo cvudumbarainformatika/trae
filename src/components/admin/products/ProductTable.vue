@@ -163,15 +163,22 @@ const formatCurrency = (value) => {
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ product.name }}</p>
               <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ product.barcode }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ product.category }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ product?.category?.name }}</p>
             </div>
-            <div class="inline-flex items-center text-sm font-semibold text-gray-900 dark:text-white">
-              {{ formatCurrency(product?.regularPrice) }}
+            <div class="text-right text-xs font-semibold text-gray-900 dark:text-white">
+              <div class="truncate"> <span class="text-gray-400">BL :</span> {{ formatRupiah(product?.hargabeli) }}
+              </div>
+              <div class="truncate"><span class="text-gray-400">UMUM :</span> {{ formatRupiah(product?.hargajual) }}
+              </div>
+              <div class="truncate"><span class="text-gray-400">CUST :</span> {{ formatRupiah(product?.hargajualcust) }}
+              </div>
+              <div class="truncate"><span class="text-gray-400">ANTAR :</span> {{ formatRupiah(product?.hargajualantar)
+                }}</div>
             </div>
           </div>
           <div class="mt-4 flex items-center justify-between">
             <span :class="['px-2 py-1 text-xs font-medium rounded-full', getStockStatusClass(getStockStatus(product))]">
-              {{ getStockStatus(product) }} ({{ product?.currentStock }})
+              {{ getStockStatus(product) }}
             </span>
 
 

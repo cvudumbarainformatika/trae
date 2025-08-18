@@ -5,7 +5,8 @@
 
 
       <div class="text-secondary-800 dark:text-secondary-500">
-        <span class="text-xs">Periode {{ formatDateRange(tempRange.start_date, tempRange.end_date) }}</span>
+        <span class="text-xs hidden sm:flex">Periode {{ formatDateRange(tempRange.start_date, tempRange.end_date)
+          }}</span>
       </div>
       <IconButton @click="showDialog = true" variant="ghost" size="sm" :title="label"
         class="relative bg-dark-700 text-white rounded-full shadow-sm border border-gray-700 hover:bg-blue-600/20 hover:border-blue-600/50 transition-all duration-200 date-range-filter-button">
@@ -18,7 +19,7 @@
 
     <!-- Dialog untuk filter tanggal -->
     <div v-if="showDialog"
-      class="absolute right-0 top-full mt-2 z-50 bg-dark-700 rounded-lg shadow-lg border border-gray-700 w-[600px] overflow-hidden date-range-filter-dialog">
+      class="absolute right-0 top-full mt-2 z-50 bg-dark-700 rounded-lg shadow-lg border border-gray-700 min-w-[300px] md:w-[600px]  overflow-hidden date-range-filter-dialog">
       <div class="flex justify-between items-center p-4 border-b border-gray-700">
         <h3 class="text-lg font-medium text-white">{{ label }}</h3>
         <button @click="showDialog = false" class="text-gray-400 hover:text-gray-300">

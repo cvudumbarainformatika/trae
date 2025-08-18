@@ -68,12 +68,17 @@ const paginationContent = computed(() => {
 <template>
   <div class="mt-6 text-xs">
     <div class="flex items-center justify-between">
-      <div class="  text-gray-700 dark:text-gray-300">
+      <div class=" hidden md:block text-gray-700 dark:text-gray-300">
         Showing
         <span class="font-medium">{{ paginationContent.start }}</span>
         to
         <span class="font-medium">{{ paginationContent.end }}</span>
         of
+        <span class="font-medium">{{ pagination.totalItems }}</span>
+        results
+      </div>
+      <div class=" md:hidden text-gray-700 dark:text-gray-300">
+
         <span class="font-medium">{{ pagination.totalItems }}</span>
         results
       </div>

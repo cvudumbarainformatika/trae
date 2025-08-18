@@ -15,7 +15,7 @@
     <template #search>
       <div class="flex items-center justify-between gap-2 w-full no-print">
         <!-- Search Input (dengan lebar yang cukup) -->
-        <div class="relative rounded-full shadow-lg min-w-[300px]">
+        <div class="relative rounded-full shadow-lg max-w-[390px]">
           <!-- <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
             <Icon name="Search" class="w-5 h-5 text-indigo-400" />
           </div>

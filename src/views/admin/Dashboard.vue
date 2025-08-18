@@ -207,7 +207,7 @@ const doughnutData = ref({
 
     <div class="flex-1 h-full space-y-6 overflow-y-auto">
       <!-- Stats Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6">
         <Card v-for="(stat, index) in stats" :key="index">
           <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ stat.title }}</h3>
           <div class="mt-2 flex items-baseline">

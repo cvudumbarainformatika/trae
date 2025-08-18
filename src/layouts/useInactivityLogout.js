@@ -25,11 +25,11 @@ export function useInactivityLogout(timeout = 1 * 60 * 60 * 1000) { // default: 
 
   const setup = () => {
 
-    // const auth = useAuthStore()
+    const auth = useAuthStore()
 
-    // if (!auth.token) {
-    //   router.push('/login')
-    // }
+    if (!auth.token) {
+      router.push('/login')
+    }
 
 
     events.forEach(event => {

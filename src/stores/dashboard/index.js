@@ -38,7 +38,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.loading = true
       try {
         const response = await api.get('api/v1/dashboard/cart-penjualan')
-        console.log('response', response);
+        // console.log('response', response);
 
         this.cartPenjualan = response?.data
       } catch (error) {
@@ -51,7 +51,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.loading = true
       try {
         const response = await api.get('api/v1/dashboard/cart-pembelian')
-        console.log('response', response);
+        // console.log('response', response);
 
         this.cartPembelian = response?.data
       } catch (error) {
@@ -103,7 +103,7 @@ export const useDashboardStore = defineStore('dashboard', {
       this.loading = true
       try {
         const response = await api.get('api/v1/dashboard/metrics/purchases-weekly')
-        console.log('fetchPurchasesWeekly', response);
+        // console.log('fetchPurchasesWeekly', response);
 
         // this.topProductSales = response?.data
         this.datasetPurchasesWeekly = response?.data
