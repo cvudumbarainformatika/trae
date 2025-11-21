@@ -35,10 +35,14 @@ export const useProductStore = defineStore('product', {
       stock_val: 0,
       hargajual_op: '',
       hargajual_val: 0,
-      hargajualcust_op: '',
-      hargajualcust_val: 0,
-      hargajualantar_op: '',
-      hargajualantar_val: 0
+      hargajualrumah_op: '',
+      hargajualrumah_val: 0,
+      hargajualtoko_op: '',
+      hargajualtoko_val: 0,
+      hargajualdepot_op: '',
+      hargajualdepot_val: 0,
+      hargajualkhusus_op: '',
+      hargajualkhusus_val: 0
     },
     sortBy: {
       field: 'created_at',

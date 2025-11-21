@@ -89,6 +89,8 @@ const handleCancel = () => {
             <BaseSelect
               v-model="formData.category_id"
               label="Kategori"
+
+            required
               option-label="label"
               option-value="value"
               :options="categories"
@@ -115,23 +117,37 @@ const handleCancel = () => {
 
           <BaseInput
             v-model.number="formData.hargajual"
-            label="Harga Regular"
+            label="Harga Umum"
             type="number"
             min="0"
             placeholder="0"
           />
 
           <BaseInput
-            v-model.number="formData.hargajualcust"
-            label="Harga Customer"
+            v-model.number="formData.hargajualrumah"
+            label="Harga Rumah"
             type="number"
             min="0"
             placeholder="0"
           />
 
           <BaseInput
-            v-model.number="formData.hargajualantar"
-            label="Harga Antar"
+            v-model.number="formData.hargajualtoko"
+            label="Harga Toko"
+            type="number"
+            min="0"
+            placeholder="0"
+          />
+          <BaseInput
+            v-model.number="formData.hargajualdepot"
+            label="Harga Depot"
+            type="number"
+            min="0"
+            placeholder="0"
+          />
+          <BaseInput
+            v-model.number="formData.hargajualkhusus"
+            label="Harga Khusus"
             type="number"
             min="0"
             placeholder="0"
@@ -165,6 +181,8 @@ const handleCancel = () => {
           <BaseInput
             v-model="formData.rak"
             label="Lokasi Rak"
+
+            required
             type="text"
             placeholder="Masukkan lokasi rak"
           />

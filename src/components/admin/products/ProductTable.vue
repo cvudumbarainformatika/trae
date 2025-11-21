@@ -116,14 +116,15 @@ const formatCurrency = (value) => {
               <div class="lg:truncate"> Rak {{ product.rak || '-' }}</div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-900 dark:text-white lg:whitespace-nowrap text-right">
-              <div class="truncate"> <span class="text-gray-400">BL :</span> {{ formatRupiah(product?.hargabeli) }}
+              <div class="truncate"> <span class="text-gray-400">BL :</span> {{ formatRupiah(product?.hargabeli) || 0 }}
               </div>
-              <div class="truncate"><span class="text-gray-400">UMUM :</span> {{ formatRupiah(product?.hargajual) }}
+              <div class="truncate"><span class="text-gray-400">UMUM :</span> {{ formatRupiah(product?.hargajual) || 0 }}
               </div>
-              <div class="truncate"><span class="text-gray-400">CUST :</span> {{ formatRupiah(product?.hargajualcust) }}
+              <div class="truncate"><span class="text-gray-400">RUMAH :</span> {{ formatRupiah(product?.hargajualrumah) || 0 }}
               </div>
-              <div class="truncate"><span class="text-gray-400">ANTAR :</span> {{ formatRupiah(product?.hargajualantar)
-                }}</div>
+              <div class="truncate"><span class="text-gray-400">TOKO :</span> {{ formatRupiah(product?.hargajualtoko) || 0 }}</div>
+              <div class="truncate"><span class="text-gray-400">DEPOT :</span> {{ formatRupiah(product?.hargajualdepot) || 0 }}</div>
+              <div class="truncate"><span class="text-gray-400">KUSUS :</span> {{ formatRupiah(product?.hargajualkhusus) || 0 }}</div>
             </td>
             <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 lg:whitespace-nowrap text-right">
               <div class="truncate">{{ mode === 'gudang' ? product?.stock_akhir_gudang || 0 : product?.stock_akhir || 0
@@ -168,12 +169,13 @@ const formatCurrency = (value) => {
             <div class="text-right text-xs font-semibold text-gray-900 dark:text-white">
               <div class="truncate"> <span class="text-gray-400">BL :</span> {{ formatRupiah(product?.hargabeli) }}
               </div>
-              <div class="truncate"><span class="text-gray-400">UMUM :</span> {{ formatRupiah(product?.hargajual) }}
+              <div class="truncate"><span class="text-gray-400">UMUM :</span> {{ formatRupiah(product?.hargajual) || 0 }}
               </div>
-              <div class="truncate"><span class="text-gray-400">CUST :</span> {{ formatRupiah(product?.hargajualcust) }}
+              <div class="truncate"><span class="text-gray-400">RUMAH :</span> {{ formatRupiah(product?.hargajualrumah) || 0 }}
               </div>
-              <div class="truncate"><span class="text-gray-400">ANTAR :</span> {{ formatRupiah(product?.hargajualantar)
-                }}</div>
+              <div class="truncate"><span class="text-gray-400">TOKO :</span> {{ formatRupiah(product?.hargajualtoko) || 0 }}</div>
+              <div class="truncate"><span class="text-gray-400">DEPOT :</span> {{ formatRupiah(product?.hargajualdepot) || 0 }}</div>
+              <div class="truncate"><span class="text-gray-400">KHUSUS :</span> {{ formatRupiah(product?.hargajualkhusus) || 0 }}</div>
             </div>
           </div>
           <div class="mt-4 flex items-center justify-between">
