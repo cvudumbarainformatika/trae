@@ -31,7 +31,7 @@
                     Nama
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Email
+                    Category
                   </th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Telepon
@@ -61,7 +61,7 @@
                   </td>
                 </tr>
                 <tr v-else-if="!customerStore.filteredCustomers.length" class="bg-gray-50 dark:bg-gray-800">
-                  <td colspan="5" class="p-4 text-center text-gray-500 dark:text-gray-400">
+                  <td colspan="6" class="p-4 text-center text-gray-500 dark:text-gray-400">
                     Tidak ada data pelanggan
                   </td>
                 </tr>
@@ -72,7 +72,7 @@
                     {{ customer.name }}
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400">
-                    {{ customer.email }}
+                    {{ customer.category }}
                   </td>
                   <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400">
                     {{ customer.phone }}

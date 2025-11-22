@@ -18,6 +18,19 @@
           />
         </div>
 
+        <div class="relative">
+            <BaseSelect
+              v-model="form.category"
+              label="Kategori"
+
+            required
+              option-label="label"
+              option-value="value"
+              :options="categories"
+              placeholder="Pilih Kategori Pelanggan"
+            />
+          </div>
+
         <div>
           <BaseInput
             v-model="form.email"
@@ -123,6 +136,7 @@ const emit = defineEmits(['update:modelValue', 'close', 'submit'])
 
 const form = ref({
   name: '',
+  category: null,
   email: '',
   phone: '',
   address: '',
@@ -133,6 +147,28 @@ const form = ref({
 
 const errors = ref({})
 const loading = ref(false)
+const categories = ref([
+  {
+    value: 'UMUM',
+    label: 'UMUM'
+  },
+  {
+    value: 'RUMAH',
+    label: 'RUMAH'
+  },
+  {
+    value: 'TOKO',
+    label: 'TOKO'
+  },
+  {
+    value: 'DEPOT',
+    label: 'DEPOT'
+  },
+  {
+    value: 'KHUSUS',
+    label: 'KHUSUS'
+  }
+])
 
 onMounted(() => {
   if (props.customer) {

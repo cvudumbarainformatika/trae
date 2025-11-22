@@ -22,7 +22,7 @@ onMounted(() => {
 <template>
   <div class="flex h-screen bg-stone-200 dark:bg-dark-900 overflow-hidden">
     <!-- Sidebar -->
-    <Sidebar ref="sidebarRef" class="hidden md:flex w-16 h-full flex-shrink-0" />
+    <Sidebar ref="sidebarRef" class="hidden md:flex w-16 h-full flex-shrink-0 z-50" />
     <BottomBar />
     <!-- Main Content -->
     <main class="flex-1 p-4 pb-20 md:p-6 md:pb-6 overflow-hidden flex justify-center" @click="sidebarRef.hideSubmenu">

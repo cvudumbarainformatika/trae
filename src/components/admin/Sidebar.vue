@@ -123,7 +123,7 @@ const hasAccess = (menu) => {
                   <Icon :is="menu.icon" :name="menu.icon" class="w-5 h-5" />
                 </div>
                 <div
-                  class="absolute left-full ml-2 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg">
+                  class="absolute left-full ml-2 px-3 py-1.5 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap shadow-lg ">
                   {{ menu.label }}
                 </div>
               </router-link>
