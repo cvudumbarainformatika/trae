@@ -23,7 +23,7 @@ export function printHtmlElement (element, title = 'Print') {
       body {
         margin: 0;
         padding: 20px;
-        font-family: Arial, sans-serif;
+        font-family: 'Inter', sans-serif;
       }
 
       @media print {
@@ -71,6 +71,75 @@ export function printHtmlElement (element, title = 'Print') {
       th {
         background-color: #f2f2f2;
       }
+
+      /* Styles for Profit and Loss Report */
+      .profit-loss-report .print-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .profit-loss-report .print-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+      .profit-loss-report .print-subtitle {
+        font-size: 0.875rem;
+        color: #6b7280;
+      }
+      .profit-loss-report .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .profit-loss-report .profit-loss-info-row { /* Renamed from .info-row */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f3f4f6;
+      }
+      .profit-loss-report .profit-loss-info-row-label { /* Renamed from .info-row-label */
+        font-size: 0.875rem;
+        color: #374151;
+      }
+      .profit-loss-report .profit-loss-info-row-value { /* Renamed from .info-row-value */
+        font-size: 0.875rem;
+        font-family: monospace;
+        font-weight: 600;
+        color: #1f2937;
+      }
+      .profit-loss-report .profit-loss-info-row-value.negative {
+        color: #dc2626;
+      }
+      .profit-loss-report .section-total {
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #d1d5db;
+      }
+      .profit-loss-report .section-total .profit-loss-info-row-label, .profit-loss-report .section-total .profit-loss-info-row-value {
+        font-weight: 700;
+        font-size: 1rem;
+      }
+      .profit-loss-report .section-total .profit-loss-info-row-value.green {
+        color: #16a34a;
+      }
+      .profit-loss-report .section-total .profit-loss-info-row-value.yellow {
+        color: #f59e0b;
+      }
+      .profit-loss-report .final-total {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 4px double #9ca3af;
+      }
+      .profit-loss-report .final-total .profit-loss-info-row-label, .profit-loss-report .final-total .profit-loss-info-row-value {
+        font-weight: 800;
+        font-size: 1.25rem;
+      }
+      .profit-loss-report .final-total .profit-loss-info-row-value.blue {
+        color: #2563eb;
+      }
+
     </style>
   `;
 
@@ -80,6 +149,9 @@ export function printHtmlElement (element, title = 'Print') {
     <html>
       <head>
         <title>${title}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         ${styles}
       </head>
       <body>
