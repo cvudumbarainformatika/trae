@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <BaseInput ref="searchRef" v-model="searchQuery" :placeholder="placeholder" class="pr-4" :debounce="debounce"
-      @update:model-value="onSearch" @keydown="handleKeydown" @ready="handleReady">
+      @update:model-value="onSearch" @keydown="handleKeydown" @ready="handleReady" :disabled="disabled">
       <template #append>
         <i :class="[isLoading ? 'ri-loader-4-line animate-spin' : 'ri-search-line', 'text-secondary-400']"></i>
       </template>
@@ -52,6 +52,10 @@ import { ref, watch, computed, nextTick, onMounted } from 'vue'
 import { api } from '@/services/api'
 
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
   modelValue: {
     type: String,
     default: ''

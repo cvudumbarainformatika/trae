@@ -2,12 +2,11 @@
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm py-4 px-4">
     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
       <Icon name="ShoppingCart" class="w-6 h-6 mr-4 text-primary-500" />
-      DAFTAR PRODUK HARGA {{ store?.isiTab?.category === 'umum' ? 'UMUM' :
-        store?.isiTab?.category === 'pelanggan' ? 'MEMBER' : 'ANTAR' }}
+      Daftar Produk
     </h3>
     <ProductSearch ref="productSearchRef" v-model="productSearch" @add-product="handleAddProduct"
       @open-scanner="showScanner = true" @products-loaded="onProductsLoaded" :add-not-found-product="false"
-      :isi-tab="store?.isiTab" />
+      :isi-tab="store?.isiTab" :disabled="isProductSearchDisabled" :placeholder="productSearchPlaceholder" />
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 ">
         <thead class="bg-gray-50 dark:bg-gray-700">
@@ -157,7 +156,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted } from 'vue'
+import { ref, watch, nextTick, onMounted, computed } from 'vue'
 import ProductSearch from './ProductSearch.vue'
 // import BaseInput from '@/components/ui/BaseInput.vue'
 // import Icon from '@/components/ui/Icon.vue'
@@ -171,6 +170,15 @@ import { formatRupiah } from '@/utils/uangHelper'
 const productSearchRef = ref(null)
 const productSearch = ref('')
 const store = useSalesFormWitTabsStore()
+
+const isProductSearchDisabled = computed(() => {
+  return !store.isiTab?.customer_id;
+});
+
+const productSearchPlaceholder = computed(() => {
+  return isProductSearchDisabled.value ? 'Pilih customer terlebih dahulu' : 'Cari produk untuk ditambahkan...';
+});
+
 
 defineExpose({
   focus: () => {
@@ -229,27 +237,54 @@ const showScanner = ref(false)
 
 
 function getItemPrice(item) {
-  // console.log('item', item, store.isiTab);
+  const customer = store.isiTab.customer;
+  const defaultPrice = StringToNumber(item?.hargajual) ?? 0;
 
-  if (store.isiTab.category === 'umum') {
-    return StringToNumber(item?.hargajual) ?? 0
-  } else if (store.isiTab.category === 'pelanggan') {
-    return StringToNumber(item?.hargajualcust) ?? 0
-  } else if (store.isiTab.category === 'antar') {
-    return StringToNumber(item?.hargajualantar) ?? 0
-  } else {
-
-    return StringToNumber(item?.hargajual) ?? 0
+  // Price is determined by selected customer's category.
+  if (customer && customer.category) {
+    switch (customer.category.toUpperCase()) {
+      case 'RUMAH':
+        return StringToNumber(item?.hargajualrumah) ?? defaultPrice;
+      case 'TOKO':
+        return StringToNumber(item?.hargajualtoko) ?? defaultPrice;
+      case 'DEPOT':
+        return StringToNumber(item?.hargajualdepot) ?? defaultPrice;
+      case 'KHUSUS':
+        return StringToNumber(item?.hargajualkhusus) ?? defaultPrice;
+      case 'UMUM':
+      default:
+        return defaultPrice;
+    }
   }
+
+  // If no customer is selected, always return the general price.
+  // The UI should prevent adding products if a customer is required but not selected.
+  return defaultPrice;
 }
+
 
 function StringToNumber(value) {
   const num = typeof value === 'string' ? parseFloat(value) : value
   return num
 }
-// watch(store.isiTab.items, (newItems) => {
-//   console.log('Items changed:', newItems)
-// })
+
+watch(
+  () => store.isiTab?.customer,
+  () => {
+    if (store.isiTab?.items.length > 0) {
+      store.isiTab.items.forEach((item, index) => {
+        const newPrice = getItemPrice(item.product)
+        const newItem = {
+          ...item,
+          price: newPrice,
+          subtotal: newPrice * item.qty,
+        }
+        store.updateItem(index, newItem)
+      })
+    }
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>

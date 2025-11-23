@@ -7,7 +7,7 @@
         :not-found-subtext="addNotFoundProduct ? 'Coba kata kunci lain atau tambahkan produk baru' : 'Coba kata kunci lain'"
         :add-button-text="addNotFoundProduct ? 'Tambah Produk Baru' : 'T'" api-url="/api/v1/products/search"
         api-response-path="data.data" :api-params="{ per_page: 10 }" :use-api="true" @select="handleProductSelect"
-        @items-loaded="onProductsLoaded" :show-add-button="addNotFoundProduct">
+        @items-loaded="onProductsLoaded" :show-add-button="addNotFoundProduct" :disabled="disabled">
         <template #item="{ item }">
           <div class="font-medium text-secondary-900 dark:text-white">{{ item.name }}</div>
           <div class="flex justify-between text-sm">
@@ -43,6 +43,10 @@ import { ref, watch, nextTick, computed, onMounted } from 'vue'
 import { formatRupiah } from '@/utils/uangHelper'
 
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
   modelValue: {
     type: String,
     default: ''
