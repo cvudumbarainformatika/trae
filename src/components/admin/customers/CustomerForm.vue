@@ -22,8 +22,8 @@
             <BaseSelect
               v-model="form.category"
               label="Kategori"
-
-            required
+              :error="errors.category"
+              required
               option-label="label"
               option-value="value"
               :options="categories"
@@ -188,6 +188,11 @@ const validate = () => {
   if (!form.value.name.trim()) {
     errors.value.name = 'Nama wajib diisi'
     isValid = false
+  }
+
+  if (!form.value.category) {
+    errors.value.category = 'Kategori wajib diisi';
+    isValid = false;
   }
 
   if (form.value.email && !/^\S+@\S+\.\S+$/.test(form.value.email)) {
