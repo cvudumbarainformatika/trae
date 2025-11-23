@@ -21,7 +21,7 @@
 
         <div :key="activeTab" class="grid grid-cols-12 gap-4 p-4">
           <div class="col-span-2 rounded shadow space-y-4">
-            <CustomerAndKasirSection ref="customerAndKasirSectionRef" />
+            <CustomerAndKasirSection ref="customerAndKasirSectionRef" @customer-selected="focusProductSearch" />
           </div>
           <div class="col-span-7 rounded shadow space-y-4">
             <ProductListSection ref="productListSectionRef" :isi-tab="isiTab" />
@@ -70,6 +70,12 @@ const { tabs, activeTab, isiTab, isPaymentOpen, loadingSimpan, printing, isiPrin
 const { initTabs, removeTab, handlePayment } = store
 
 const productListSectionRef = ref(null)
+
+function focusProductSearch() {
+  nextTick(() => {
+    productListSectionRef.value?.focus();
+  });
+}
 
 
 onMounted(async () => {

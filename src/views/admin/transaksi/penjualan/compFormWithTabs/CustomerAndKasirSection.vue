@@ -22,12 +22,31 @@
     </div>
 
     <CustomerSelection :customer-id="store.isiTab.customer_id" :customer="store.isiTab.customer"
-      :customer-search="customerSearch" @update:customerId="store.isiTab.customer_id = $event"
-      @update:customerSearch="customerSearch = $event" @update:customer="store.isiTab.customer = $event"
-      @add-customer="openAddCustomerDialog" @customers-loaded="onCustomerLoaded" class="mb-2" />
+      :customer-search="customerSearch" @request-change="handleCustomerChangeRequest"
+      @update:customerSearch="customerSearch = $event" @add-customer="openAddCustomerDialog"
+      @customers-loaded="onCustomerLoaded" class="mb-2" />
 
     <CustomerForm v-if="showCustomerForm" v-model="showCustomerForm" :customer="null" :is-edit="false"
       @close="customerStore.setShowCustomerForm(false)" @submit="handleCustomerSubmit" />
+
+    <!-- Confirmation Modal -->
+    <Modal v-model="showConfirmationModal" title="Konfirmasi Perubahan Customer" size="md" :persistent="true">
+      <div class="p-4">
+        <p class="text-gray-700 dark:text-gray-300 text-base">
+          Keranjang belanja sudah terisi. Mengganti customer akan
+          <span class="font-bold text-red-600 dark:text-red-400">mengosongkan seluruh isi keranjang</span>.
+        </p>
+        <p class="text-gray-700 dark:text-gray-300 mt-2">
+          Anda yakin ingin melanjutkan?
+        </p>
+      </div>
+      <template #footer>
+        <div class="flex justify-end space-x-4">
+          <BaseButton label="Batal" variant="ghost" @click="cancelChange" />
+          <BaseButton label="Ya, Lanjutkan" variant="danger" @click="confirmChange" />
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -37,6 +56,10 @@ import { useSalesFormWitTabsStore } from '@/stores/transaksi/penjualan/formwitht
 import { useCustomerStore } from '@/stores/admin/customer';
 import { useAuthStore } from '@/stores/auth';
 import Icon from '@/components/ui/Icon.vue';
+import Modal from '@/components/ui/Modal.vue';
+import BaseButton from '@/components/ui/BaseButton.vue';
+
+const emit = defineEmits(['customer-selected']);
 
 const CustomerSelection = defineAsyncComponent(() => import('@/components/admin/transaksi/penjualan/CustomerSelection.vue'))
 const CustomerForm = defineAsyncComponent(() => import('@/components/admin/customers/CustomerForm.vue'))
@@ -47,16 +70,13 @@ const auth = useAuthStore()
 
 const customerSearch = ref('')
 const showCustomerForm = ref(false)
-const showCustomerResults = ref(false)
-const filteredCustomers = ref([])
-const salesType = ref('umum')
 
-// Example: get current cashier from store or auth (replace with actual logic)
+const showConfirmationModal = ref(false)
+const pendingCustomer = ref(null)
+
 const cashier = computed(() => {
-  // Replace with actual user data source if available
   return {
     name: auth?.user?.name || 'Kasir Demo',
-    // Add more fields if needed
   }
 })
 
@@ -71,6 +91,38 @@ const updateClock = () => {
   currentTime.value = `${hours}:${minutes}:${seconds}`
 }
 
+function handleCustomerChangeRequest(newCustomer) {
+  if (store.listItems.length > 0 && store.isiTab.customer_id !== newCustomer?.id) {
+    pendingCustomer.value = newCustomer;
+    showConfirmationModal.value = true;
+  } else {
+    // If cart is empty or the same customer is selected, update directly
+    store.isiTab.customer = newCustomer;
+    store.isiTab.customer_id = newCustomer?.id;
+    if (newCustomer) {
+      emit('customer-selected');
+    }
+  }
+}
+
+function confirmChange() {
+  store.setItems([]); // Clear the cart
+  store.isiTab.customer = pendingCustomer.value;
+  store.isiTab.customer_id = pendingCustomer.value?.id;
+  showConfirmationModal.value = false;
+
+  if (store.isiTab.customer_id) {
+    emit('customer-selected');
+  }
+  pendingCustomer.value = null;
+}
+
+function cancelChange() {
+  showConfirmationModal.value = false;
+  pendingCustomer.value = null;
+}
+
+
 onMounted(() => {
   updateClock()
   timer = setInterval(updateClock, 1000)
@@ -82,8 +134,6 @@ onUnmounted(() => {
 
 const onCustomerLoaded = (customers) => {
   // console.log('Customers loaded:', customers);
-
-  filteredCustomers.value = customers
 }
 const handleCustomerSubmit = async (formData) => {
   try {
@@ -91,8 +141,7 @@ const handleCustomerSubmit = async (formData) => {
     showCustomerForm.value = false
     // Otomatis pilih customer yang baru ditambahkan
     if (newCustomer?.id) {
-      store.isiTab.customer_id = newCustomer.id
-      store.isiTab.customer = newCustomer
+      handleCustomerChangeRequest(newCustomer);
     }
   } catch (error) {
     console.error('Error adding customer:', error)
@@ -101,7 +150,6 @@ const handleCustomerSubmit = async (formData) => {
 
 const openAddCustomerDialog = () => {
   showCustomerForm.value = true
-  showCustomerResults.value = false
 }
 
 </script>

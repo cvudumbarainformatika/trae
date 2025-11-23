@@ -64,7 +64,7 @@
       </div>
 
       <div class="absolute top-0 right-0">
-        <button @click="$emit('update:customerId', null)"
+        <button @click="$emit('request-change', null)"
           class="text-secondary-400 hover:text-secondary-600 dark:hover:text-secondary-300">
           <Icon name="X" class="w-5 h-5" />
         </button>
@@ -124,8 +124,7 @@ const props = defineProps({
   }
 })
 const emit = defineEmits([
-  'update:customerId',
-  'update:customer',
+  'request-change',
   'update:customerSearch',
   'update:date',
   'update:dueDate',
@@ -145,21 +144,12 @@ const dueDateModel = computed({
   set: (value) => emit('update:dueDate', value)
 })
 // const selectedCustomer = ref(null)
-const selectedCustomer = computed({
-
-  get: () => {
-    // console.log('selectedCustomerGet', props.customer);
-
+const selectedCustomer = computed(() => {
     return props.customer
-  },
-  set: (value) => emit('update:customer', value)
 })
 const selectCustomer = (customer) => {
-  // console.log('customer', customer);
-  emit('update:customerId', customer.id)
-  emit('update:customer', customer)
+  emit('request-change', customer)
   emit('update:customerSearch', '')
-  selectedCustomer.value = customer
 }
 const openAddCustomerDialog = () => {
   emit('add-customer')
@@ -168,25 +158,13 @@ const onCustomersLoaded = (customers) => {
   emit('customers-loaded', customers)
 }
 const loadCustomerById = async () => {
-  console.log('Loading customer by ID:', props.customerId);
-
-
   if (!props.customerId) return
-
+  if (selectedCustomer.value && selectedCustomer.value.id === props.customerId) return
 
   try {
-    console.log('Loading customer by ID:', props.customerId)
-    const data = selectedCustomer.value
-    console.log('Data :', data);
-
-    if (data) {
-      // Emit event dengan supplier yang dimuat
-      // emit('suppliers-loaded', [...props.suppliers, data])
-      selectCustomer(data)
-      emit('suppliers-loaded', data)
-    } else {
-      console.log('No data returned from API');
-
+    const response = await api.get(`/api/v1/customers/${props.customerId}`)
+    if (response.data) {
+      emit('request-change', response.data)
     }
   } catch (error) {
     console.error('Error loading customer by ID:', error)
@@ -198,7 +176,7 @@ onMounted(() => {
   }
 })
 watch(() => props.customerId, (newVal) => {
-  if (newVal && !selectedCustomer.value) {
+  if (newVal && (!selectedCustomer.value || selectedCustomer.value.id !== newVal)) {
     loadCustomerById()
   }
 })
