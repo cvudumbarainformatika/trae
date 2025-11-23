@@ -25,21 +25,27 @@
             }" />
         </div>
 
-        <!-- Filter Periode -->
-        <div class="flex-1 flex no-print">
+        <!-- Filters -->
+        <div class="flex-1 flex items-center justify-end gap-4 no-print">
+          <BaseSelect v-model="store.params.customer_category" clearable :options="[
+            { value: 'UMUM', label: 'UMUM' },
+            { value: 'RUMAH', label: 'RUMAH' },
+            { value: 'TOKO', label: 'TOKO' },
+            { value: 'DEPOT', label: 'DEPOT' },
+            { value: 'KHUSUS', label: 'KHUSUS' },
+          ]" placeholder="Semua Kategori" @update:model-value="() => {
+  allFetchData()
+}" />
           <BaseSelect v-model="store.params.status" clearable :options="[
             { value: 'cash', label: 'Cash' },
             { value: 'qris', label: 'QRIS' },
             { value: 'credit', label: 'Kredit' },
-          ]" @update:model-value="() => {
-            allFetchData()
-          }" />
-        </div>
-        <!-- Filter Periode -->
-        <div class="flex-1 flex justify-end no-print">
+          ]" placeholder="Semua Pembayaran" @update:model-value="() => {
+  allFetchData()
+}" />
           <BaseDateRangeFilter v-model="store.params" @change="() => {
             allFetchData()
-          }" default-period="month" />
+          }" default-period="today" />
         </div>
 
 

@@ -1,5 +1,5 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { getMonthStartDate, getMonthEndDate } from '@/utils/dateHelper'
+import { getToday } from '@/utils/dateHelper'
 import { api } from '@/services/api'
 
 export const useReportPenjualanStore = defineStore('report-penjualan-store', {
@@ -14,12 +14,13 @@ export const useReportPenjualanStore = defineStore('report-penjualan-store', {
       sort_direction: 'desc',
       q: '',
       status: 'cash',
-      start_date: getMonthStartDate(),
-      end_date: getMonthEndDate(),
+      start_date: getToday(),
+      end_date: getToday(),
+      customer_category: null,
     },
     dateRange: {
-      start_date: getMonthStartDate(),
-      end_date: getMonthEndDate()
+      start_date: getToday(),
+      end_date: getToday()
     },
     pagination: {
       page: 1,
