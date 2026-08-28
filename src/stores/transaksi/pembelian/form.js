@@ -91,7 +91,7 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       };
 
       // Cek apakah produk sudah ada di daftar
-      const existingIndex = this.form.items.findIndex(item => item?.product_id === product?.id);
+      const existingIndex = this.form.items.findIndex(item => product?.id && item?.product_id === product?.id);
 
       if (existingIndex >= 0) {
         // Update quantity jika sudah ada
@@ -131,16 +131,14 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
 
     // Method yang sudah ada
     resetForm() {
-      // Hanya pertahankan purchase_order_id jika fromPage adalah 'po-detail' atau 'po-list'
-      const shouldKeepPurchaseOrderId = this.fromPage === 'po-detail' || this.fromPage === 'po-list'
-      const oldPurchaseOrderId = shouldKeepPurchaseOrderId ? this.form.purchase_order_id : null
+      this.fromPage = null
 
       this.form = {
         supplier_id: null,
         supplier: null,
         date: new Date().toISOString().split('T')[0],
         invoice_number: '',
-        purchase_order_id: oldPurchaseOrderId,
+        purchase_order_id: null,
         items: [],
         discount: 0,
         tax: 0,
@@ -165,12 +163,6 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
       this.productLoading = false
       this.isDirty = false
       this.validationErrors = []
-
-      if (shouldKeepPurchaseOrderId) {
-        // console.log('Form reset, purchase_order_id preserved:', this.form.purchase_order_id)
-      } else {
-        // console.log('Form reset, purchase_order_id cleared')
-      }
     },
 
     calculateTotal() {

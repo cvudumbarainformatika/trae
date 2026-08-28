@@ -190,7 +190,7 @@
                     Belum ada produk yang ditambahkan
                   </td>
                 </tr>
-                <tr v-for="(item, index) in form.items" :key="index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <tr v-for="(item, index) in form.items" :key="item.product_id || index" class="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td class="px-3 py-4 whitespace-nowrap w-[35%]">
                     <div class="text-sm font-medium text-gray-900 dark:text-white">
                       {{ item.product?.name }}
@@ -238,7 +238,7 @@
                 Belum ada produk yang ditambahkan
               </div>
 
-              <div v-for="(item, index) in form.items" :key="index"
+              <div v-for="(item, index) in form.items" :key="'mobile-' + (item.product_id || index)"
                 class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700"
                 :class="{ 'border-l-4 border-l-amber-500': form.purchase_order_id && item.is_additional }">
                 <div class="flex justify-between items-start mb-3">
@@ -444,7 +444,7 @@
     </div>
 
     <!-- Barcode Scanner Modal -->
-    <BarcodeScanner v-if="showScanner" @close="showScanner = false" @scan="store.handleBarcodeScan"
+    <BarcodeScanner v-if="showScanner" @close="showScanner = false" @scan-success="handleBarcodeScan"
       @error="handleScanError" />
 
     <!-- Unsaved Changes Dialog -->
@@ -841,8 +841,10 @@ const handleProductSelect = (product) => {
 // Lifecycle hooks
 onMounted(async () => {
 
-  // console.log('route', route.params.id);
-
+  // Jika mode tambah, reset form secara bersih dahulu agar state tidak bocor dari sesi sebelumnya
+  if (!route.params.id) {
+    store.resetForm()
+  }
 
   // Cek apakah ada parameter purchaseOrderId di URL
   const purchaseOrderId = route.query.purchaseOrderId
@@ -872,9 +874,6 @@ onMounted(async () => {
         type: 'error'
       })
     }
-  } else {
-    // Jika mode tambah, reset form
-    store.resetForm()
   }
 })
 
