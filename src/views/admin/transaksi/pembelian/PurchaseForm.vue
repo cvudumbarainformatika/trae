@@ -738,6 +738,7 @@ const clearSelectedSupplier = () => {
   // Hapus supplier dari form
   form.value.supplier = null;
   form.value.supplier_id = null;
+  store.clearPurchaseOrderId();
 
   // Fokus kembali ke pencarian supplier
   nextTick(() => {
@@ -883,6 +884,17 @@ onBeforeUnmount(() => {
   if (showScanner.value) {
     showScanner.value = false
   }
+  // Reset form store agar state tidak bocor ke halaman lain
+  store.resetForm()
+})
+
+// Watch jika query purchaseOrderId berubah
+watch(() => route.query.purchaseOrderId, (newPoId) => {
+  if (newPoId) {
+    store.setPurchaseOrderId(newPoId)
+  } else if (!editMode.value) {
+    store.clearPurchaseOrderId()
+  }
 })
 
 /**
@@ -967,7 +979,7 @@ const handlePrintDialogClose = async (shouldPrint) => {
 
   if (shouldPrint && purchaseId.value) {
     try {
-      await store.generateInvoice()
+      await store.generateInvoice(purchaseId.value)
     } catch (error) {
       notify({
         title: 'Gagal',

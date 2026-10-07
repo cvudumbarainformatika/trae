@@ -132,6 +132,7 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
     // Method yang sudah ada
     resetForm() {
       this.fromPage = null
+      this.purchaseOrderData = null
 
       this.form = {
         supplier_id: null,
@@ -289,9 +290,12 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
     },
 
     // Generate invoice PDF
-    async generateInvoice() {
+    async generateInvoice(id = null) {
       try {
-        const response = await api.get(`/api/v1/purchases/${this.form.id}/invoice`, {
+        const targetId = id || this.form.id
+        if (!targetId) return
+
+        const response = await api.get(`/api/v1/purchases/${targetId}/invoice`, {
           responseType: 'blob'
         })
 
@@ -299,7 +303,7 @@ export const usePurchaseFormStore = defineStore('purchaseForm', {
         const url = window.URL.createObjectURL(new Blob([response.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `invoice-${this.form.invoice_number || this.form.id}.pdf`)
+        link.setAttribute('download', `invoice-${this.form.invoice_number || targetId}.pdf`)
         document.body.appendChild(link)
         link.click()
         link.remove()
