@@ -67,11 +67,10 @@ export const useProductFormStore = defineStore('productForm', {
     resetForm() {
       // Only reset form data if not editing
       const storeProduct = useProductStore()
-      const editing = storeProduct.isEdit
       const selectedProduct = storeProduct.selectedProduct
+      const isEditing = Boolean(storeProduct.isEdit || selectedProduct?.id)
 
-
-      if (!editing) {
+      if (!isEditing || !selectedProduct) {
         this.formData = {
           barcode: '',
           name: '',
@@ -88,66 +87,72 @@ export const useProductFormStore = defineStore('productForm', {
         }
       } else {
         this.formData = {
-          ...selectedProduct,
+          id: selectedProduct.id,
+          barcode: selectedProduct.barcode ?? '',
+          name: selectedProduct.name ?? '',
+          satuan_id: selectedProduct.satuan_id ?? '',
+          category_id: selectedProduct.category_id ?? '',
           hargabeli: selectedProduct.hargabeli ? parseFloat(selectedProduct.hargabeli) : 0,
           hargajual: selectedProduct.hargajual ? parseFloat(selectedProduct.hargajual) : 0,
           hargajualcust: selectedProduct.hargajualcust ? parseFloat(selectedProduct.hargajualcust) : 0,
           hargajualantar: selectedProduct.hargajualantar ? parseFloat(selectedProduct.hargajualantar) : 0,
           stock: selectedProduct.stock ? parseInt(selectedProduct.stock) : 0,
           minstock: selectedProduct.minstock ? parseInt(selectedProduct.minstock) : 0,
+          rak: selectedProduct.rak ?? '',
+          image: null
         }
       }
-
-      console.log('formData', this.formData);
 
       // Reset error state
       this.error = null
 
       // Reset image preview only if not editing
-      if (!editing) {
+      if (!isEditing) {
         this.imagePreview = null
       }
-
     },
 
     async submitForm() {
-      // console.log('submitForm', this.formData)
-
       this.loading = true
       this.error = null
 
       try {
-        const formDataToSubmit = new FormData()
+        const productStore = useProductStore()
+        const isUpdate = Boolean(this.formData?.id) || this.isEdit
 
-        // console.log('formDataToSubmit', formDataToSubmit);
-
-
-        // Append all form fields to FormData
-        // Object.keys(this.formData).forEach(key => {
-        //   if (this.formData[key] !== null) {
-        //     formDataToSubmit.append(key, this.formData[key])
-        //   }
-        // })
-
-        // console.log('formDataToSubmit', this.formData);
-
-
-        let response
-        if (this.isEdit) {
-          response = await api.put(`/api/v1/products/${this.formData.id}`, this.formData)
-        } else {
-          response = await api.post('/api/v1/products', this.formData)
+        // Siapkan payload bersih tanpa tercemar relasi object backend
+        const payload = {
+          barcode: this.formData.barcode ? String(this.formData.barcode).trim() : '',
+          name: this.formData.name ? String(this.formData.name).trim() : '',
+          satuan_id: this.formData.satuan_id || null,
+          category_id: this.formData.category_id || null,
+          hargabeli: Number(this.formData.hargabeli) || 0,
+          hargajual: Number(this.formData.hargajual) || 0,
+          hargajualcust: Number(this.formData.hargajualcust) || 0,
+          hargajualantar: Number(this.formData.hargajualantar) || 0,
+          stock: Number(this.formData.stock) || 0,
+          minstock: Number(this.formData.minstock) || 0,
+          rak: this.formData.rak ? String(this.formData.rak).trim() : ''
         }
 
-        // this.resetForm()
-        const productStore = useProductStore()
-        productStore.fetchProducts()
+        let response
+        if (isUpdate && this.formData?.id) {
+          response = await api.put(`/api/v1/products/${this.formData.id}`, payload)
+        } else {
+          response = await api.post('/api/v1/products', payload)
+        }
+
+        const { notify } = useNotification()
+        notify({
+          title: 'Berhasil',
+          message: isUpdate ? 'Produk berhasil diperbarui' : 'Produk berhasil ditambahkan',
+          type: 'success'
+        })
+
+        await productStore.fetchProducts()
         productStore.setShowProductForm(false)
 
-        console.log('response', response);
-
         return response.data
-
       } catch (err) {
         this.error = err.response?.data?.message || 'Failed to save product'
         const { notify } = useNotification()
@@ -159,8 +164,6 @@ export const useProductFormStore = defineStore('productForm', {
         throw this.error
       } finally {
         this.loading = false
-        const productStore = useProductStore()
-        productStore.setShowProductForm(false)
       }
     }
   }

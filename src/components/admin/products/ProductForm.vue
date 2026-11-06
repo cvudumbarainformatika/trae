@@ -1,4 +1,5 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import { useProductFormStore } from '@/stores/forms/productForm'
 import noImage from '@/assets/no-image.svg'
 
@@ -16,7 +17,8 @@ const props = defineProps({
 const emit = defineEmits(['submit', 'cancel'])
 
 const productFormStore = useProductFormStore()
-const { formData, imagePreview, satuans, categories, formatPrice, submitForm } = productFormStore
+const { formData, imagePreview, satuans, categories } = storeToRefs(productFormStore)
+const { formatPrice, submitForm } = productFormStore
 
 const handleImageChange = (event) => {
   const file = event.target.files[0]
@@ -27,10 +29,7 @@ const handleImageChange = (event) => {
 }
 
 const handleSubmit = () => {
-  // emit('submit', formData.value)
-  // console.log('form',formData);
   submitForm()
-  
 }
 
 const handleCancel = () => {

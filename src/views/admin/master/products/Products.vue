@@ -285,7 +285,7 @@ const setViewMode = (mode) => {
               </div>
             </template>
             <NoData v-else title="Belum Ada Data Product" description="Tidak ditemukan data pada system kami"
-              icon="Package" action-label="Add Product" @action="showProductForm = true" class="col-span-full" />
+              icon="Package" action-label="Add Product" @action="handleAddProduct" class="col-span-full" />
           </div>
 
           <!-- Table View -->
@@ -295,7 +295,7 @@ const setViewMode = (mode) => {
                 @delete="showDeleteConfirm" />
             </template>
             <NoData v-else title="Belum Ada Data Product" description="Tidak ditemukan data pada system kami"
-              icon="Package" action-label="Add Product" @action="showProductForm = true" />
+              icon="Package" action-label="Add Product" @action="handleAddProduct" />
 
           </div>
         </div>
